@@ -98,7 +98,7 @@
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "indexof(collapsedIds, datum.id) >= 0 ? remove(collapsedIds, datum.id) : concat(collapsedIds, [datum.id])"
+          "update": "indexof(collapsedIds, datum.id) >= 0 ? concat(slice(collapsedIds, 0, indexof(collapsedIds, datum.id)), slice(collapsedIds, indexof(collapsedIds, datum.id) + 1)) : concat(collapsedIds, [datum.id])"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
