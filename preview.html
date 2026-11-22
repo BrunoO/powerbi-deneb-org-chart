@@ -549,8 +549,23 @@
         },
         {
           "type": "formula",
-          "expr": "length(datum.Title_clean) > 20 && indexof(datum.Title_clean, ' ') > 0 ? replace(datum.Title_clean, regexp('^(.{1,21})\\\\s+'), '$1\\n') : datum.Title_clean",
-          "as": "Title_wrapped"
+          "expr": "lastindexof(slice(datum.Title_clean, 0, 21), ' ')",
+          "as": "titleSpaceIdx"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.titleSpaceIdx > 0 ? datum.titleSpaceIdx : indexof(datum.Title_clean, ' ')",
+          "as": "titleBreakIdx"
+        },
+        {
+          "type": "formula",
+          "expr": "length(datum.Title_clean) > 20 && datum.titleBreakIdx > 0",
+          "as": "isTitleWrapped"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.isTitleWrapped ? [slice(datum.Title_clean, 0, datum.titleBreakIdx), slice(datum.Title_clean, datum.titleBreakIdx + 1)] : [datum.Title_clean]",
+          "as": "Title_lines"
         }
       ]
     },
@@ -875,12 +890,12 @@
         },
         {
           "type": "formula",
-          "expr": "indexof(datum.Title_wrapped, '\n') >= 0 ? datum.cardY + round(cardHeight * 0.28) : datum.cardY + round(cardHeight * 0.35)",
+          "expr": "datum.isTitleWrapped ? datum.cardY + round(cardHeight * 0.28) : datum.cardY + round(cardHeight * 0.35)",
           "as": "nameY"
         },
         {
           "type": "formula",
-          "expr": "indexof(datum.Title_wrapped, '\n') >= 0 ? datum.cardY + round(cardHeight * 0.63) : datum.cardY + round(cardHeight * 0.65)",
+          "expr": "datum.isTitleWrapped ? datum.cardY + round(cardHeight * 0.63) : datum.cardY + round(cardHeight * 0.65)",
           "as": "titleY"
         },
         {
@@ -2063,10 +2078,7 @@
             "field": "titleY"
           },
           "text": {
-            "signal": "split(datum.Title_wrapped, '\\n')"
-          },
-          "lineBreak": {
-            "value": "\n"
+            "field": "Title_lines"
           },
           "lineHeight": {
             "signal": "max(8, round(11.5 * zoomLevel))"
