@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Executive Org Chart Visual for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual for Power BI using Deneb & Vega",
   "padding": 15,
   "autosize": "none",
   "signals": [
@@ -26,8 +26,23 @@
     },
     {
       "name": "topMargin",
-      "value": 25,
+      "value": 30,
       "description": "Top margin offset from visual boundary"
+    },
+    {
+      "name": "collapsedIds",
+      "value": [],
+      "description": "List of node IDs whose subtrees are currently collapsed",
+      "on": [
+        {
+          "events": "@toggleBtn:click, @toggleText:click",
+          "update": "indexof(collapsedIds, datum.id) >= 0 ? remove(collapsedIds, datum.id) : concat(collapsedIds, [datum.id])"
+        },
+        {
+          "events": "@expandAllBtn:click, @expandAllText:click",
+          "update": "[]"
+        }
+      ]
     },
     {
       "name": "hoveredId",
@@ -35,7 +50,7 @@
       "on": [
         {
           "events": "@cardBody:mouseover",
-          "update": "datum.ID_clean"
+          "update": "datum.id"
         },
         {
           "events": "@cardBody:mouseout",
@@ -123,7 +138,7 @@
       ]
     },
     {
-      "name": "tree_nodes",
+      "name": "clean_data",
       "source": "dataset",
       "transform": [
         {
@@ -133,12 +148,12 @@
         {
           "type": "formula",
           "expr": "toString(datum['ID'])",
-          "as": "ID_clean"
+          "as": "id"
         },
         {
           "type": "formula",
           "expr": "isValid(datum['ParentID']) && datum['ParentID'] !== '' && datum['ParentID'] !== null && datum['ParentID'] !== '0' && datum['ParentID'] !== 0 && datum['ParentID'] != datum['ID'] ? toString(datum['ParentID']) : null",
-          "as": "ParentID_clean"
+          "as": "parentId"
         },
         {
           "type": "formula",
@@ -149,11 +164,125 @@
           "type": "formula",
           "expr": "isValid(datum['Title']) && datum['Title'] !== '' ? toString(datum['Title']) : 'Team Member'",
           "as": "Title_clean"
+        }
+      ]
+    },
+    {
+      "name": "report_counts",
+      "source": "clean_data",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "isValid(datum.parentId)"
+        },
+        {
+          "type": "aggregate",
+          "groupby": [
+            "parentId"
+          ],
+          "ops": [
+            "count"
+          ],
+          "as": [
+            "reportCount"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "data_with_lineage",
+      "source": "clean_data",
+      "transform": [
+        {
+          "type": "lookup",
+          "from": "report_counts",
+          "key": "parentId",
+          "fields": [
+            "id"
+          ],
+          "values": [
+            "reportCount"
+          ],
+          "as": [
+            "reportCount"
+          ],
+          "default": 0
+        },
+        {
+          "type": "lookup",
+          "from": "clean_data",
+          "key": "id",
+          "fields": [
+            "parentId"
+          ],
+          "values": [
+            "parentId"
+          ],
+          "as": [
+            "anc1"
+          ]
+        },
+        {
+          "type": "lookup",
+          "from": "clean_data",
+          "key": "id",
+          "fields": [
+            "anc1"
+          ],
+          "values": [
+            "parentId"
+          ],
+          "as": [
+            "anc2"
+          ]
+        },
+        {
+          "type": "lookup",
+          "from": "clean_data",
+          "key": "id",
+          "fields": [
+            "anc2"
+          ],
+          "values": [
+            "parentId"
+          ],
+          "as": [
+            "anc3"
+          ]
+        },
+        {
+          "type": "lookup",
+          "from": "clean_data",
+          "key": "id",
+          "fields": [
+            "anc3"
+          ],
+          "values": [
+            "parentId"
+          ],
+          "as": [
+            "anc4"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "(isValid(datum.parentId) && indexof(collapsedIds, datum.parentId) >= 0) || (isValid(datum.anc1) && indexof(collapsedIds, datum.anc1) >= 0) || (isValid(datum.anc2) && indexof(collapsedIds, datum.anc2) >= 0) || (isValid(datum.anc3) && indexof(collapsedIds, datum.anc3) >= 0) || (isValid(datum.anc4) && indexof(collapsedIds, datum.anc4) >= 0)",
+          "as": "isCollapsedDescendant"
+        }
+      ]
+    },
+    {
+      "name": "tree_nodes",
+      "source": "data_with_lineage",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "!datum.isCollapsedDescendant"
         },
         {
           "type": "stratify",
-          "key": "ID_clean",
-          "parentKey": "ParentID_clean"
+          "key": "id",
+          "parentKey": "parentId"
         },
         {
           "type": "tree",
@@ -268,6 +397,21 @@
           "type": "formula",
           "expr": "datum.cardY + 11",
           "as": "badgeTextY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.centerX - 13",
+          "as": "toggleBtnX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardBottom - 7",
+          "as": "toggleBtnY"
+        },
+        {
+          "type": "formula",
+          "expr": "indexof(collapsedIds, datum.id) >= 0",
+          "as": "isCollapsed"
         }
       ]
     },
@@ -329,6 +473,79 @@
     }
   ],
   "marks": [
+    {
+      "type": "rect",
+      "name": "expandAllBtn",
+      "encode": {
+        "update": {
+          "x": {
+            "value": 15
+          },
+          "y": {
+            "value": 10
+          },
+          "width": {
+            "value": 78
+          },
+          "height": {
+            "value": 22
+          },
+          "cornerRadius": {
+            "value": 4
+          },
+          "fill": {
+            "value": "#F1F5F9"
+          },
+          "stroke": {
+            "value": "#CBD5E1"
+          },
+          "strokeWidth": {
+            "value": 1
+          },
+          "cursor": {
+            "value": "pointer"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "expandAllText",
+      "encode": {
+        "update": {
+          "x": {
+            "value": 54
+          },
+          "y": {
+            "value": 22
+          },
+          "text": {
+            "value": "Expand All"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 9.5
+          },
+          "fontWeight": {
+            "value": "600"
+          },
+          "fill": {
+            "value": "#475569"
+          },
+          "cursor": {
+            "value": "pointer"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
     {
       "type": "path",
       "name": "treeLinkPath",
@@ -412,7 +629,7 @@
           },
           "stroke": [
             {
-              "test": "datum.ID_clean === hoveredId",
+              "test": "datum.id === hoveredId",
               "value": "#1D4ED8"
             },
             {
@@ -421,7 +638,7 @@
           ],
           "strokeWidth": [
             {
-              "test": "datum.ID_clean === hoveredId",
+              "test": "datum.id === hoveredId",
               "value": 2
             },
             {
@@ -432,7 +649,7 @@
             "value": "pointer"
           },
           "tooltip": {
-            "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.ID_clean, 'Reports To ID': isValid(datum.ParentID_clean) ? datum.ParentID_clean : 'None (Top of Org)', 'Org Level': datum.depth}"
+            "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.id, 'Direct Reports': datum.reportCount, 'Org Level': datum.depth, 'Status': datum.isCollapsed ? 'Collapsed' : 'Expanded'}"
           }
         }
       }
@@ -612,6 +829,127 @@
           "limit": {
             "signal": "cardWidth - 22"
           },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "toggleBtn",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "field": "toggleBtnX"
+          },
+          "y": {
+            "field": "toggleBtnY"
+          },
+          "width": {
+            "value": 26
+          },
+          "height": {
+            "value": 14
+          },
+          "cornerRadius": {
+            "value": 7
+          },
+          "fill": [
+            {
+              "test": "datum.isCollapsed",
+              "value": "#EFF6FF"
+            },
+            {
+              "value": "#FFFFFF"
+            }
+          ],
+          "stroke": [
+            {
+              "test": "datum.isCollapsed",
+              "value": "#2563EB"
+            },
+            {
+              "value": "#94A3B8"
+            }
+          ],
+          "strokeWidth": {
+            "value": 1.25
+          },
+          "cursor": {
+            "value": "pointer"
+          },
+          "opacity": [
+            {
+              "test": "datum.reportCount > 0",
+              "value": 1
+            },
+            {
+              "value": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "toggleText",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "field": "centerX"
+          },
+          "y": {
+            "expr": "datum.toggleBtnY + 7.5"
+          },
+          "text": [
+            {
+              "test": "datum.isCollapsed",
+              "signal": "'+' + datum.reportCount"
+            },
+            {
+              "value": "\u2212"
+            }
+          ],
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 8
+          },
+          "fontWeight": {
+            "value": "bold"
+          },
+          "fill": [
+            {
+              "test": "datum.isCollapsed",
+              "value": "#1D4ED8"
+            },
+            {
+              "value": "#64748B"
+            }
+          ],
+          "cursor": {
+            "value": "pointer"
+          },
+          "opacity": [
+            {
+              "test": "datum.reportCount > 0",
+              "value": 1
+            },
+            {
+              "value": 0
+            }
+          ],
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
           }
