@@ -111,10 +111,10 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
   { "name": "gridThreshold", "value": 6 },
   { "name": "stackMinDepth", "value": 2 },
   { "name": "zoomLevel", "value": 1.0 },
-  { "name": "cardWidth", "update": "round(145 * zoomLevel)" },
-  { "name": "cardHeight", "update": "round(54 * zoomLevel)" },
-  { "name": "nodeSpacingX", "update": "round(175 * zoomLevel)" },
-  { "name": "nodeSpacingY", "update": "round(115 * zoomLevel)" },
+  { "name": "cardWidth", "update": "round(165 * zoomLevel)" },
+  { "name": "cardHeight", "update": "round(56 * zoomLevel)" },
+  { "name": "nodeSpacingX", "update": "round(195 * zoomLevel)" },
+  { "name": "nodeSpacingY", "update": "round(118 * zoomLevel)" },
   { "name": "minCanvasWidth", "value": 1200 },
   { "name": "minCanvasHeight", "value": 550 }
 ]
@@ -134,3 +134,39 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
 ## Local Browser Preview
 
 You can open [`preview.html`](./preview.html) directly in any browser (Chrome, Safari, Edge, Firefox) by double-clicking the file in Finder/File Explorer to interactively click, collapse, expand, and test the org chart offline.
+
+---
+
+## Security, Governance & Compliance Analysis
+
+This solution is designed for enterprise environments and introduces no technical vulnerabilities. The breakdown below details the security, sandboxing, and data governance profile when running inside Power BI:
+
+### 1. Visual Execution & Sandboxing (AppSource & Certification)
+- **Microsoft AppSource Certified Visual**: Deneb (by Daniel Marsh-Patrick) is a Microsoft-certified custom visual.
+- **Zero External Data Exfiltration**: Certified custom visuals are audited by Microsoft and strictly prohibited from accessing external network resources, making arbitrary HTTP/API requests, or transmitting telemetry/data outside the tenant.
+- **Sandboxed `<iframe>` Isolation**: The visual runs inside an isolated browser iframe (`sandbox="allow-scripts"`). It has no access to parent DOM tokens, cookies, `localStorage`, `sessionStorage`, or user session credentials.
+- **Enterprise Tenant Compliance**: Fully complies with corporate tenant policies configured to *"Allow only certified visuals"*.
+
+### 2. Vega Runtime & Code Injection (XSS / RCE Defense)
+- **Declarative AST Interpretation (No `eval`)**: Deneb uses Vega 5, which interprets visual specifications through an isolated declarative AST parser (`vega-expression`), rather than executing arbitrary JavaScript.
+- **Native SVG / Canvas Escaping**: Employee names, titles, and IDs are rendered via native Vega `<text>` SVG tags or Canvas `fillText()`. Any potential injection payload (e.g., `<script>` tags or SQL-like syntax) is rendered as harmless raw string text, preventing Stored Cross-Site Scripting (XSS).
+
+### 3. Data Governance, RLS & HR Confidentiality
+- **Row-Level Security (RLS) Compatibility**: Deneb operates strictly downstream of Power BI's DAX query engine. It only receives rows permitted by the active user's RLS role.
+  > [!WARNING]
+  > **Hierarchy Integrity with RLS**: Vega's `stratify` transform requires an unbroken path from the root node (CEO) down to visible subordinates. If RLS rules filter out an intermediate manager, Vega will encounter an orphaned node and fail to render the tree. When implementing RLS, ensure hierarchy chains are preserved or dynamically rooted for each viewer.
+- **PII & Data Export Management**: Org charts inherently display organizational structures and employee metadata. Do not drag sensitive unneeded columns (e.g., compensation bands, personal phone numbers) into the visual's data bucket. Use Power BI tenant/report settings to restrict *"Export data"* permissions if required.
+
+### 4. Client-Side Performance & Availability
+- **Browser Memory Protection**: Rendering large trees (10,000+ employees) can strain browser memory. This visual mitigates client lag via `defaultCollapseDepth: 1` (collapsed by default) and two-column vertical grid stacking, ensuring only active branches are rendered into the DOM at any given time.
+
+### Security Risk Assessment Matrix
+
+| Security Dimension | Risk Level | Assessment & Defense |
+| :--- | :---: | :--- |
+| **Data Exfiltration** | 🟢 **None** | Deneb is Microsoft-certified; external network requests are strictly blocked. |
+| **Code Injection / XSS** | 🟢 **None** | Vega declarative runtime is sandboxed; text marks render without HTML evaluation. |
+| **Session / Token Theft** | 🟢 **None** | Isolated sandbox iframe prevents access to tenant cookies, tokens, or parent DOM. |
+| **Row-Level Security (RLS)** | 🟡 **Low (Operational)** | Fully respected; intermediate manager nodes must not be severed by RLS rules. |
+| **PII / Data Exposure** | 🟡 **Low (Governance)** | Only bind authorized fields to the visual; manage report-level export controls. |
+

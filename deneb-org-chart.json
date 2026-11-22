@@ -76,22 +76,22 @@
     },
     {
       "name": "cardWidth",
-      "update": "round(145 * zoomLevel)",
+      "update": "round(165 * zoomLevel)",
       "description": "Width of each employee card in pixels"
     },
     {
       "name": "cardHeight",
-      "update": "round(54 * zoomLevel)",
+      "update": "round(56 * zoomLevel)",
       "description": "Height of each employee card in pixels"
     },
     {
       "name": "nodeSpacingX",
-      "update": "round(175 * zoomLevel)",
+      "update": "round(195 * zoomLevel)",
       "description": "Horizontal distance between sibling node centers"
     },
     {
       "name": "nodeSpacingY",
-      "update": "round(115 * zoomLevel)",
+      "update": "round(118 * zoomLevel)",
       "description": "Vertical distance between hierarchy level centers (spacious corridor for clean branch routing)"
     },
     {
@@ -830,12 +830,17 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + cardWidth - 44",
+          "expr": "datum.totalDescendants >= 1000 ? 40 : (datum.totalDescendants >= 100 ? 35 : (datum.totalDescendants >= 10 ? 30 : 26))",
+          "as": "descendantBadgeWidth"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardX + cardWidth - datum.descendantBadgeWidth - 6",
           "as": "descendantBadgeX"
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + cardWidth - 30",
+          "expr": "datum.descendantBadgeX + (datum.descendantBadgeWidth / 2)",
           "as": "descendantTextX"
         },
         {
@@ -1431,24 +1436,68 @@
       },
       "encode": {
         "update": {
-          "x": {
-            "field": "cardX"
-          },
-          "y": {
-            "field": "shadowY"
-          },
-          "width": {
-            "signal": "cardWidth"
-          },
-          "height": {
-            "signal": "cardHeight"
-          },
-          "cornerRadius": {
-            "value": 7
-          },
-          "fill": {
-            "value": "rgba(15, 23, 42, 0.05)"
-          },
+          "x": [
+            {
+              "test": "datum.id === hoveredId",
+              "signal": "datum.cardX - 1.5"
+            },
+            {
+              "field": "cardX"
+            }
+          ],
+          "y": [
+            {
+              "test": "datum.id === hoveredId",
+              "signal": "datum.cardY + 5"
+            },
+            {
+              "field": "shadowY"
+            }
+          ],
+          "width": [
+            {
+              "test": "datum.id === hoveredId",
+              "signal": "cardWidth + 3"
+            },
+            {
+              "signal": "cardWidth"
+            }
+          ],
+          "height": [
+            {
+              "test": "datum.id === hoveredId",
+              "signal": "cardHeight + 2"
+            },
+            {
+              "signal": "cardHeight"
+            }
+          ],
+          "cornerRadius": [
+            {
+              "test": "datum.id === hoveredId",
+              "value": 9
+            },
+            {
+              "value": 7
+            }
+          ],
+          "fill": [
+            {
+              "test": "datum.id === hoveredId",
+              "value": "rgba(37, 99, 235, 0.22)"
+            },
+            {
+              "test": "hoveredId && (indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0)",
+              "value": "rgba(59, 130, 246, 0.12)"
+            },
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "rgba(15, 23, 42, 0.16)"
+            },
+            {
+              "value": "rgba(15, 23, 42, 0.06)"
+            }
+          ],
           "opacity": [
             {
               "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
@@ -1484,9 +1533,15 @@
           "cornerRadius": {
             "value": 7
           },
-          "fill": {
-            "value": "#FFFFFF"
-          },
+          "fill": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "#0F172A"
+            },
+            {
+              "value": "#FFFFFF"
+            }
+          ],
           "stroke": [
             {
               "test": "datum.id === hoveredId",
@@ -1495,6 +1550,10 @@
             {
               "test": "hoveredId && (indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0)",
               "value": "#3B82F6"
+            },
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "#334155"
             },
             {
               "value": "#E2E8F0"
@@ -1554,10 +1613,16 @@
           "cornerRadius": {
             "value": 2
           },
-          "fill": {
-            "scale": "levelColor",
-            "field": "rawDepth"
-          },
+          "fill": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "#38BDF8"
+            },
+            {
+              "scale": "levelColor",
+              "field": "rawDepth"
+            }
+          ],
           "opacity": [
             {
               "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
@@ -1593,10 +1658,16 @@
           "cornerRadius": {
             "value": 5.5
           },
-          "fill": {
-            "scale": "levelBg",
-            "field": "rawDepth"
-          },
+          "fill": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "rgba(56, 189, 248, 0.16)"
+            },
+            {
+              "scale": "levelBg",
+              "field": "rawDepth"
+            }
+          ],
           "opacity": [
             {
               "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
@@ -1623,9 +1694,15 @@
           "y": {
             "field": "badgeTextY"
           },
-          "text": {
-            "signal": "'L' + datum.rawDepth"
-          },
+          "text": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "CEO"
+            },
+            {
+              "signal": "'L' + datum.rawDepth"
+            }
+          ],
           "align": {
             "value": "center"
           },
@@ -1638,10 +1715,16 @@
           "fontWeight": {
             "value": "bold"
           },
-          "fill": {
-            "scale": "levelColor",
-            "field": "rawDepth"
-          },
+          "fill": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "#38BDF8"
+            },
+            {
+              "scale": "levelColor",
+              "field": "rawDepth"
+            }
+          ],
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
           },
@@ -1672,7 +1755,7 @@
             "field": "descendantBadgeY"
           },
           "width": {
-            "value": 38
+            "field": "descendantBadgeWidth"
           },
           "height": {
             "value": 11
@@ -1680,12 +1763,24 @@
           "cornerRadius": {
             "value": 4
           },
-          "fill": {
-            "value": "#F8FAFC"
-          },
-          "stroke": {
-            "value": "#E2E8F0"
-          },
+          "fill": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "rgba(255, 255, 255, 0.1)"
+            },
+            {
+              "value": "#F8FAFC"
+            }
+          ],
+          "stroke": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "rgba(255, 255, 255, 0.15)"
+            },
+            {
+              "value": "#E2E8F0"
+            }
+          ],
           "strokeWidth": {
             "value": 0.75
           },
@@ -1720,7 +1815,7 @@
             "field": "descendantTextY"
           },
           "text": {
-            "signal": "'team ' + datum.totalDescendants"
+            "signal": "'👥 ' + datum.totalDescendants"
           },
           "align": {
             "value": "center"
@@ -1734,9 +1829,15 @@
           "fontWeight": {
             "value": "600"
           },
-          "fill": {
-            "value": "#64748B"
-          },
+          "fill": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "#E2E8F0"
+            },
+            {
+              "value": "#64748B"
+            }
+          ],
           "opacity": [
             {
               "test": "!datum.totalDescendants || datum.totalDescendants <= 0",
@@ -1751,7 +1852,7 @@
             }
           ],
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "value": "Segoe UI Emoji, Segoe UI, -apple-system, sans-serif"
           }
         }
       }
@@ -1785,9 +1886,15 @@
           "fontWeight": {
             "value": "600"
           },
-          "fill": {
-            "value": "#0F172A"
-          },
+          "fill": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "#FFFFFF"
+            },
+            {
+              "value": "#0F172A"
+            }
+          ],
           "limit": {
             "signal": "cardWidth - 46"
           },
@@ -1835,16 +1942,22 @@
           "fontWeight": {
             "value": "normal"
           },
-          "fill": {
-            "value": "#64748B"
-          },
+          "fill": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "#94A3B8"
+            },
+            {
+              "value": "#64748B"
+            }
+          ],
           "limit": [
             {
               "test": "datum.totalDescendants > 0",
-              "signal": "cardWidth - 58"
+              "signal": "cardWidth - (datum.descendantBadgeWidth + 18)"
             },
             {
-              "signal": "cardWidth - 22"
+              "signal": "cardWidth - 20"
             }
           ],
           "font": {
@@ -1887,6 +2000,14 @@
           },
           "fill": [
             {
+              "test": "datum.rawDepth === 0 && datum.isCollapsed",
+              "value": "rgba(56, 189, 248, 0.2)"
+            },
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "#1E293B"
+            },
+            {
               "test": "datum.isCollapsed",
               "value": "#EFF6FF"
             },
@@ -1895,6 +2016,10 @@
             }
           ],
           "stroke": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "#38BDF8"
+            },
             {
               "test": "datum.isCollapsed",
               "value": "#2563EB"
@@ -1956,11 +2081,15 @@
           },
           "fill": [
             {
+              "test": "datum.rawDepth === 0",
+              "value": "#F8FAFC"
+            },
+            {
               "test": "datum.isCollapsed",
               "value": "#1D4ED8"
             },
             {
-              "value": "#64748B"
+              "value": "#475569"
             }
           ],
           "cursor": {
