@@ -2,22 +2,47 @@
 
 A production-ready, interactive, and beautifully designed **Collapsible Organizational Chart** visual for Power BI using the **Deneb: Declarative Visualization** custom visual and **Vega 5**.
 
+Built to handle everything from executive leadership overviews to massive enterprise structures (1,000+ employees) with zero card collisions, instant spatial orientation, and smooth interactive navigation.
+
 ---
 
-## Key Features
+## ✨ Feature Highlights
 
-- **Approachable Executive CEO Distinction**: Level 0 (CEO) is framed with a crisp white card body, warm royal blue accent border (`#3B82F6`), soft royal aura glow, and a distinctive **`★ CEO`** warm amber-gold prestige badge (`#FEF3C7` fill, `#F59E0B` border, `#92400E` text)—immediately identifiable from across the canvas while remaining distinguished and approachable without heavy, ominous dark fills.
+### 🎨 Visual Polish & Executive Styling
+- **Approachable Executive CEO Distinction**: Level 0 (CEO) is framed with a crisp white card body, warm royal blue accent border (`#3B82F6`), soft royal aura glow, and a distinctive **`★ CEO`** warm amber-gold prestige badge (`#FEF3C7` fill, `#F59E0B` border, `#92400E` text)—immediately identifiable across the canvas without dark or heavy fills.
 - **Total Descendant Headcount Badge (`👥 N`)**: Every manager card automatically calculates and displays their total descendant headcount with a modern people icon pill badge in the bottom-right corner (e.g. `👥 15` for David Chen, `👥 41` for the CEO).
-- **Interactive Branch Collapsing & Expanding**: Click the **`−`** button at the bottom of any manager card to collapse all their direct and indirect sub-reports. When collapsed, the button displays a **`+ N`** badge showing the total headcount hidden (e.g. `+15`). Clicking it expands the branch back.
-- **Two-Column Vertical Grid Stacking for Large Teams**: Teams with more than 6 direct reports automatically stack child nodes into two neat vertical columns, dramatically condensing wide horizontal sprawl.
-- **Active Reporting Line Hover Highlighting**: Hovering over any employee card highlights their entire chain of command all the way to the CEO in vibrant blue (`#2563EB`), softly dimming unrelated branches.
-- **Interactive Card Elevation on Hover**: Cards dynamically float upward with an expanded soft cobalt glow aura when hovered.
-- **Floating Glassmorphic Toolbar**: Quick controls docked at the top center for Expand All (`⤢`), Collapse All (`⤡`), Zoom In (`+`), Zoom Out (`−`), and Reset (`100%`).
-- **Dynamic Re-layout & Re-centering**: When a branch collapses or expands, the tree automatically re-packs and smoothly aligns on the canvas.
-- **Zero-Overlap Architecture**: Built on Vega's `nodeSize` tidy layout and automatic dynamic centering, guaranteeing cards never collide regardless of how many branches are expanded or collapsed.
-- **165×56px Cards for Breathing Room**: Generous width with left color accents coded by organizational depth level (`L0`, `L1`, `L2`, etc.), preventing awkward title truncations.
-- **Orthogonal Branch Connectors**: Standard right-angled connectors branching neatly from parent cards to child cards with subpixel alignment across all zoom scales.
-- **Version Identifier (`v1.4.2`)**: Embedded version tracker in `signals` and root `usermeta` for quick verification inside Power BI projects.
+- **165×56px Cards with Generous Breathing Room**: Wider card dimensions prevent awkward name and title truncations, paired with crisp left color accents coded by organizational depth level (`L0`, `L1`, `L2`, etc.) and top-right level badges.
+- **Interactive Card Elevation on Hover**: Hovering over any card elevates it with an expanded soft cobalt glow aura and crisp border highlight.
+- **Tactile Canvas Dot-Matrix Background**: Subtly patterned dot-grid canvas (`#F8FAFC` with fine slate dots, inspired by modern design tools like Linear, Miro, and Figma) providing spatial orientation while dragging and panning.
+- **True Orthogonal Midpoint Bus Line Routing**: Links drop vertically from parent cards through a dedicated stem into the corridor midpoint before branching horizontally, completely clearing sibling cards and toggle buttons.
+- **Version Identifier (`v1.4.2`)**: Specification version tracker embedded directly in root `usermeta`, `signals`, and rendered on the canvas toolbar badge for quick verification.
+
+### ⚡ Navigation & Interactive Micro-Delights
+- **Active Reporting Line Hover Highlighting**: Hovering over any employee (manager or individual contributor) dynamically illuminates their **entire upward management chain up to the CEO** and **all downward direct/indirect reports** in bold primary blue (`#2563EB`) with double-thickness connectors (`2.5px`), while softly dimming unrelated sibling branches to 35% opacity.
+- **Interactive Branch Collapsing & Expanding**: Click the **`−`** button at the bottom of any manager card to collapse all their sub-reports. When collapsed, the button transforms into a **`+ N`** badge showing the exact number of hidden downstream employees (e.g. `+15`).
+- **Floating Glassmorphic Toolbar**: Modern floating dock pill container pinned at the top-left with rounded corners (`cornerRadius: 16`), soft shadow, and crisp icons:
+  - **`⤢ Expand All`**: Unrolls the entire organization hierarchy in one click.
+  - **`⤡ Collapse All`**: Collapses branches back to the clean top-level executive view.
+  - **Segmented Zoom Control `[ − | Reset (100%) | + ]`**: Smooth zoom stepping from 40% to 160% with instant 100% reset.
+- **Fluid Drag-to-Pan & Mouse Wheel Zoom**: Click and drag anywhere on the canvas background to pan in any direction ($X$ and $Y$), or use the mouse wheel over the canvas for smooth contextual zoom.
+- **Native Power BI Tooltips**: Rich tooltips on hover displaying full employee name, title, employee ID, direct report count, org depth level, and current expansion state.
+- **Dynamic Re-layout & Re-centering**: When branches collapse or expand, the tree automatically re-packs and smoothly re-centers on the canvas.
+
+### 🏢 Large Organization Architecture (1,000+ Employees)
+- **Two-Column Vertical Grid Stacking for Large Teams**:
+  - When a manager has $> 6$ direct reports (e.g. 10 to 50 engineers or sales reps), child nodes are **automatically packed into two neat vertical columns** directly beneath that manager, rather than stretching across thousands of horizontal pixels.
+  - A team of 50 people occupies only **~350px wide** instead of **8,750px wide** (a 95% width reduction!).
+  - Smaller teams ($\le 6$ direct reports) remain in standard horizontal rows.
+- **Executive Team Horizontal Protection (`stackMinDepth: 2`)**: Level 1 executive teams (VPs / C-Suite reporting directly to the CEO) and intermediate managers with sub-teams are **never vertically stacked**; they always maintain clean horizontal leadership alignment.
+- **Progressive Disclosure (Collapsed-by-Default)**: Loads clean executive levels on report open (**Level 0** and **Level 1**), keeping lower departments collapsed (`+N`) until clicked, eliminating initial visual overwhelm.
+- **Zero-Overlap Guarantee**: Built on Vega's `nodeSize` tidy tree layout and dynamic bounds calculations, ensuring cards never collide regardless of tree size or branch state.
+- **Dynamic Canvas Auto-Sizing & Overlay Scrollbars**: Automatically computes the full bounding box of the tree with margin, integrating seamlessly with Deneb's overlay scrollbars in Power BI Desktop and Service.
+
+### 🔒 Enterprise Security & Governance
+- **Microsoft AppSource Certified Visual**: Uses Deneb, an audited and certified custom visual by Daniel Marsh-Patrick.
+- **Zero External Data Exfiltration**: Strict sandbox prevents any network or telemetry calls outside your tenant.
+- **XSS & Injection Immune**: Vega's declarative AST expression parser and native SVG/Canvas text escaping render data purely as text without HTML execution.
+- **Full Row-Level Security (RLS) Compatibility**: Inherits Power BI's active DAX filtering rules.
 
 ---
 
@@ -111,7 +136,7 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
 
 ```json
 "signals": [
-  { "name": "versionId", "value": "v1.4.0" },
+  { "name": "versionId", "value": "v1.4.2" },
   { "name": "defaultCollapseDepth", "value": 1 },
   { "name": "gridThreshold", "value": 6 },
   { "name": "stackMinDepth", "value": 2 },
@@ -124,6 +149,21 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
   { "name": "minCanvasHeight", "value": 550 }
 ]
 ```
+
+### Signal Reference & Tuning Table
+
+| Signal | Default | Description |
+| :--- | :---: | :--- |
+| **`defaultCollapseDepth`** | `1` | Depth at which branches start collapsed on load (`1` = show CEO & Level 1 VPs; `2` = show down through Directors; `99` = all expanded). |
+| **`gridThreshold`** | `6` | Maximum number of direct reports before switching to two-column vertical grid stacking (set to `999` to disable). |
+| **`stackMinDepth`** | `2` | Minimum tree depth for vertical grid stacking. Protects Level 1 executive direct reports from stacking. |
+| **`zoomLevel`** | `1.0` | Initial canvas zoom factor (`0.4` to `1.6`). |
+| **`cardWidth`** | `165` | Base width of each employee card in pixels (scales with zoom). |
+| **`cardHeight`** | `56` | Base height of each employee card in pixels (scales with zoom). |
+| **`nodeSpacingX`** | `195` | Horizontal center-to-center pitch between sibling nodes. |
+| **`nodeSpacingY`** | `118` | Vertical pitch between hierarchical tiers. |
+| **`minCanvasWidth`** | `1200` | Minimum canvas width before dynamic expansion kicks in. |
+| **`minCanvasHeight`** | `550` | Minimum canvas height before dynamic expansion kicks in. |
 
 - **True Orthogonal Midpoint Bus Line Routing**:
   - Connector links drop vertically from the parent card through a dedicated stem into the exact midpoint of the corridor ($31\text{px}$ down) before branching horizontally.
