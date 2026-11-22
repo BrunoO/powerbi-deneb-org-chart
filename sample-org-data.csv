@@ -1,0 +1,13 @@
+ID,ParentID,Name,Title
+1,,Sarah Jenkins,Chief Executive Officer
+2,1,David Chen,VP of Engineering
+3,1,Elena Rostova,VP of Product
+4,1,Marcus Vance,VP of Sales & Marketing
+5,2,Alex Rivera,Director of Platform
+6,2,Priya Sharma,Director of QA & Infra
+7,3,Liam O'Connor,Principal UX Lead
+8,3,Sophia Martinez,Lead Product Manager
+9,4,Chloe Bennett,Regional Sales Director
+10,4,Tariq Al-Mansoor,Head of Growth
+11,5,James Wilson,Staff Cloud Architect
+12,5,Emma Watson,Senior DevOps Lead
