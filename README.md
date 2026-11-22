@@ -9,6 +9,7 @@ Built to handle everything from executive leadership overviews to massive enterp
 ## ✨ Feature Highlights
 
 ### 🎨 Visual Polish & Executive Styling
+- **Corridor-Aligned Central Spine Routing**: In 2-column stacked mode, connector lines drop down a central vertical spine between the two columns, branching horizontally only within the empty corridor immediately above each target row (`target.cardTop - corridorMidpoint`). This eliminates the undesirable ladder grid effect and ensures horizontal lines never slice through card bodies.
 - **Configurable Stacking Mode (`☵ Standard` vs `☷ Stacked`)**: Instant one-click toggle in the toolbar between **Standard Clean Tree Architecture** (all direct reports on their true level, connected to their actual manager with zero line overlaps) and **Compact 2-Column Stacking** for large leaf teams. Fully customizable via the `enableStacking` signal in Power BI.
 - **Intelligent Multi-Line Title Wrapping**: Long job titles automatically and cleanly wrap to a second line at natural word boundaries / spaces, eliminating awkward ellipsis truncation (`...`) while maintaining balanced vertical spacing for single-line titles.
 - **Approachable Executive CEO Distinction**: Level 0 (CEO) is framed with a crisp white card body, warm royal blue accent border (`#3B82F6`), soft royal aura glow, and a distinctive **`★ CEO`** warm amber-gold prestige badge (`#FEF3C7` fill, `#F59E0B` border, `#92400E` text)—immediately identifiable across the canvas without dark or heavy fills.
