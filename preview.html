@@ -54,7 +54,7 @@
 <body>
   <div class="header">
     <h1>Interactive Collapsible Org Chart Preview (Power BI / Deneb)</h1>
-    <p>Features: Collapsed-by-default (Level 1), Pan & Zoom navigation (drag background, mouse wheel, or toolbar buttons), Expand/Collapse All, and Total Descendant Headcount.</p>
+    <p>Features: 2-Column Vertical Grid Stacking for Large Teams (&gt; 6 reports), Collapsed-by-default (Level 1), Pan & Zoom navigation, Expand/Collapse All, and Total Descendant Headcount.</p>
   </div>
   <div id="chart-container">
     <div id="vis"></div>
@@ -72,6 +72,11 @@
       "name": "defaultCollapseDepth",
       "value": 1,
       "description": "Initial collapse level: 1 collapses managers at Level 1 and below (shows Level 0 and 1 on load). Set to 2 to show through Level 2, or 99 to expand all."
+    },
+    {
+      "name": "gridThreshold",
+      "value": 6,
+      "description": "Direct report threshold for multi-column grid stacking (teams with more reports than this arrange in 2 vertical columns)"
     },
     {
       "name": "zoomLevel",
@@ -400,6 +405,36 @@
           "ParentID": "11",
           "Name": "Victor Hugo",
           "Title": "Lead Content Strategist"
+        },
+        {
+          "ID": "29",
+          "ParentID": "5",
+          "Name": "Daniel Lee",
+          "Title": "Senior Infrastructure Eng"
+        },
+        {
+          "ID": "30",
+          "ParentID": "5",
+          "Name": "Rachel Green",
+          "Title": "Site Reliability Engineer"
+        },
+        {
+          "ID": "31",
+          "ParentID": "5",
+          "Name": "Samir Khan",
+          "Title": "Cloud Systems Engineer"
+        },
+        {
+          "ID": "32",
+          "ParentID": "5",
+          "Name": "Julia Roberts",
+          "Title": "DevSecOps Specialist"
+        },
+        {
+          "ID": "33",
+          "ParentID": "5",
+          "Name": "Kevin Hart",
+          "Title": "Kubernetes Platform Eng"
         }
       ]
     },
@@ -608,9 +643,50 @@
           "expr": "!datum.isCollapsedDescendant"
         },
         {
+          "type": "lookup",
+          "from": "report_counts",
+          "key": "parentId",
+          "fields": [
+            "parentId"
+          ],
+          "values": [
+            "reportCount"
+          ],
+          "as": [
+            "parentReportCount"
+          ],
+          "default": 0
+        },
+        {
+          "type": "window",
+          "groupby": [
+            "parentId"
+          ],
+          "sort": {
+            "field": "id"
+          },
+          "ops": [
+            "lag"
+          ],
+          "fields": [
+            "id"
+          ],
+          "params": [
+            2
+          ],
+          "as": [
+            "lag2Id"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "(datum.parentReportCount > gridThreshold && isValid(datum.lag2Id)) ? datum.lag2Id : datum.parentId",
+          "as": "layoutParentId"
+        },
+        {
           "type": "stratify",
           "key": "id",
-          "parentKey": "parentId"
+          "parentKey": "layoutParentId"
         },
         {
           "type": "tree",
@@ -1333,7 +1409,7 @@
             "value": "pointer"
           },
           "tooltip": {
-            "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.id, 'Direct Reports': datum.reportCount, 'Total Headcount': datum.totalDescendants, 'Org Level': datum.depth, 'Status': datum.isCollapsed ? 'Collapsed' : 'Expanded'}"
+            "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.id, 'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth, 'Status': datum.isCollapsed ? 'Collapsed' : 'Expanded'}"
           }
         }
       }
@@ -1363,7 +1439,7 @@
           },
           "fill": {
             "scale": "levelColor",
-            "field": "depth"
+            "field": "rawDepth"
           }
         }
       }
@@ -1393,7 +1469,7 @@
           },
           "fill": {
             "scale": "levelBg",
-            "field": "depth"
+            "field": "rawDepth"
           }
         }
       }
@@ -1413,7 +1489,7 @@
             "field": "badgeTextY"
           },
           "text": {
-            "signal": "'L' + datum.depth"
+            "signal": "'L' + datum.rawDepth"
           },
           "align": {
             "value": "center"
@@ -1429,7 +1505,7 @@
           },
           "fill": {
             "scale": "levelColor",
-            "field": "depth"
+            "field": "rawDepth"
           },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"

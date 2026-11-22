@@ -27,3 +27,8 @@ ID,ParentID,Name,Title
 26,10,Jordan Lee,Senior Account Executive
 27,10,Grace Hopper,Enterprise Solutions Rep
 28,11,Victor Hugo,Lead Content Strategist
+29,5,Daniel Lee,Senior Infrastructure Eng
+30,5,Rachel Green,Site Reliability Engineer
+31,5,Samir Khan,Cloud Systems Engineer
+32,5,Julia Roberts,DevSecOps Specialist
+33,5,Kevin Hart,Kubernetes Platform Eng
