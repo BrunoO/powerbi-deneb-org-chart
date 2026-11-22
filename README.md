@@ -6,7 +6,7 @@ A production-ready, interactive, and beautifully designed **Collapsible Organiza
 
 ## Key Features
 
-- **Approachable Executive CEO Distinction**: Level 0 (CEO) is framed with a crisp white card body, warm royal blue accent border (`#3B82F6`), soft royal aura glow, and a distinctive **`👑 CEO`** prestige badge—distinguished and approachable without heavy, ominous dark fills.
+- **Approachable Executive CEO Distinction**: Level 0 (CEO) is framed with a crisp white card body, warm royal blue accent border (`#3B82F6`), soft royal aura glow, and a distinctive **`★ CEO`** warm amber-gold prestige badge (`#FEF3C7` fill, `#F59E0B` border, `#92400E` text)—immediately identifiable from across the canvas while remaining distinguished and approachable without heavy, ominous dark fills.
 - **Total Descendant Headcount Badge (`👥 N`)**: Every manager card automatically calculates and displays their total descendant headcount with a modern people icon pill badge in the bottom-right corner (e.g. `👥 15` for David Chen, `👥 41` for the CEO).
 - **Interactive Branch Collapsing & Expanding**: Click the **`−`** button at the bottom of any manager card to collapse all their direct and indirect sub-reports. When collapsed, the button displays a **`+ N`** badge showing the total headcount hidden (e.g. `+15`). Clicking it expands the branch back.
 - **Two-Column Vertical Grid Stacking for Large Teams**: Teams with more than 6 direct reports automatically stack child nodes into two neat vertical columns, dramatically condensing wide horizontal sprawl.
@@ -17,7 +17,7 @@ A production-ready, interactive, and beautifully designed **Collapsible Organiza
 - **Zero-Overlap Architecture**: Built on Vega's `nodeSize` tidy layout and automatic dynamic centering, guaranteeing cards never collide regardless of how many branches are expanded or collapsed.
 - **165×56px Cards for Breathing Room**: Generous width with left color accents coded by organizational depth level (`L0`, `L1`, `L2`, etc.), preventing awkward title truncations.
 - **Orthogonal Branch Connectors**: Standard right-angled connectors branching neatly from parent cards to child cards with subpixel alignment across all zoom scales.
-- **Version Identifier (`v1.4.1`)**: Embedded version tracker in `signals` and root `usermeta` for quick verification inside Power BI projects.
+- **Version Identifier (`v1.4.2`)**: Embedded version tracker in `signals` and root `usermeta` for quick verification inside Power BI projects.
 
 ---
 

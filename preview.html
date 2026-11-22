@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.4.1 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.4.2 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.4.1",
+      "value": "v1.4.2",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -880,7 +880,7 @@
         },
         {
           "type": "formula",
-          "expr": "datum.rawDepth === 0 ? 36 : 19",
+          "expr": "datum.rawDepth === 0 ? 38 : 19",
           "as": "badgeWidth"
         },
         {
@@ -1771,7 +1771,7 @@
           "fill": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "#EFF6FF"
+              "value": "#FEF3C7"
             },
             {
               "scale": "levelBg",
@@ -1781,15 +1781,21 @@
           "stroke": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "#BFDBFE"
+              "value": "#F59E0B"
             },
             {
               "value": "transparent"
             }
           ],
-          "strokeWidth": {
-            "value": 0.75
-          },
+          "strokeWidth": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": 1
+            },
+            {
+              "value": 0.75
+            }
+          ],
           "opacity": [
             {
               "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
@@ -1819,7 +1825,7 @@
           "text": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "👑 CEO"
+              "value": "★ CEO"
             },
             {
               "signal": "'L' + datum.rawDepth"
@@ -1840,7 +1846,7 @@
           "fill": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "#1D4ED8"
+              "value": "#92400E"
             },
             {
               "scale": "levelColor",
@@ -2236,7 +2242,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.4.1",
+    "version": "1.4.2",
     "releaseDate": "2026-11-22",
     "features": [
       "2-Column Grid Stacking for Large Teams",
@@ -2244,7 +2250,7 @@
       "Modern Floating Glassmorphic Toolbar Dock",
       "Dot-Matrix Spatial Background",
       "Approachable Executive CEO Card Styling",
-      "👑 CEO Prestige Badge",
+      "★ CEO Amber Prestige Badge",
       "👥 Modern Headcount Badge",
       "165px Wider Cards & Interactive Elevation"
     ]
