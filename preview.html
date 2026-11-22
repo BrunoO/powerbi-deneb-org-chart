@@ -53,7 +53,7 @@
 <body>
   <div class="header">
     <h1>Org Chart - Deneb &amp; Vega Preview</h1>
-    <p>Self-contained preview. Hover over employee cards to see details and interactive highlights.</p>
+    <p>Compact card layout without initials. Hover over employee cards to see details and interactive highlights.</p>
   </div>
   <div id="chart-container">
     <div id="vis"></div>
@@ -68,36 +68,28 @@
   "signals": [
     {
       "name": "cardWidth",
-      "value": 165,
+      "value": 145,
       "description": "Width of each employee card in pixels"
     },
     {
       "name": "cardHeight",
-      "value": 64,
+      "value": 54,
       "description": "Height of each employee card in pixels"
     },
     {
+      "name": "nodeSpacingX",
+      "value": 175,
+      "description": "Horizontal distance between sibling node centers (must be > cardWidth)"
+    },
+    {
+      "name": "nodeSpacingY",
+      "value": 95,
+      "description": "Vertical distance between hierarchy level centers (must be > cardHeight)"
+    },
+    {
       "name": "topMargin",
-      "value": 30,
+      "value": 25,
       "description": "Top margin offset from visual boundary"
-    },
-    {
-      "name": "bottomMargin",
-      "value": 50,
-      "description": "Bottom margin offset"
-    },
-    {
-      "name": "sideMargin",
-      "update": "cardWidth / 2 + 20",
-      "description": "Horizontal padding to keep outer nodes inside the canvas"
-    },
-    {
-      "name": "treeWidth",
-      "update": "max(cardWidth * 2, width - (2 * sideMargin))"
-    },
-    {
-      "name": "treeHeight",
-      "update": "max(cardHeight * 2, height - topMargin - bottomMargin)"
     },
     {
       "name": "hoveredId",
@@ -221,11 +213,6 @@
           "as": "Title_clean"
         },
         {
-          "type": "formula",
-          "expr": "length(split(datum.Name_clean, ' ')) > 1 ? upper(slice(split(datum.Name_clean, ' ')[0], 0, 1) + slice(split(datum.Name_clean, ' ')[1], 0, 1)) : upper(slice(datum.Name_clean, 0, 2))",
-          "as": "Initials"
-        },
-        {
           "type": "stratify",
           "key": "ID_clean",
           "parentKey": "ParentID_clean"
@@ -233,14 +220,15 @@
         {
           "type": "tree",
           "method": "tidy",
-          "size": [
+          "nodeSize": [
             {
-              "signal": "treeWidth"
+              "signal": "nodeSpacingX"
             },
             {
-              "signal": "treeHeight"
+              "signal": "nodeSpacingY"
             }
           ],
+          "separation": false,
           "as": [
             "rawX",
             "rawY",
@@ -249,8 +237,28 @@
           ]
         },
         {
+          "type": "joinaggregate",
+          "fields": [
+            "rawX",
+            "rawX"
+          ],
+          "ops": [
+            "min",
+            "max"
+          ],
+          "as": [
+            "minX",
+            "maxX"
+          ]
+        },
+        {
           "type": "formula",
-          "expr": "datum.rawX + sideMargin - (cardWidth / 2)",
+          "expr": "max(30, (width - (datum.maxX - datum.minX + cardWidth)) / 2) - datum.minX",
+          "as": "originX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.rawX + datum.originX",
           "as": "cardX"
         },
         {
@@ -285,52 +293,42 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + 8",
+          "expr": "datum.cardY + 7",
           "as": "accentY"
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + 24",
-          "as": "avatarX"
-        },
-        {
-          "type": "formula",
-          "expr": "datum.cardY + (cardHeight / 2)",
-          "as": "avatarY"
-        },
-        {
-          "type": "formula",
-          "expr": "datum.cardX + 44",
+          "expr": "datum.cardX + 14",
           "as": "textX"
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + 24",
+          "expr": "datum.cardY + 20",
           "as": "nameY"
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + 41",
+          "expr": "datum.cardY + 36",
           "as": "titleY"
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + cardWidth - 30",
+          "expr": "datum.cardX + cardWidth - 28",
           "as": "badgeX"
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + 6",
+          "expr": "datum.cardY + 5",
           "as": "badgeY"
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + cardWidth - 19",
+          "expr": "datum.cardX + cardWidth - 18",
           "as": "badgeTextX"
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + 12",
+          "expr": "datum.cardY + 11",
           "as": "badgeTextY"
         }
       ]
@@ -440,7 +438,7 @@
             "signal": "cardHeight"
           },
           "cornerRadius": {
-            "value": 8
+            "value": 7
           },
           "fill": {
             "value": "rgba(15, 23, 42, 0.05)"
@@ -469,7 +467,7 @@
             "signal": "cardHeight"
           },
           "cornerRadius": {
-            "value": 8
+            "value": 7
           },
           "fill": {
             "value": "#FFFFFF"
@@ -519,7 +517,7 @@
             "value": 3.5
           },
           "height": {
-            "signal": "cardHeight - 16"
+            "signal": "cardHeight - 14"
           },
           "cornerRadius": {
             "value": 2
@@ -527,79 +525,6 @@
           "fill": {
             "scale": "levelColor",
             "field": "depth"
-          }
-        }
-      }
-    },
-    {
-      "type": "symbol",
-      "name": "avatarCircle",
-      "from": {
-        "data": "tree_nodes"
-      },
-      "encode": {
-        "update": {
-          "shape": {
-            "value": "circle"
-          },
-          "size": {
-            "value": 400
-          },
-          "x": {
-            "field": "avatarX"
-          },
-          "y": {
-            "field": "avatarY"
-          },
-          "fill": {
-            "scale": "levelBg",
-            "field": "depth"
-          },
-          "stroke": {
-            "scale": "levelColor",
-            "field": "depth"
-          },
-          "strokeWidth": {
-            "value": 1.25
-          }
-        }
-      }
-    },
-    {
-      "type": "text",
-      "name": "avatarInitials",
-      "from": {
-        "data": "tree_nodes"
-      },
-      "encode": {
-        "update": {
-          "x": {
-            "field": "avatarX"
-          },
-          "y": {
-            "field": "avatarY"
-          },
-          "text": {
-            "field": "Initials"
-          },
-          "align": {
-            "value": "center"
-          },
-          "baseline": {
-            "value": "middle"
-          },
-          "fontSize": {
-            "value": 9
-          },
-          "fontWeight": {
-            "value": "bold"
-          },
-          "fill": {
-            "scale": "levelColor",
-            "field": "depth"
-          },
-          "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
           }
         }
       }
@@ -619,13 +544,13 @@
             "field": "badgeY"
           },
           "width": {
-            "value": 22
+            "value": 20
           },
           "height": {
-            "value": 12
+            "value": 11
           },
           "cornerRadius": {
-            "value": 6
+            "value": 5.5
           },
           "fill": {
             "scale": "levelBg",
@@ -658,7 +583,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 7
+            "value": 6.5
           },
           "fontWeight": {
             "value": "bold"
@@ -706,7 +631,7 @@
             "value": "#0F172A"
           },
           "limit": {
-            "signal": "cardWidth - 75"
+            "signal": "cardWidth - 45"
           },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
@@ -747,7 +672,7 @@
             "value": "#64748B"
           },
           "limit": {
-            "signal": "cardWidth - 52"
+            "signal": "cardWidth - 22"
           },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
@@ -757,7 +682,7 @@
     }
   ],
   "width": 1250,
-  "height": 680
+  "height": 450
 };
     vegaEmbed('#vis', spec, { renderer: 'svg', actions: true })
       .catch(err => {
