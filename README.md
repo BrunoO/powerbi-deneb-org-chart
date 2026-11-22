@@ -107,6 +107,7 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
 
 ```json
 "signals": [
+  { "name": "versionId", "value": "v1.4.0" },
   { "name": "defaultCollapseDepth", "value": 1 },
   { "name": "gridThreshold", "value": 6 },
   { "name": "stackMinDepth", "value": 2 },
@@ -169,4 +170,10 @@ This solution is designed for enterprise environments and introduces no technica
 | **Session / Token Theft** | 🟢 **None** | Isolated sandbox iframe prevents access to tenant cookies, tokens, or parent DOM. |
 | **Row-Level Security (RLS)** | 🟡 **Low (Operational)** | Fully respected; intermediate manager nodes must not be severed by RLS rules. |
 | **PII / Data Exposure** | 🟡 **Low (Governance)** | Only bind authorized fields to the visual; manage report-level export controls. |
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](file:///Users/brunoorsier/dev/org_chart/LICENSE) file for details.
 

@@ -1,11 +1,16 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual with Total Descendants Count for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.4.0 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
   "autosize": "none",
   "signals": [
+    {
+      "name": "versionId",
+      "value": "v1.4.0",
+      "description": "Specification version identifier for tracking in Power BI projects"
+    },
     {
       "name": "defaultCollapseDepth",
       "value": 1,
@@ -1382,6 +1387,41 @@
       }
     },
     {
+      "type": "text",
+      "name": "versionBadgeText",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 372
+          },
+          "y": {
+            "value": 26
+          },
+          "text": {
+            "signal": "versionId"
+          },
+          "align": {
+            "value": "left"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 9.5
+          },
+          "fontWeight": {
+            "value": "600"
+          },
+          "fill": {
+            "value": "#94A3B8"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
       "type": "path",
       "name": "treeLinkPath",
       "from": {
@@ -2114,5 +2154,18 @@
         }
       }
     }
-  ]
+  ],
+  "usermeta": {
+    "version": "1.4.0",
+    "releaseDate": "2026-11-22",
+    "features": [
+      "2-Column Grid Stacking for Large Teams",
+      "Active Reporting Line Hover Highlighting",
+      "Modern Floating Glassmorphic Toolbar Dock",
+      "Dot-Matrix Spatial Background",
+      "Executive CEO Card Distinction",
+      "👥 Modern Headcount Badge",
+      "165px Wider Cards & Interactive Elevation"
+    ]
+  }
 }
