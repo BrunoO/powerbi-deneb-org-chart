@@ -99,12 +99,15 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
   { "name": "cardWidth", "update": "round(145 * zoomLevel)" },
   { "name": "cardHeight", "update": "round(54 * zoomLevel)" },
   { "name": "nodeSpacingX", "update": "round(175 * zoomLevel)" },
-  { "name": "nodeSpacingY", "update": "round(95 * zoomLevel)" },
+  { "name": "nodeSpacingY", "update": "round(115 * zoomLevel)" },
   { "name": "minCanvasWidth", "value": 1200 },
   { "name": "minCanvasHeight", "value": 550 }
 ]
 ```
 
+- **True Orthogonal Midpoint Bus Line Routing**:
+  - Connector links drop vertically from the parent card through a dedicated stem into the exact midpoint of the corridor ($31\text{px}$ down) before branching horizontally.
+  - The horizontal bus line runs cleanly through the open space between rows, completely separated from sibling cards and their toggle buttons, ensuring unmistakable parent-child lineage.
 - **Dynamic Canvas Auto-Sizing & Scrollbars**: 
   - The specification dynamically computes the horizontal (`treeExtentX`) and vertical (`treeExtentY`) span of the rendered hierarchy.
   - When the organization width exceeds `minCanvasWidth` (e.g. 15+ branches across), or depth exceeds `minCanvasHeight`, the canvas automatically expands to fit every single node with 40px margin on each side.

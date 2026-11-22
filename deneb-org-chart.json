@@ -81,8 +81,8 @@
     },
     {
       "name": "nodeSpacingY",
-      "update": "round(95 * zoomLevel)",
-      "description": "Vertical distance between hierarchy level centers"
+      "update": "round(115 * zoomLevel)",
+      "description": "Vertical distance between hierarchy level centers (spacious corridor for clean branch routing)"
     },
     {
       "name": "topMargin",
@@ -729,13 +729,9 @@
           "type": "treelinks"
         },
         {
-          "type": "linkpath",
-          "orient": "vertical",
-          "shape": "orthogonal",
-          "sourceX": "source.centerX",
-          "sourceY": "source.cardBottom",
-          "targetX": "target.centerX",
-          "targetY": "target.cardTop"
+          "type": "formula",
+          "expr": "'M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + round((datum.source.cardBottom + datum.target.cardTop) / 2) + 'H' + datum.target.centerX + 'V' + datum.target.cardTop",
+          "as": "path"
         }
       ]
     }
