@@ -85,11 +85,11 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
   { "name": "nodeSpacingX", "value": 175 },
   { "name": "nodeSpacingY", "value": 95 },
   { "name": "topMargin", "value": 30 },
-  { "name": "collapsedIds", "value": [] }
+  { "name": "collapsedIds", "value": "," }
 ]
 ```
 
-- **Initial State**: To have certain branches collapsed by default on report load, initialize `collapsedIds` with their IDs (e.g. `"value": ["2", "3"]`).
+- **Initial State**: To have certain branches collapsed by default on report load, initialize `collapsedIds` with comma-wrapped IDs (e.g. `"value": ",2,3,"`).
 - **Preventing Overlaps**: Keep `nodeSpacingX` greater than `cardWidth` (e.g. `175` vs `145` gives a `30px` gap between sibling cards).
 - **Vertical Spacing**: Adjust `nodeSpacingY` to increase or decrease the distance between hierarchy levels.
 - **Color Palette**: Under `"scales" -> "levelColor"`, adjust the hex colors for levels `0` through `4+` to match your organization's brand colors.

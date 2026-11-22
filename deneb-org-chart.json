@@ -31,16 +31,16 @@
     },
     {
       "name": "collapsedIds",
-      "value": [],
+      "value": ",",
       "description": "List of node IDs whose subtrees are currently collapsed",
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "indexof(collapsedIds, datum.id) >= 0 ? concat(slice(collapsedIds, 0, indexof(collapsedIds, datum.id)), slice(collapsedIds, indexof(collapsedIds, datum.id) + 1)) : concat(collapsedIds, [datum.id])"
+          "update": "indexof(collapsedIds, ',' + datum.id + ',') >= 0 ? replace(collapsedIds, datum.id + ',', '') : collapsedIds + datum.id + ','"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
-          "update": "[]"
+          "update": "','"
         }
       ]
     },
@@ -266,7 +266,7 @@
         },
         {
           "type": "formula",
-          "expr": "(isValid(datum.parentId) && indexof(collapsedIds, datum.parentId) >= 0) || (isValid(datum.anc1) && indexof(collapsedIds, datum.anc1) >= 0) || (isValid(datum.anc2) && indexof(collapsedIds, datum.anc2) >= 0) || (isValid(datum.anc3) && indexof(collapsedIds, datum.anc3) >= 0) || (isValid(datum.anc4) && indexof(collapsedIds, datum.anc4) >= 0)",
+          "expr": "(isValid(datum.parentId) && indexof(collapsedIds, ',' + datum.parentId + ',') >= 0) || (isValid(datum.anc1) && indexof(collapsedIds, ',' + datum.anc1 + ',') >= 0) || (isValid(datum.anc2) && indexof(collapsedIds, ',' + datum.anc2 + ',') >= 0) || (isValid(datum.anc3) && indexof(collapsedIds, ',' + datum.anc3 + ',') >= 0) || (isValid(datum.anc4) && indexof(collapsedIds, ',' + datum.anc4 + ',') >= 0)",
           "as": "isCollapsedDescendant"
         }
       ]
@@ -410,7 +410,7 @@
         },
         {
           "type": "formula",
-          "expr": "indexof(collapsedIds, datum.id) >= 0",
+          "expr": "indexof(collapsedIds, ',' + datum.id + ',') >= 0",
           "as": "isCollapsed"
         }
       ]
