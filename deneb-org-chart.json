@@ -806,7 +806,7 @@
         },
         {
           "type": "formula",
-          "expr": "'M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + round((datum.source.cardBottom + datum.target.cardTop) / 2) + 'H' + datum.target.centerX + 'V' + datum.target.cardTop",
+          "expr": "(zoomLevel || panX || panY || 1) ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + round((datum.source.cardBottom + datum.target.cardTop) / 2) + 'H' + datum.target.centerX + 'V' + datum.target.cardTop) : ''",
           "as": "path"
         }
       ]
@@ -1253,7 +1253,7 @@
       "encode": {
         "update": {
           "path": {
-            "field": "path"
+            "signal": "(zoomLevel || panX || panY || 1) ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + round((datum.source.cardBottom + datum.target.cardTop) / 2) + 'H' + datum.target.centerX + 'V' + datum.target.cardTop) : ''"
           },
           "stroke": {
             "value": "#CBD5E1"
