@@ -54,7 +54,7 @@
 <body>
   <div class="header">
     <h1>Interactive Collapsible Org Chart Preview (Power BI / Deneb)</h1>
-    <p>Self-contained Vega 5 preview with 28 employees, 15+ nodes under Engineering, dynamic canvas sizing, collapse/expand toggles, and downstream headcount badges.</p>
+    <p>Features: Collapsed-by-default (Level 1), Pan & Zoom navigation (drag background, mouse wheel, or toolbar buttons), Expand/Collapse All, and Total Descendant Headcount.</p>
   </div>
   <div id="chart-container">
     <div id="vis"></div>
@@ -69,38 +69,144 @@
   "autosize": "none",
   "signals": [
     {
+      "name": "defaultCollapseDepth",
+      "value": 1,
+      "description": "Initial collapse level: 1 collapses managers at Level 1 and below (shows Level 0 and 1 on load). Set to 2 to show through Level 2, or 99 to expand all."
+    },
+    {
+      "name": "zoomLevel",
+      "value": 1.0,
+      "description": "Current canvas zoom factor (0.4 to 1.6)",
+      "on": [
+        {
+          "events": "@zoomInBtn:click, @zoomInText:click",
+          "update": "min(1.6, zoomLevel + 0.15)"
+        },
+        {
+          "events": "@zoomOutBtn:click, @zoomOutText:click",
+          "update": "max(0.4, zoomLevel - 0.15)"
+        },
+        {
+          "events": "@zoomResetBtn:click, @zoomResetText:click",
+          "update": "1.0"
+        },
+        {
+          "events": "@canvasBg:wheel",
+          "update": "clamp(zoomLevel - event.deltaY * 0.001, 0.4, 1.6)"
+        }
+      ]
+    },
+    {
+      "name": "panX",
+      "value": 0,
+      "description": "Horizontal canvas pan offset",
+      "on": [
+        {
+          "events": "[@canvasBg:mousedown, window:mouseup] > window:mousemove",
+          "update": "panX + (event.movementX || 0)"
+        },
+        {
+          "events": "@zoomResetBtn:click, @zoomResetText:click",
+          "update": "0"
+        }
+      ]
+    },
+    {
+      "name": "panY",
+      "value": 0,
+      "description": "Vertical canvas pan offset",
+      "on": [
+        {
+          "events": "[@canvasBg:mousedown, window:mouseup] > window:mousemove",
+          "update": "panY + (event.movementY || 0)"
+        },
+        {
+          "events": "@zoomResetBtn:click, @zoomResetText:click",
+          "update": "0"
+        }
+      ]
+    },
+    {
       "name": "cardWidth",
-      "value": 145,
+      "update": "round(145 * zoomLevel)",
       "description": "Width of each employee card in pixels"
     },
     {
       "name": "cardHeight",
-      "value": 54,
+      "update": "round(54 * zoomLevel)",
       "description": "Height of each employee card in pixels"
     },
     {
       "name": "nodeSpacingX",
-      "value": 175,
-      "description": "Horizontal distance between sibling node centers (must be > cardWidth)"
+      "update": "round(175 * zoomLevel)",
+      "description": "Horizontal distance between sibling node centers"
     },
     {
       "name": "nodeSpacingY",
-      "value": 95,
-      "description": "Vertical distance between hierarchy level centers (must be > cardHeight)"
+      "update": "round(95 * zoomLevel)",
+      "description": "Vertical distance between hierarchy level centers"
     },
     {
       "name": "topMargin",
-      "value": 30,
-      "description": "Top margin offset from visual boundary"
+      "value": 52,
+      "description": "Top margin offset reserving space for the top control bar"
+    },
+    {
+      "name": "minCanvasWidth",
+      "value": 1200,
+      "description": "Minimum canvas width in pixels"
+    },
+    {
+      "name": "minCanvasHeight",
+      "value": 550,
+      "description": "Minimum canvas height in pixels"
+    },
+    {
+      "name": "width",
+      "update": "treeExtentX ? max(minCanvasWidth, (treeExtentX[1] - treeExtentX[0] + cardWidth) + 80) : minCanvasWidth"
+    },
+    {
+      "name": "height",
+      "update": "treeExtentY ? max(minCanvasHeight, treeExtentY[1] + cardHeight + topMargin + 80) : minCanvasHeight"
+    },
+    {
+      "name": "expandAllOverride",
+      "value": false,
+      "description": "Global flag set to true when Expand All is clicked, false on Collapse All",
+      "on": [
+        {
+          "events": "@expandAllBtn:click, @expandAllText:click",
+          "update": "true"
+        },
+        {
+          "events": "@collapseAllBtn:click, @collapseAllText:click",
+          "update": "false"
+        }
+      ]
+    },
+    {
+      "name": "expandedIds",
+      "value": ",",
+      "description": "Comma-delimited string of node IDs that were collapsed by default and explicitly expanded",
+      "on": [
+        {
+          "events": "@toggleBtn:click, @toggleText:click",
+          "update": "datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, ',' + datum.id + ',') >= 0 ? replace(expandedIds, datum.id + ',', '') : expandedIds + datum.id + ',') : expandedIds"
+        },
+        {
+          "events": "@collapseAllBtn:click, @collapseAllText:click",
+          "update": "','"
+        }
+      ]
     },
     {
       "name": "collapsedIds",
       "value": ",",
-      "description": "Delimited string of node IDs whose subtrees are currently collapsed",
+      "description": "Comma-delimited string of node IDs that were expanded by default and explicitly collapsed",
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "indexof(collapsedIds, ',' + datum.id + ',') >= 0 ? replace(collapsedIds, datum.id + ',', '') : collapsedIds + datum.id + ','"
+          "update": "datum.rawDepth < defaultCollapseDepth ? (indexof(collapsedIds, ',' + datum.id + ',') >= 0 ? replace(collapsedIds, datum.id + ',', '') : collapsedIds + datum.id + ',') : collapsedIds"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
@@ -121,24 +227,6 @@
           "update": "null"
         }
       ]
-    },
-    {
-      "name": "minCanvasWidth",
-      "value": 1400,
-      "description": "Minimum canvas width in pixels (visual width expands dynamically if tree is wider)"
-    },
-    {
-      "name": "minCanvasHeight",
-      "value": 550,
-      "description": "Minimum canvas height in pixels (visual height expands dynamically if tree is taller)"
-    },
-    {
-      "name": "width",
-      "update": "treeExtentX ? max(minCanvasWidth, (treeExtentX[1] - treeExtentX[0] + cardWidth) + 80) : minCanvasWidth"
-    },
-    {
-      "name": "height",
-      "update": "treeExtentY ? max(minCanvasHeight, treeExtentY[1] + cardHeight + topMargin + 80) : minCanvasHeight"
     }
   ],
   "data": [
@@ -426,6 +514,11 @@
           "as": [
             "anc4"
           ]
+        },
+        {
+          "type": "formula",
+          "expr": "!isValid(datum.parentId) ? 0 : (!isValid(datum.anc1) ? 1 : (!isValid(datum.anc2) ? 2 : (!isValid(datum.anc3) ? 3 : (!isValid(datum.anc4) ? 4 : 5))))",
+          "as": "rawDepth"
         }
       ]
     },
@@ -501,7 +594,7 @@
         },
         {
           "type": "formula",
-          "expr": "(isValid(datum.parentId) && indexof(collapsedIds, ',' + datum.parentId + ',') >= 0) || (isValid(datum.anc1) && indexof(collapsedIds, ',' + datum.anc1 + ',') >= 0) || (isValid(datum.anc2) && indexof(collapsedIds, ',' + datum.anc2 + ',') >= 0) || (isValid(datum.anc3) && indexof(collapsedIds, ',' + datum.anc3 + ',') >= 0) || (isValid(datum.anc4) && indexof(collapsedIds, ',' + datum.anc4 + ',') >= 0)",
+          "expr": "!expandAllOverride && ((isValid(datum.parentId) && ((datum.rawDepth - 1) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.parentId + ',') < 0 : indexof(collapsedIds, ',' + datum.parentId + ',') >= 0)) || (isValid(datum.anc1) && ((datum.rawDepth - 2) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc1 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc1 + ',') >= 0)) || (isValid(datum.anc2) && ((datum.rawDepth - 3) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc2 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc2 + ',') >= 0)) || (isValid(datum.anc3) && ((datum.rawDepth - 4) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc3 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc3 + ',') >= 0)) || (isValid(datum.anc4) && ((datum.rawDepth - 5) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc4 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc4 + ',') >= 0)))",
           "as": "isCollapsedDescendant"
         }
       ]
@@ -570,12 +663,12 @@
         },
         {
           "type": "formula",
-          "expr": "datum.rawX + datum.originX",
+          "expr": "datum.rawX + datum.originX + panX",
           "as": "cardX"
         },
         {
           "type": "formula",
-          "expr": "datum.rawY + topMargin",
+          "expr": "datum.rawY + topMargin + panY",
           "as": "cardY"
         },
         {
@@ -615,12 +708,12 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + 20",
+          "expr": "datum.cardY + round(cardHeight * 0.36)",
           "as": "nameY"
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + 36",
+          "expr": "datum.cardY + round(cardHeight * 0.66)",
           "as": "titleY"
         },
         {
@@ -670,17 +763,17 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardBottom - 7",
+          "expr": "datum.cardBottom",
           "as": "toggleBtnY"
         },
         {
           "type": "formula",
-          "expr": "datum.toggleBtnY + 7",
+          "expr": "datum.toggleBtnY + 1.5",
           "as": "toggleTextY"
         },
         {
           "type": "formula",
-          "expr": "indexof(collapsedIds, ',' + datum.id + ',') >= 0",
+          "expr": "!expandAllOverride && (datum.rawDepth >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.id + ',') < 0 : indexof(collapsedIds, ',' + datum.id + ',') >= 0)",
           "as": "isCollapsed"
         },
         {
@@ -750,20 +843,48 @@
   "marks": [
     {
       "type": "rect",
+      "name": "canvasBg",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 0
+          },
+          "y": {
+            "value": 0
+          },
+          "fill": {
+            "value": "#ffffff"
+          },
+          "cursor": {
+            "value": "grab"
+          }
+        },
+        "update": {
+          "width": {
+            "signal": "width"
+          },
+          "height": {
+            "signal": "height"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
       "name": "expandAllBtn",
       "encode": {
-        "update": {
+        "enter": {
           "x": {
             "value": 15
           },
           "y": {
-            "value": 10
+            "value": 12
           },
           "width": {
             "value": 78
           },
           "height": {
-            "value": 22
+            "value": 24
           },
           "cornerRadius": {
             "value": 4
@@ -787,12 +908,12 @@
       "type": "text",
       "name": "expandAllText",
       "encode": {
-        "update": {
+        "enter": {
           "x": {
             "value": 54
           },
           "y": {
-            "value": 22
+            "value": 24
           },
           "text": {
             "value": "Expand All"
@@ -804,10 +925,302 @@
             "value": "middle"
           },
           "fontSize": {
+            "value": 10
+          },
+          "fontWeight": {
+            "value": "bold"
+          },
+          "fill": {
+            "value": "#475569"
+          },
+          "cursor": {
+            "value": "pointer"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "collapseAllBtn",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 100
+          },
+          "y": {
+            "value": 12
+          },
+          "width": {
+            "value": 82
+          },
+          "height": {
+            "value": 24
+          },
+          "cornerRadius": {
+            "value": 4
+          },
+          "fill": {
+            "value": "#F1F5F9"
+          },
+          "stroke": {
+            "value": "#CBD5E1"
+          },
+          "strokeWidth": {
+            "value": 1
+          },
+          "cursor": {
+            "value": "pointer"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "collapseAllText",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 141
+          },
+          "y": {
+            "value": 24
+          },
+          "text": {
+            "value": "Collapse All"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 10
+          },
+          "fontWeight": {
+            "value": "bold"
+          },
+          "fill": {
+            "value": "#475569"
+          },
+          "cursor": {
+            "value": "pointer"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "zoomOutBtn",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 190
+          },
+          "y": {
+            "value": 12
+          },
+          "width": {
+            "value": 26
+          },
+          "height": {
+            "value": 24
+          },
+          "cornerRadius": {
+            "value": 4
+          },
+          "fill": {
+            "value": "#F1F5F9"
+          },
+          "stroke": {
+            "value": "#CBD5E1"
+          },
+          "strokeWidth": {
+            "value": 1
+          },
+          "cursor": {
+            "value": "pointer"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "zoomOutText",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 203
+          },
+          "y": {
+            "value": 24
+          },
+          "text": {
+            "value": "-"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 14
+          },
+          "fontWeight": {
+            "value": "bold"
+          },
+          "fill": {
+            "value": "#475569"
+          },
+          "cursor": {
+            "value": "pointer"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "zoomResetBtn",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 222
+          },
+          "y": {
+            "value": 12
+          },
+          "width": {
+            "value": 74
+          },
+          "height": {
+            "value": 24
+          },
+          "cornerRadius": {
+            "value": 4
+          },
+          "fill": {
+            "value": "#F1F5F9"
+          },
+          "stroke": {
+            "value": "#CBD5E1"
+          },
+          "strokeWidth": {
+            "value": 1
+          },
+          "cursor": {
+            "value": "pointer"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "zoomResetText",
+      "encode": {
+        "update": {
+          "x": {
+            "value": 259
+          },
+          "y": {
+            "value": 24
+          },
+          "text": {
+            "signal": "'Reset (' + round(zoomLevel * 100) + '%)'"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
             "value": 9.5
           },
           "fontWeight": {
-            "value": "600"
+            "value": "bold"
+          },
+          "fill": {
+            "value": "#475569"
+          },
+          "cursor": {
+            "value": "pointer"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "zoomInBtn",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 302
+          },
+          "y": {
+            "value": 12
+          },
+          "width": {
+            "value": 26
+          },
+          "height": {
+            "value": 24
+          },
+          "cornerRadius": {
+            "value": 4
+          },
+          "fill": {
+            "value": "#F1F5F9"
+          },
+          "stroke": {
+            "value": "#CBD5E1"
+          },
+          "strokeWidth": {
+            "value": 1
+          },
+          "cursor": {
+            "value": "pointer"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "zoomInText",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 315
+          },
+          "y": {
+            "value": 24
+          },
+          "text": {
+            "value": "+"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 14
+          },
+          "fontWeight": {
+            "value": "bold"
           },
           "fill": {
             "value": "#475569"
@@ -1013,7 +1426,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 6.5
+            "signal": "max(6, round(8 * zoomLevel))"
           },
           "fontWeight": {
             "value": "bold"
@@ -1096,7 +1509,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 6.5
+            "signal": "max(6, round(8 * zoomLevel))"
           },
           "fontWeight": {
             "value": "600"
@@ -1143,7 +1556,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 11
+            "signal": "max(7.5, round(11 * zoomLevel))"
           },
           "fontWeight": {
             "value": "600"
@@ -1184,7 +1597,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 8.5
+            "signal": "max(6.5, round(9 * zoomLevel))"
           },
           "fontWeight": {
             "value": "normal"

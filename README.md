@@ -63,15 +63,28 @@ Ensure your data table has the following four fields (or map your own column nam
 
 ---
 
-## How the Collapsible Feature Works
+## Large Organization Features (1,000+ Employees)
 
-1. **Manager Detection**: The pipeline counts how many direct reports each employee has.
-2. **Toggle Button**: If an employee has direct reports (`reportCount > 0`), a small pill button appears at the bottom center of their card:
-   - **`−`** indicates the branch is currently expanded.
-   - **`+ N`** (e.g. `+2`) indicates the branch is collapsed with $N$ direct reports hidden.
-3. **Lineage Ancestor Tracking**: When a manager is collapsed, all their direct and multi-level indirect descendants are automatically omitted before the layout runs.
-4. **Dynamic Compacting**: The layout automatically re-computes `rawX` and centers the remaining visible nodes.
-5. **Expand All**: Clicking the **Expand All** button in the top-left resets all collapsed branches instantly.
+Navigating a 1,000+ employee organization where single leaders have 50+ direct reports is made effortless through three built-in capabilities:
+
+1. **Collapsed-by-Default (Progressive Disclosure)**:
+   - On initial report load, only the executive team is visible (**Level 0** CEO and **Level 1** VPs / Department Heads).
+   - All managers at Level 1 and below start collapsed (`+N`), displaying their total downstream headcount.
+   - Users click into the specific department they wish to explore. Sibling departments stay collapsed, avoiding wide horizontal bloat.
+   - Configured via the `defaultCollapseDepth` signal:
+     - `1`: Shows Level 0 and Level 1 on load (default).
+     - `2`: Shows Levels 0, 1, and 2.
+     - `99`: Loads all levels expanded.
+2. **Interactive Zooming (`+`, `−`, Mouse Wheel)**:
+   - Use the **`+`** and **`−`** buttons on the top toolbar (or scroll your mouse wheel over the canvas) to zoom smoothly between `40%` and `160%`.
+   - Cards, spacing, and typography scale proportionally.
+   - Clicking **`Reset (100%)`** returns to normal scale immediately.
+3. **Interactive Drag-to-Pan**:
+   - Click and drag anywhere on the white canvas background to pan in any direction ($X$ and $Y$).
+4. **Toolbar Controls**:
+   - **`Expand All`**: Unrolls the entire organization hierarchy.
+   - **`Collapse All`**: Collapses all branches back to the clean top-level executive view.
+   - **`Reset`**: Resets pan offsets and zoom level back to `100%`.
 
 ---
 
@@ -81,12 +94,13 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
 
 ```json
 "signals": [
-  { "name": "cardWidth", "value": 145 },
-  { "name": "cardHeight", "value": 54 },
-  { "name": "nodeSpacingX", "value": 175 },
-  { "name": "nodeSpacingY", "value": 95 },
-  { "name": "topMargin", "value": 30 },
-  { "name": "minCanvasWidth", "value": 1400 },
+  { "name": "defaultCollapseDepth", "value": 1 },
+  { "name": "zoomLevel", "value": 1.0 },
+  { "name": "cardWidth", "update": "round(145 * zoomLevel)" },
+  { "name": "cardHeight", "update": "round(54 * zoomLevel)" },
+  { "name": "nodeSpacingX", "update": "round(175 * zoomLevel)" },
+  { "name": "nodeSpacingY", "update": "round(95 * zoomLevel)" },
+  { "name": "minCanvasWidth", "value": 1200 },
   { "name": "minCanvasHeight", "value": 550 }
 ]
 ```
@@ -94,11 +108,7 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
 - **Dynamic Canvas Auto-Sizing & Scrollbars**: 
   - The specification dynamically computes the horizontal (`treeExtentX`) and vertical (`treeExtentY`) span of the rendered hierarchy.
   - When the organization width exceeds `minCanvasWidth` (e.g. 15+ branches across), or depth exceeds `minCanvasHeight`, the canvas automatically expands to fit every single node with 40px margin on each side.
-  - In Power BI Desktop, Deneb's overlay scrollbars allow scrolling over the **entire** expanded canvas so no nodes are ever cut off or unreachable.
-- **Initial State**: To have certain branches collapsed by default on report load, initialize `collapsedIds` with comma-wrapped IDs (e.g. `"value": ",2,3,"`).
-- **Preventing Overlaps**: Keep `nodeSpacingX` greater than `cardWidth` (e.g. `175` vs `145` gives a `30px` gap between sibling cards).
-- **Vertical Spacing**: Adjust `nodeSpacingY` to increase or decrease the distance between hierarchy levels.
-- **Color Palette**: Under `"scales" -> "levelColor"`, adjust the hex colors for levels `0` through `4+` to match your organization's brand colors.
+  - In Power BI Desktop, Deneb's overlay scrollbars allow scrolling over the **entire** expanded canvas so no nodes are ever cut off.
 - **Scrollbar Styling in Power BI**: Under **Format visual** $\rightarrow$ **Scrollbars** card in Power BI's formatting pane, you can customize the overlay scrollbar thickness (`8px`–`16px`), opacity, color, and corner radius.
 
 ---
