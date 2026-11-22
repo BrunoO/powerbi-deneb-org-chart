@@ -6,6 +6,19 @@ Built to handle everything from executive leadership overviews to massive enterp
 
 ---
 
+## 📸 Preview
+
+### Executive Overview (12 Direct Reports, `☵ Standard` Mode)
+![Executive Overview](./images/org-chart-overview.png)
+
+### Active Reporting-Line Highlighting & 2-Line Title Wrapping
+![Active Reporting Line Highlighting](./images/org-chart-hover-lineage.png)
+
+### Compact 2-Column Stacking (`☷ Stacked` Mode with Central Spine)
+![Compact 2-Column Stacked Mode](./images/org-chart-stacked-mode.png)
+
+---
+
 ## ✨ Feature Highlights
 
 ### 🎨 Visual Polish & Executive Styling
