@@ -86,27 +86,20 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
   { "name": "nodeSpacingX", "value": 175 },
   { "name": "nodeSpacingY", "value": 95 },
   { "name": "topMargin", "value": 30 },
-  { "name": "collapsedIds", "value": "," }
+  { "name": "minCanvasWidth", "value": 1400 },
+  { "name": "minCanvasHeight", "value": 550 }
 ]
 ```
 
+- **Dynamic Canvas Auto-Sizing & Scrollbars**: 
+  - The specification dynamically computes the horizontal (`treeExtentX`) and vertical (`treeExtentY`) span of the rendered hierarchy.
+  - When the organization width exceeds `minCanvasWidth` (e.g. 15+ branches across), or depth exceeds `minCanvasHeight`, the canvas automatically expands to fit every single node with 40px margin on each side.
+  - In Power BI Desktop, Deneb's overlay scrollbars allow scrolling over the **entire** expanded canvas so no nodes are ever cut off or unreachable.
 - **Initial State**: To have certain branches collapsed by default on report load, initialize `collapsedIds` with comma-wrapped IDs (e.g. `"value": ",2,3,"`).
 - **Preventing Overlaps**: Keep `nodeSpacingX` greater than `cardWidth` (e.g. `175` vs `145` gives a `30px` gap between sibling cards).
 - **Vertical Spacing**: Adjust `nodeSpacingY` to increase or decrease the distance between hierarchy levels.
 - **Color Palette**: Under `"scales" -> "levelColor"`, adjust the hex colors for levels `0` through `4+` to match your organization's brand colors.
-```json
-{
-  "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual with Total Descendants Count for Power BI using Deneb & Vega",
-  "width": 1400,
-  "height": 550,
-  "padding": 15,
-  ...
-```
-
-- **Enabling Scrollbars**: Deneb displays scrollbars **only when explicit virtual canvas dimensions (`"width": 1400, "height": 550`) exceed the Power BI visual tile size** on your report canvas. If your visual tile is 800px wide, Deneb immediately renders horizontal and vertical overlay scrollbars.
-- **Wider / Deeper Organizations**: For very large teams with 15+ branches across, simply increase `"width": 1800` or `"width": 2200` at line 4 of the specification.
-- **Scrollbar Styling**: In Power BI Desktop under **Format visual** $\rightarrow$ **Rendered visual** (or **Vega**), you can customize the scrollbar thickness, opacity, color, and corner radius.
+- **Scrollbar Styling in Power BI**: Under **Format visual** $\rightarrow$ **Scrollbars** card in Power BI's formatting pane, you can customize the overlay scrollbar thickness (`8px`–`16px`), opacity, color, and corner radius.
 
 ---
 

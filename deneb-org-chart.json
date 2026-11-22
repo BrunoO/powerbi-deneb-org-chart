@@ -59,6 +59,24 @@
           "update": "null"
         }
       ]
+    },
+    {
+      "name": "minCanvasWidth",
+      "value": 1400,
+      "description": "Minimum canvas width in pixels (visual width expands dynamically if tree is wider)"
+    },
+    {
+      "name": "minCanvasHeight",
+      "value": 550,
+      "description": "Minimum canvas height in pixels (visual height expands dynamically if tree is taller)"
+    },
+    {
+      "name": "width",
+      "update": "treeExtentX ? max(minCanvasWidth, (treeExtentX[1] - treeExtentX[0] + cardWidth) + 80) : minCanvasWidth"
+    },
+    {
+      "name": "height",
+      "update": "treeExtentY ? max(minCanvasHeight, treeExtentY[1] + cardHeight + topMargin + 80) : minCanvasHeight"
     }
   ],
   "data": [
@@ -363,6 +381,16 @@
           ]
         },
         {
+          "type": "extent",
+          "field": "rawX",
+          "signal": "treeExtentX"
+        },
+        {
+          "type": "extent",
+          "field": "rawY",
+          "signal": "treeExtentY"
+        },
+        {
           "type": "joinaggregate",
           "fields": [
             "rawX",
@@ -379,7 +407,7 @@
         },
         {
           "type": "formula",
-          "expr": "max(30, (width - (datum.maxX - datum.minX + cardWidth)) / 2) - datum.minX",
+          "expr": "max(40, (width - (datum.maxX - datum.minX + cardWidth)) / 2) - datum.minX",
           "as": "originX"
         },
         {

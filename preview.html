@@ -34,31 +34,30 @@
       font-size: 14px;
     }
     #chart-container {
-      max-width: 1450px;
+      max-width: 100%;
       margin: 0 auto;
       background: #ffffff;
       border-radius: 12px;
       padding: 24px;
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
       border: 1px solid #e2e8f0;
-      overflow-x: auto;
+      overflow: auto;
+      box-sizing: border-box;
     }
     #vis {
-      display: flex;
-      justify-content: center;
-      min-width: 1400px;
+      display: inline-block;
+      min-width: 100%;
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>Interactive Collapsible Org Chart - Deneb &amp; Vega</h1>
-    <p>Each manager card displays their total descendant headcount (e.g. <code>team 4</code>). Click the <b>&minus;</b> or <b>+</b> toggle button at the bottom of any manager card to collapse or expand their sub-tree. Use <b>Expand All</b> to reset.</p>
+    <h1>Interactive Collapsible Org Chart Preview (Power BI / Deneb)</h1>
+    <p>Self-contained Vega 5 preview with dynamic canvas sizing, collapse/expand toggles, and downstream headcount badges.</p>
   </div>
   <div id="chart-container">
     <div id="vis"></div>
   </div>
-
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
@@ -121,6 +120,24 @@
           "update": "null"
         }
       ]
+    },
+    {
+      "name": "minCanvasWidth",
+      "value": 1400,
+      "description": "Minimum canvas width in pixels (visual width expands dynamically if tree is wider)"
+    },
+    {
+      "name": "minCanvasHeight",
+      "value": 550,
+      "description": "Minimum canvas height in pixels (visual height expands dynamically if tree is taller)"
+    },
+    {
+      "name": "width",
+      "update": "treeExtentX ? max(minCanvasWidth, (treeExtentX[1] - treeExtentX[0] + cardWidth) + 80) : minCanvasWidth"
+    },
+    {
+      "name": "height",
+      "update": "treeExtentY ? max(minCanvasHeight, treeExtentY[1] + cardHeight + topMargin + 80) : minCanvasHeight"
     }
   ],
   "data": [
@@ -425,6 +442,16 @@
           ]
         },
         {
+          "type": "extent",
+          "field": "rawX",
+          "signal": "treeExtentX"
+        },
+        {
+          "type": "extent",
+          "field": "rawY",
+          "signal": "treeExtentY"
+        },
+        {
           "type": "joinaggregate",
           "fields": [
             "rawX",
@@ -441,7 +468,7 @@
         },
         {
           "type": "formula",
-          "expr": "max(30, (width - (datum.maxX - datum.minX + cardWidth)) / 2) - datum.minX",
+          "expr": "max(40, (width - (datum.maxX - datum.minX + cardWidth)) / 2) - datum.minX",
           "as": "originX"
         },
         {
