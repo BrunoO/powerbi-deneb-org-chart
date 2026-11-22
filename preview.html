@@ -15,7 +15,7 @@
       color: #1e293b;
     }
     .header {
-      max-width: 1350px;
+      max-width: 1450px;
       margin: 0 auto 20px auto;
       background: #ffffff;
       padding: 20px 24px;
@@ -34,7 +34,7 @@
       font-size: 14px;
     }
     #chart-container {
-      max-width: 1350px;
+      max-width: 1450px;
       margin: 0 auto;
       background: #ffffff;
       border-radius: 12px;
@@ -46,7 +46,7 @@
     #vis {
       display: flex;
       justify-content: center;
-      min-width: 1250px;
+      min-width: 1400px;
     }
   </style>
 </head>
@@ -63,6 +63,8 @@
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "description": "Interactive Collapsible Org Chart Visual with Total Descendants Count for Power BI using Deneb & Vega",
+  "width": 1400,
+  "height": 550,
   "padding": 15,
   "autosize": "none",
   "signals": [
@@ -1196,9 +1198,7 @@
         }
       }
     }
-  ],
-  "width": 1250,
-  "height": 480
+  ]
 };
     vegaEmbed('#vis', spec, { renderer: 'svg', actions: true })
       .catch(err => {

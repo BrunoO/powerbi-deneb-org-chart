@@ -94,11 +94,19 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
 - **Preventing Overlaps**: Keep `nodeSpacingX` greater than `cardWidth` (e.g. `175` vs `145` gives a `30px` gap between sibling cards).
 - **Vertical Spacing**: Adjust `nodeSpacingY` to increase or decrease the distance between hierarchy levels.
 - **Color Palette**: Under `"scales" -> "levelColor"`, adjust the hex colors for levels `0` through `4+` to match your organization's brand colors.
-- **Enabling Scrollbars for Large Organizations**:
-  In Power BI Desktop:
-  1. Select the Deneb visual.
-  2. Go to **Format visual** tab $\rightarrow$ **Vega** (or **Canvas**).
-  3. Turn on **Scrollbars** so users can smoothly pan horizontally and vertically across wider company trees.
+```json
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "Interactive Collapsible Org Chart Visual with Total Descendants Count for Power BI using Deneb & Vega",
+  "width": 1400,
+  "height": 550,
+  "padding": 15,
+  ...
+```
+
+- **Enabling Scrollbars**: Deneb displays scrollbars **only when explicit virtual canvas dimensions (`"width": 1400, "height": 550`) exceed the Power BI visual tile size** on your report canvas. If your visual tile is 800px wide, Deneb immediately renders horizontal and vertical overlay scrollbars.
+- **Wider / Deeper Organizations**: For very large teams with 15+ branches across, simply increase `"width": 1800` or `"width": 2200` at line 4 of the specification.
+- **Scrollbar Styling**: In Power BI Desktop under **Format visual** $\rightarrow$ **Rendered visual** (or **Vega**), you can customize the scrollbar thickness, opacity, color, and corner radius.
 
 ---
 
