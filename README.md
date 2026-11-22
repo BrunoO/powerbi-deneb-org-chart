@@ -68,10 +68,11 @@ Ensure your data table has the following four fields (or map your own column nam
 Navigating a 1,000+ employee organization where single leaders have 50+ direct reports is made effortless through four built-in capabilities:
 
 1. **Vertical Grid Stacking for Large Teams (> 6 direct reports)**:
-   - When a manager has $> 6$ direct reports (e.g. 10 to 50 engineers or reps), they are **automatically arranged in 2 neat vertical columns** directly underneath that manager, rather than stretching across thousands of pixels in a single horizontal line.
+   - When a manager has $> 6$ direct reports (e.g. 10 to 50 individual contributors or reps), they are **automatically arranged in 2 neat vertical columns** directly underneath that manager, rather than stretching across thousands of pixels in a single horizontal line.
    - A team of 50 people occupies only **~350px wide** instead of **8,750px wide** (a 95% width reduction!).
    - Smaller teams ($\le 6$ direct reports) remain in clean standard horizontal rows.
-   - Configurable via the `gridThreshold` signal (default: `6`). Set to `4` for even tighter packing, or `999` to disable.
+   - **Executive Protection**: Level 1 executive teams (VPs / C-Suite reporting to the CEO) and managers with sub-teams are **never vertically stacked**; they always flow in a clean horizontal department row across the top.
+   - Configurable via `gridThreshold` (default: `6`) and `stackMinDepth` (default: `2`). Set `gridThreshold` to `999` to disable.
 2. **Collapsed-by-Default (Progressive Disclosure)**:
    - On initial report load, only the executive team is visible (**Level 0** CEO and **Level 1** VPs / Department Heads).
    - All managers at Level 1 and below start collapsed (`+N`), displaying their total downstream headcount.
@@ -101,6 +102,7 @@ Key visual dimensions are exposed as signals at the top of [`deneb-org-chart.jso
 "signals": [
   { "name": "defaultCollapseDepth", "value": 1 },
   { "name": "gridThreshold", "value": 6 },
+  { "name": "stackMinDepth", "value": 2 },
   { "name": "zoomLevel", "value": 1.0 },
   { "name": "cardWidth", "update": "round(145 * zoomLevel)" },
   { "name": "cardHeight", "update": "round(54 * zoomLevel)" },

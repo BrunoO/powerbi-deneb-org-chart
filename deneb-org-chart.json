@@ -17,6 +17,11 @@
       "description": "Direct report threshold for multi-column grid stacking (teams with more reports than this arrange in 2 vertical columns)"
     },
     {
+      "name": "stackMinDepth",
+      "value": 2,
+      "description": "Minimum hierarchy level depth where multi-column grid stacking is permitted (default: 2 prevents CEO / Level 1 executive team from stacking vertically)"
+    },
+    {
       "name": "zoomLevel",
       "value": 1.0,
       "description": "Current canvas zoom factor (0.4 to 1.6)",
@@ -618,7 +623,7 @@
         },
         {
           "type": "formula",
-          "expr": "(datum.parentReportCount > gridThreshold && isValid(datum.lag2Id)) ? datum.lag2Id : datum.parentId",
+          "expr": "(datum.rawDepth >= stackMinDepth && datum.parentReportCount > gridThreshold && datum.reportCount === 0 && isValid(datum.lag2Id)) ? datum.lag2Id : datum.parentId",
           "as": "layoutParentId"
         },
         {
