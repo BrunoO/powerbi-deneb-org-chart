@@ -4,6 +4,8 @@ A production-ready, interactive, and beautifully designed **Collapsible Organiza
 
 Built to handle everything from executive leadership overviews to massive enterprise structures (1,000+ employees) with zero card collisions, instant spatial orientation, and smooth interactive navigation.
 
+> **[🚀 Open Live Interactive Demo](https://brunoo.github.io/powerbi-deneb-org-chart/)** *(powered by GitHub Pages — click to expand, collapse, hover, pan, and zoom live in your browser)*
+
 ---
 
 ## 📸 Preview
