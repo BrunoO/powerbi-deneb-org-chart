@@ -9,6 +9,10 @@ Built to handle everything from executive leadership overviews to massive enterp
 ## ✨ Feature Highlights
 
 ### 🎨 Visual Polish & Executive Styling
+- **Rounded Orthogonal Connector Elbows (`6px` Bézier)**: Smooth quadratic Bézier curves soften all horizontal/vertical branch elbows, replacing sharp 90° corners with an architectural, Miro/FigJam-inspired look.
+- **Connector Anchor Dots**: Crisp circular terminal dots mark where connectors meet the top of subordinate cards, illuminating in primary blue (`#2563EB`) along active hovered reporting chains.
+- **Tactile Hover States on All Interactive Pills**: Toolbar buttons (`Expand All`, `Collapse All`, `Standard/Stacked`, `−`, `Reset`, `+`) and card branch toggles (`−` / `+N`) respond with subtle background fills and border highlights on hover.
+- **Live Organization Summary Pill**: Displays total headcount and hierarchy depth (e.g., `👥 42 People · 4 Levels`) dynamically beside the toolbar.
 - **Corridor-Aligned Central Spine Routing**: In 2-column stacked mode, connector lines drop down a central vertical spine between the two columns, branching horizontally only within the empty corridor immediately above each target row (`target.cardTop - corridorMidpoint`). This eliminates the undesirable ladder grid effect and ensures horizontal lines never slice through card bodies.
 - **Configurable Stacking Mode (`☵ Standard` vs `☷ Stacked`)**: Instant one-click toggle in the toolbar between **Standard Clean Tree Architecture** (all direct reports on their true level, connected to their actual manager with zero line overlaps) and **Compact 2-Column Stacking** for large leaf teams. Fully customizable via the `enableStacking` signal in Power BI.
 - **Intelligent Multi-Line Title Wrapping**: Long job titles automatically and cleanly wrap to a second line at natural word boundaries / spaces, eliminating awkward ellipsis truncation (`...`) while maintaining balanced vertical spacing for single-line titles.
@@ -18,7 +22,7 @@ Built to handle everything from executive leadership overviews to massive enterp
 - **Interactive Card Elevation on Hover**: Hovering over any card elevates it with an expanded soft cobalt glow aura and crisp border highlight.
 - **Tactile Canvas Dot-Matrix Background**: Subtly patterned dot-grid canvas (`#F8FAFC` with fine slate dots, inspired by modern design tools like Linear, Miro, and Figma) providing spatial orientation while dragging and panning.
 - **True Orthogonal Midpoint Bus Line Routing**: Links drop vertically from parent cards through a dedicated stem into the corridor midpoint before branching horizontally, completely clearing sibling cards and toggle buttons.
-- **Version Identifier (`v1.5.2`)**: Specification version tracker embedded directly in root `usermeta`, `signals`, and rendered on the canvas toolbar badge for quick verification.
+- **Version Identifier (`v1.6.0`)**: Specification version tracker embedded directly in root `usermeta`, `signals`, and rendered on the canvas toolbar badge for quick verification.
 
 ### ⚡ Navigation & Interactive Micro-Delights
 - **Active Reporting Line Hover Highlighting**: Hovering over any employee (manager or individual contributor) dynamically illuminates their **entire upward management chain up to the CEO** and **all downward direct/indirect reports** in bold primary blue (`#2563EB`) with double-thickness connectors (`2.5px`), while softly dimming unrelated sibling branches to 35% opacity.

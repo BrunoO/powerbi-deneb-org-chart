@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.5.2 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.6.0 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.5.2",
+      "value": "v1.6.0",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -276,6 +276,54 @@
         {
           "events": "@cardBody:mouseout",
           "update": "''"
+        }
+      ]
+    },
+    {
+      "name": "hoveredToolbarBtn",
+      "value": null,
+      "on": [
+        {
+          "events": "@expandAllBtn:mouseover, @expandAllText:mouseover",
+          "update": "'expandAll'"
+        },
+        {
+          "events": "@collapseAllBtn:mouseover, @collapseAllText:mouseover",
+          "update": "'collapseAll'"
+        },
+        {
+          "events": "@stackModeBtn:mouseover, @stackModeText:mouseover",
+          "update": "'stackMode'"
+        },
+        {
+          "events": "@zoomOutBtn:mouseover, @zoomOutText:mouseover",
+          "update": "'zoomOut'"
+        },
+        {
+          "events": "@zoomResetBtn:mouseover, @zoomResetText:mouseover",
+          "update": "'zoomReset'"
+        },
+        {
+          "events": "@zoomInBtn:mouseover, @zoomInText:mouseover",
+          "update": "'zoomIn'"
+        },
+        {
+          "events": "@expandAllBtn:mouseout, @expandAllText:mouseout, @collapseAllBtn:mouseout, @collapseAllText:mouseout, @stackModeBtn:mouseout, @stackModeText:mouseout, @zoomOutBtn:mouseout, @zoomOutText:mouseout, @zoomResetBtn:mouseout, @zoomResetText:mouseout, @zoomInBtn:mouseout, @zoomInText:mouseout",
+          "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "hoveredToggleId",
+      "value": null,
+      "on": [
+        {
+          "events": "@toggleBtn:mouseover, @toggleText:mouseover",
+          "update": "datum.id"
+        },
+        {
+          "events": "@toggleBtn:mouseout, @toggleText:mouseout",
+          "update": "null"
         }
       ]
     }
@@ -754,6 +802,32 @@
       ]
     },
     {
+      "name": "org_summary",
+      "source": "lineage_base",
+      "transform": [
+        {
+          "type": "aggregate",
+          "fields": [
+            "id",
+            "rawDepth"
+          ],
+          "ops": [
+            "count",
+            "max"
+          ],
+          "as": [
+            "totalPeople",
+            "maxDepth"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "'👥 ' + datum.totalPeople + (datum.totalPeople === 1 ? ' Person' : ' People') + ' · ' + (datum.maxDepth + 1) + ((datum.maxDepth + 1) === 1 ? ' Level' : ' Levels')",
+          "as": "summaryLabel"
+        }
+      ]
+    },
+    {
       "name": "data_with_lineage",
       "source": "lineage_base",
       "transform": [
@@ -1043,7 +1117,7 @@
         },
         {
           "type": "formula",
-          "expr": "(zoomLevel || panX || panY || 1) ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + datum.target.centerX + 'V' + datum.target.cardTop) : ''",
+          "expr": "(zoomLevel || panX || panY || 1) ? (abs(datum.target.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.target.cardTop) : (datum.target.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.target.centerX - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.target.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.target.centerX + ',' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'V' + datum.target.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.target.centerX + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.target.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.target.centerX + ',' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'V' + datum.target.cardTop))) : ''",
           "as": "path"
         }
       ]
@@ -1194,12 +1268,20 @@
           "cornerRadius": {
             "value": 13
           },
-          "fill": {
-            "value": "transparent"
-          },
           "cursor": {
             "value": "pointer"
           }
+        },
+        "update": {
+          "fill": [
+            {
+              "test": "hoveredToolbarBtn === 'expandAll'",
+              "value": "#F1F5F9"
+            },
+            {
+              "value": "transparent"
+            }
+          ]
         }
       }
     },
@@ -1261,12 +1343,20 @@
           "cornerRadius": {
             "value": 13
           },
-          "fill": {
-            "value": "transparent"
-          },
           "cursor": {
             "value": "pointer"
           }
+        },
+        "update": {
+          "fill": [
+            {
+              "test": "hoveredToolbarBtn === 'collapseAll'",
+              "value": "#F1F5F9"
+            },
+            {
+              "value": "transparent"
+            }
+          ]
         }
       }
     },
@@ -1354,12 +1444,28 @@
           "cornerRadius": {
             "value": 13
           },
-          "fill": {
-            "value": "transparent"
-          },
           "cursor": {
             "value": "pointer"
           }
+        },
+        "update": {
+          "fill": [
+            {
+              "test": "hoveredToolbarBtn === 'stackMode' && enableStacking",
+              "value": "#DBEAFE"
+            },
+            {
+              "test": "hoveredToolbarBtn === 'stackMode'",
+              "value": "#F1F5F9"
+            },
+            {
+              "test": "enableStacking",
+              "value": "#EFF6FF"
+            },
+            {
+              "value": "transparent"
+            }
+          ]
         }
       }
     },
@@ -1447,12 +1553,20 @@
           "cornerRadius": {
             "value": 6
           },
-          "fill": {
-            "value": "transparent"
-          },
           "cursor": {
             "value": "pointer"
           }
+        },
+        "update": {
+          "fill": [
+            {
+              "test": "hoveredToolbarBtn === 'zoomOut'",
+              "value": "#F1F5F9"
+            },
+            {
+              "value": "transparent"
+            }
+          ]
         }
       }
     },
@@ -1514,12 +1628,20 @@
           "cornerRadius": {
             "value": 6
           },
-          "fill": {
-            "value": "transparent"
-          },
           "cursor": {
             "value": "pointer"
           }
+        },
+        "update": {
+          "fill": [
+            {
+              "test": "hoveredToolbarBtn === 'zoomReset'",
+              "value": "#F1F5F9"
+            },
+            {
+              "value": "transparent"
+            }
+          ]
         }
       }
     },
@@ -1581,12 +1703,20 @@
           "cornerRadius": {
             "value": 6
           },
-          "fill": {
-            "value": "transparent"
-          },
           "cursor": {
             "value": "pointer"
           }
+        },
+        "update": {
+          "fill": [
+            {
+              "test": "hoveredToolbarBtn === 'zoomIn'",
+              "value": "#F1F5F9"
+            },
+            {
+              "value": "transparent"
+            }
+          ]
         }
       }
     },
@@ -1629,12 +1759,111 @@
       }
     },
     {
+      "type": "rect",
+      "name": "summaryPillShadow",
+      "interactive": false,
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 472
+          },
+          "y": {
+            "value": 11
+          },
+          "width": {
+            "value": 150
+          },
+          "height": {
+            "value": 32
+          },
+          "cornerRadius": {
+            "value": 16
+          },
+          "fill": {
+            "value": "rgba(15, 23, 42, 0.06)"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "summaryPillBg",
+      "interactive": false,
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 472
+          },
+          "y": {
+            "value": 10
+          },
+          "width": {
+            "value": 150
+          },
+          "height": {
+            "value": 32
+          },
+          "cornerRadius": {
+            "value": 16
+          },
+          "fill": {
+            "value": "#FFFFFF"
+          },
+          "stroke": {
+            "value": "#E2E8F0"
+          },
+          "strokeWidth": {
+            "value": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "summaryPillText",
+      "interactive": false,
+      "from": {
+        "data": "org_summary"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "value": 547
+          },
+          "y": {
+            "value": 26
+          },
+          "text": {
+            "field": "summaryLabel"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 10
+          },
+          "fontWeight": {
+            "value": "600"
+          },
+          "fill": {
+            "value": "#475569"
+          },
+          "font": {
+            "value": "Segoe UI Emoji, Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
       "type": "text",
       "name": "versionBadgeText",
       "encode": {
         "enter": {
           "x": {
-            "value": 474
+            "value": 632
           },
           "y": {
             "value": 26
@@ -1672,7 +1901,7 @@
       "encode": {
         "update": {
           "path": {
-            "signal": "(zoomLevel || panX || panY || 1) ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + datum.target.centerX + 'V' + datum.target.cardTop) : ''"
+            "signal": "(zoomLevel || panX || panY || 1) ? (abs(datum.target.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.target.cardTop) : (datum.target.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.target.centerX - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.target.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.target.centerX + ',' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'V' + datum.target.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.target.centerX + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.target.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.target.centerX + ',' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'V' + datum.target.cardTop))) : ''"
           },
           "stroke": [
             {
@@ -2370,6 +2599,14 @@
           },
           "fill": [
             {
+              "test": "datum.id === hoveredToggleId && (datum.isCollapsed || datum.rawDepth === 0)",
+              "value": "#DBEAFE"
+            },
+            {
+              "test": "datum.id === hoveredToggleId",
+              "value": "#EFF6FF"
+            },
+            {
               "test": "datum.rawDepth === 0 && datum.isCollapsed",
               "value": "#DBEAFE"
             },
@@ -2387,6 +2624,10 @@
           ],
           "stroke": [
             {
+              "test": "datum.id === hoveredToggleId",
+              "value": "#2563EB"
+            },
+            {
               "test": "datum.rawDepth === 0",
               "value": "#3B82F6"
             },
@@ -2398,9 +2639,15 @@
               "value": "#94A3B8"
             }
           ],
-          "strokeWidth": {
-            "value": 1.25
-          },
+          "strokeWidth": [
+            {
+              "test": "datum.id === hoveredToggleId",
+              "value": 1.75
+            },
+            {
+              "value": 1.25
+            }
+          ],
           "cursor": {
             "value": "pointer"
           },
@@ -2451,6 +2698,10 @@
           },
           "fill": [
             {
+              "test": "datum.id === hoveredToggleId",
+              "value": "#1D4ED8"
+            },
+            {
               "test": "datum.rawDepth === 0",
               "value": "#1D4ED8"
             },
@@ -2483,21 +2734,79 @@
           }
         }
       }
+    },
+    {
+      "type": "symbol",
+      "name": "linkAnchorDot",
+      "interactive": false,
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "field": "centerX"
+          },
+          "y": {
+            "field": "cardTop"
+          },
+          "shape": {
+            "value": "circle"
+          },
+          "size": [
+            {
+              "test": "hoveredId && (datum.id === hoveredId || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0 || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0)",
+              "signal": "max(12, round(24 * zoomLevel))"
+            },
+            {
+              "signal": "max(8, round(14 * zoomLevel))"
+            }
+          ],
+          "fill": [
+            {
+              "test": "hoveredId && (datum.id === hoveredId || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0 || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0)",
+              "value": "#2563EB"
+            },
+            {
+              "value": "#94A3B8"
+            }
+          ],
+          "stroke": {
+            "value": "#FFFFFF"
+          },
+          "strokeWidth": {
+            "value": 1
+          },
+          "opacity": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": 0
+            },
+            {
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "value": 1
+            },
+            {
+              "value": 0.25
+            }
+          ]
+        }
+      }
     }
   ],
   "usermeta": {
-    "version": "1.5.2",
+    "version": "1.6.0",
     "releaseDate": "2026-11-22",
     "features": [
+      "Rounded Orthogonal Connector Elbows (6px Bézier)",
+      "Connector Anchor Dots with Active Chain Highlighting",
+      "Tactile Hover States on Toolbar & Card Toggle Pills",
+      "Live Organization Summary Pill (Headcount & Levels)",
       "Configurable Stacking Mode (Standard Tree vs 2-Column Stacking)",
       "Corridor-Aligned Central Spine Routing",
       "Active Reporting Line Hover Highlighting",
-      "Modern Floating Glassmorphic Toolbar Dock with Layout Mode Toggle",
-      "Dot-Matrix Spatial Background",
       "Approachable Executive CEO Card Styling & ★ CEO Amber Prestige Badge",
-      "👥 Modern Headcount Badge",
-      "165×58px Cards & Interactive Elevation",
-      "Zoom-Invariant 2-Line Title Wrapping"
+      "165×58px Cards & Zoom-Invariant 2-Line Title Wrapping"
     ]
   }
 };
