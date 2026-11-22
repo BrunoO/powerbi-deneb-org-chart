@@ -15,7 +15,7 @@
       color: #1e293b;
     }
     .header {
-      max-width: 1200px;
+      max-width: 1350px;
       margin: 0 auto 20px auto;
       background: #ffffff;
       padding: 20px 24px;
@@ -34,7 +34,7 @@
       font-size: 14px;
     }
     #chart-container {
-      max-width: 1200px;
+      max-width: 1350px;
       margin: 0 auto;
       background: #ffffff;
       border-radius: 12px;
@@ -46,6 +46,7 @@
     #vis {
       display: flex;
       justify-content: center;
+      min-width: 1250px;
     }
   </style>
 </head>
@@ -67,17 +68,17 @@
   "signals": [
     {
       "name": "cardWidth",
-      "value": 185,
+      "value": 165,
       "description": "Width of each employee card in pixels"
     },
     {
       "name": "cardHeight",
-      "value": 72,
+      "value": 64,
       "description": "Height of each employee card in pixels"
     },
     {
       "name": "topMargin",
-      "value": 40,
+      "value": 30,
       "description": "Top margin offset from visual boundary"
     },
     {
@@ -87,7 +88,7 @@
     },
     {
       "name": "sideMargin",
-      "update": "cardWidth / 2 + 25",
+      "update": "cardWidth / 2 + 20",
       "description": "Horizontal padding to keep outer nodes inside the canvas"
     },
     {
@@ -271,6 +272,66 @@
           "type": "formula",
           "expr": "datum.cardY + cardHeight",
           "as": "cardBottom"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + 2",
+          "as": "shadowY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardX + 3",
+          "as": "accentX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + 8",
+          "as": "accentY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardX + 24",
+          "as": "avatarX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + (cardHeight / 2)",
+          "as": "avatarY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardX + 44",
+          "as": "textX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + 24",
+          "as": "nameY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + 41",
+          "as": "titleY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardX + cardWidth - 30",
+          "as": "badgeX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + 6",
+          "as": "badgeY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardX + cardWidth - 19",
+          "as": "badgeTextX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + 12",
+          "as": "badgeTextY"
         }
       ]
     },
@@ -370,7 +431,7 @@
             "field": "cardX"
           },
           "y": {
-            "expr": "datum.cardY + 2"
+            "field": "shadowY"
           },
           "width": {
             "signal": "cardWidth"
@@ -449,16 +510,16 @@
       "encode": {
         "update": {
           "x": {
-            "expr": "datum.cardX + 3"
+            "field": "accentX"
           },
           "y": {
-            "expr": "datum.cardY + 8"
+            "field": "accentY"
           },
           "width": {
-            "value": 4
+            "value": 3.5
           },
           "height": {
-            "expr": "cardHeight - 16"
+            "signal": "cardHeight - 16"
           },
           "cornerRadius": {
             "value": 2
@@ -482,13 +543,13 @@
             "value": "circle"
           },
           "size": {
-            "value": 520
+            "value": 400
           },
           "x": {
-            "expr": "datum.cardX + 27"
+            "field": "avatarX"
           },
           "y": {
-            "expr": "datum.cardY + (cardHeight / 2)"
+            "field": "avatarY"
           },
           "fill": {
             "scale": "levelBg",
@@ -513,10 +574,10 @@
       "encode": {
         "update": {
           "x": {
-            "expr": "datum.cardX + 27"
+            "field": "avatarX"
           },
           "y": {
-            "expr": "datum.cardY + (cardHeight / 2) + 0.5"
+            "field": "avatarY"
           },
           "text": {
             "field": "Initials"
@@ -528,7 +589,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 9.5
+            "value": 9
           },
           "fontWeight": {
             "value": "bold"
@@ -552,19 +613,19 @@
       "encode": {
         "update": {
           "x": {
-            "expr": "datum.cardX + cardWidth - 32"
+            "field": "badgeX"
           },
           "y": {
-            "expr": "datum.cardY + 8"
+            "field": "badgeY"
           },
           "width": {
-            "value": 24
+            "value": 22
           },
           "height": {
-            "value": 13
+            "value": 12
           },
           "cornerRadius": {
-            "value": 6.5
+            "value": 6
           },
           "fill": {
             "scale": "levelBg",
@@ -582,10 +643,10 @@
       "encode": {
         "update": {
           "x": {
-            "expr": "datum.cardX + cardWidth - 20"
+            "field": "badgeTextX"
           },
           "y": {
-            "expr": "datum.cardY + 14.5"
+            "field": "badgeTextY"
           },
           "text": {
             "signal": "'L' + datum.depth"
@@ -597,7 +658,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 7.5
+            "value": 7
           },
           "fontWeight": {
             "value": "bold"
@@ -621,10 +682,10 @@
       "encode": {
         "update": {
           "x": {
-            "expr": "datum.cardX + 46"
+            "field": "textX"
           },
           "y": {
-            "expr": "datum.cardY + 28"
+            "field": "nameY"
           },
           "text": {
             "field": "Name_clean"
@@ -636,7 +697,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 11.5
+            "value": 11
           },
           "fontWeight": {
             "value": "600"
@@ -645,7 +706,7 @@
             "value": "#0F172A"
           },
           "limit": {
-            "signal": "cardWidth - 82"
+            "signal": "cardWidth - 75"
           },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
@@ -662,10 +723,10 @@
       "encode": {
         "update": {
           "x": {
-            "expr": "datum.cardX + 46"
+            "field": "textX"
           },
           "y": {
-            "expr": "datum.cardY + 45"
+            "field": "titleY"
           },
           "text": {
             "field": "Title_clean"
@@ -677,7 +738,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 9.5
+            "value": 8.5
           },
           "fontWeight": {
             "value": "normal"
@@ -686,7 +747,7 @@
             "value": "#64748B"
           },
           "limit": {
-            "signal": "cardWidth - 54"
+            "signal": "cardWidth - 52"
           },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
@@ -695,8 +756,8 @@
       }
     }
   ],
-  "width": 1100,
-  "height": 600
+  "width": 1250,
+  "height": 680
 };
     vegaEmbed('#vis', spec, { renderer: 'svg', actions: true })
       .catch(err => {
