@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual with Total Descendants Count for Power BI using Deneb & Vega",
   "padding": 15,
   "autosize": "none",
   "signals": [
@@ -32,7 +32,7 @@
     {
       "name": "collapsedIds",
       "value": ",",
-      "description": "List of node IDs whose subtrees are currently collapsed",
+      "description": "Delimited string of node IDs whose subtrees are currently collapsed",
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
@@ -190,24 +190,9 @@
       ]
     },
     {
-      "name": "data_with_lineage",
+      "name": "lineage_base",
       "source": "clean_data",
       "transform": [
-        {
-          "type": "lookup",
-          "from": "report_counts",
-          "key": "parentId",
-          "fields": [
-            "id"
-          ],
-          "values": [
-            "reportCount"
-          ],
-          "as": [
-            "reportCount"
-          ],
-          "default": 0
-        },
         {
           "type": "lookup",
           "from": "clean_data",
@@ -263,6 +248,78 @@
           "as": [
             "anc4"
           ]
+        }
+      ]
+    },
+    {
+      "name": "descendant_counts",
+      "source": "lineage_base",
+      "transform": [
+        {
+          "type": "fold",
+          "fields": [
+            "parentId",
+            "anc1",
+            "anc2",
+            "anc3",
+            "anc4"
+          ],
+          "as": [
+            "ancLevel",
+            "ancestorId"
+          ]
+        },
+        {
+          "type": "filter",
+          "expr": "isValid(datum.ancestorId) && datum.ancestorId !== '' && datum.ancestorId !== null"
+        },
+        {
+          "type": "aggregate",
+          "groupby": [
+            "ancestorId"
+          ],
+          "ops": [
+            "count"
+          ],
+          "as": [
+            "totalDescendants"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "data_with_lineage",
+      "source": "lineage_base",
+      "transform": [
+        {
+          "type": "lookup",
+          "from": "report_counts",
+          "key": "parentId",
+          "fields": [
+            "id"
+          ],
+          "values": [
+            "reportCount"
+          ],
+          "as": [
+            "reportCount"
+          ],
+          "default": 0
+        },
+        {
+          "type": "lookup",
+          "from": "descendant_counts",
+          "key": "ancestorId",
+          "fields": [
+            "id"
+          ],
+          "values": [
+            "totalDescendants"
+          ],
+          "as": [
+            "totalDescendants"
+          ],
+          "default": 0
         },
         {
           "type": "formula",
@@ -380,7 +437,7 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + cardWidth - 28",
+          "expr": "datum.cardX + cardWidth - 26",
           "as": "badgeX"
         },
         {
@@ -390,7 +447,7 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + cardWidth - 18",
+          "expr": "datum.cardX + cardWidth - 17",
           "as": "badgeTextX"
         },
         {
@@ -400,7 +457,27 @@
         },
         {
           "type": "formula",
-          "expr": "datum.centerX - 13",
+          "expr": "datum.cardX + cardWidth - 44",
+          "as": "descendantBadgeX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardX + cardWidth - 30",
+          "as": "descendantTextX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + cardHeight - 16",
+          "as": "descendantBadgeY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + cardHeight - 10.5",
+          "as": "descendantTextY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.centerX - 14",
           "as": "toggleBtnX"
         },
         {
@@ -410,8 +487,18 @@
         },
         {
           "type": "formula",
+          "expr": "datum.toggleBtnY + 7",
+          "as": "toggleTextY"
+        },
+        {
+          "type": "formula",
           "expr": "indexof(collapsedIds, ',' + datum.id + ',') >= 0",
           "as": "isCollapsed"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.isCollapsed ? ('+' + datum.totalDescendants) : '-'",
+          "as": "toggleLabel"
         }
       ]
     },
@@ -649,7 +736,7 @@
             "value": "pointer"
           },
           "tooltip": {
-            "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.id, 'Direct Reports': datum.reportCount, 'Org Level': datum.depth, 'Status': datum.isCollapsed ? 'Collapsed' : 'Expanded'}"
+            "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.id, 'Direct Reports': datum.reportCount, 'Total Headcount': datum.totalDescendants, 'Org Level': datum.depth, 'Status': datum.isCollapsed ? 'Collapsed' : 'Expanded'}"
           }
         }
       }
@@ -699,7 +786,7 @@
             "field": "badgeY"
           },
           "width": {
-            "value": 20
+            "value": 19
           },
           "height": {
             "value": 11
@@ -754,6 +841,97 @@
       }
     },
     {
+      "type": "rect",
+      "name": "descendantBadgeBg",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "field": "descendantBadgeX"
+          },
+          "y": {
+            "field": "descendantBadgeY"
+          },
+          "width": {
+            "value": 38
+          },
+          "height": {
+            "value": 11
+          },
+          "cornerRadius": {
+            "value": 4
+          },
+          "fill": {
+            "value": "#F8FAFC"
+          },
+          "stroke": {
+            "value": "#E2E8F0"
+          },
+          "strokeWidth": {
+            "value": 0.75
+          },
+          "opacity": [
+            {
+              "test": "datum.totalDescendants > 0",
+              "value": 1
+            },
+            {
+              "value": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "descendantBadgeText",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "field": "descendantTextX"
+          },
+          "y": {
+            "field": "descendantTextY"
+          },
+          "text": {
+            "signal": "'team ' + datum.totalDescendants"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 6.5
+          },
+          "fontWeight": {
+            "value": "600"
+          },
+          "fill": {
+            "value": "#64748B"
+          },
+          "opacity": [
+            {
+              "test": "datum.totalDescendants > 0",
+              "value": 1
+            },
+            {
+              "value": 0
+            }
+          ],
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
       "type": "text",
       "name": "employeeName",
       "from": {
@@ -786,7 +964,7 @@
             "value": "#0F172A"
           },
           "limit": {
-            "signal": "cardWidth - 45"
+            "signal": "cardWidth - 46"
           },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
@@ -826,9 +1004,15 @@
           "fill": {
             "value": "#64748B"
           },
-          "limit": {
-            "signal": "cardWidth - 22"
-          },
+          "limit": [
+            {
+              "test": "datum.totalDescendants > 0",
+              "signal": "cardWidth - 58"
+            },
+            {
+              "signal": "cardWidth - 22"
+            }
+          ],
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
           }
@@ -850,7 +1034,7 @@
             "field": "toggleBtnY"
           },
           "width": {
-            "value": 26
+            "value": 28
           },
           "height": {
             "value": 14
@@ -906,17 +1090,11 @@
             "field": "centerX"
           },
           "y": {
-            "expr": "datum.toggleBtnY + 7.5"
+            "field": "toggleTextY"
           },
-          "text": [
-            {
-              "test": "datum.isCollapsed",
-              "signal": "'+' + datum.reportCount"
-            },
-            {
-              "value": "\u2212"
-            }
-          ],
+          "text": {
+            "field": "toggleLabel"
+          },
           "align": {
             "value": "center"
           },
@@ -924,7 +1102,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 8
+            "value": 8.5
           },
           "fontWeight": {
             "value": "bold"

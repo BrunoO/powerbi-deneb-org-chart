@@ -6,7 +6,8 @@ A production-ready, interactive, and beautifully designed **Collapsible Organiza
 
 ## Key Features
 
-- **Interactive Branch Collapsing & Expanding**: Click the **`−`** button at the bottom of any manager card to collapse all their direct and indirect sub-reports. The button transforms into a **`+ N`** badge showing the count of hidden reports. Clicking it expands the branch back.
+- **Total Descendant Headcount Display**: Every manager card automatically calculates and displays their total descendant headcount in the bottom-right corner (e.g. `team 4` for David Chen, `team 11` for the CEO).
+- **Interactive Branch Collapsing & Expanding**: Click the **`−`** button at the bottom of any manager card to collapse all their direct and indirect sub-reports. When collapsed, the button displays a **`+ N`** badge showing the total headcount hidden (e.g. `+4`). Clicking it expands the branch back.
 - **Dynamic Re-layout & Re-centering**: When a branch collapses, the tree automatically re-packs horizontally and re-centers on the canvas, saving massive space for large organizations.
 - **"Expand All" Reset Button**: A quick-action button in the top-left corner restores the full organization view in one click.
 - **Zero-Overlap Architecture**: Built on Vega's `nodeSize` tidy layout and automatic dynamic centering, guaranteeing cards never collide regardless of how many branches are expanded or collapsed.
