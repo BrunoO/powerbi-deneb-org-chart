@@ -392,6 +392,60 @@
           "ParentID": "5",
           "Name": "Kevin Hart",
           "Title": "Kubernetes Platform Eng"
+        },
+        {
+          "ID": "34",
+          "ParentID": "1",
+          "Name": "Arthur Dent",
+          "Title": "Chief Financial Officer"
+        },
+        {
+          "ID": "35",
+          "ParentID": "1",
+          "Name": "Beatrice Webb",
+          "Title": "Chief People Officer"
+        },
+        {
+          "ID": "36",
+          "ParentID": "1",
+          "Name": "Charles Darwin",
+          "Title": "Chief Legal Officer"
+        },
+        {
+          "ID": "37",
+          "ParentID": "1",
+          "Name": "Diana Prince",
+          "Title": "VP of Customer Success"
+        },
+        {
+          "ID": "38",
+          "ParentID": "1",
+          "Name": "Edward Norton",
+          "Title": "VP of Operations"
+        },
+        {
+          "ID": "39",
+          "ParentID": "1",
+          "Name": "Fiona Gallagher",
+          "Title": "VP of Communications"
+        },
+        {
+          "ID": "40",
+          "ParentID": "1",
+          "Name": "George Clark",
+          "Title": "Chief Info Security Officer"
+        },
+        {
+          "ID": "41",
+          "ParentID": "1",
+          "Name": "Helen Mirren",
+          "Title": "Chief Strategy Officer"
+        },
+        {
+          "ID": "42",
+          "ParentID": "1",
+          "Name": "Ian Fleming",
+          "Title": "Head of Corp Development"
         }
       ]
     },
@@ -1637,6 +1691,10 @@
           },
           "opacity": [
             {
+              "test": "!datum.totalDescendants || datum.totalDescendants <= 0",
+              "value": 0
+            },
+            {
               "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
               "value": 1
             },
@@ -1680,6 +1738,10 @@
             "value": "#64748B"
           },
           "opacity": [
+            {
+              "test": "!datum.totalDescendants || datum.totalDescendants <= 0",
+              "value": 0
+            },
             {
               "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
               "value": 1
@@ -1849,6 +1911,10 @@
           },
           "opacity": [
             {
+              "test": "!datum.reportCount || datum.reportCount <= 0",
+              "value": 0
+            },
+            {
               "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
               "value": 1
             },
@@ -1901,6 +1967,10 @@
             "value": "pointer"
           },
           "opacity": [
+            {
+              "test": "!datum.reportCount || datum.reportCount <= 0",
+              "value": 0
+            },
             {
               "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
               "value": 1

@@ -32,3 +32,12 @@ ID,ParentID,Name,Title
 31,5,Samir Khan,Cloud Systems Engineer
 32,5,Julia Roberts,DevSecOps Specialist
 33,5,Kevin Hart,Kubernetes Platform Eng
+34,1,Arthur Dent,Chief Financial Officer
+35,1,Beatrice Webb,Chief People Officer
+36,1,Charles Darwin,Chief Legal Officer
+37,1,Diana Prince,VP of Customer Success
+38,1,Edward Norton,VP of Operations
+39,1,Fiona Gallagher,VP of Communications
+40,1,George Clark,Chief Info Security Officer
+41,1,Helen Mirren,Chief Strategy Officer
+42,1,Ian Fleming,Head of Corp Development
