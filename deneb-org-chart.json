@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.5.1 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.5.2 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.5.1",
+      "value": "v1.5.2",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -155,10 +155,14 @@
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, ',' + datum.id + ',') >= 0 ? replace(expandedIds, datum.id + ',', '') : expandedIds + datum.id + ',') : expandedIds"
+          "update": "!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, ',' + datum.id + ',') >= 0 ? replace(expandedIds, ',' + datum.id + ',', ',') : expandedIds + datum.id + ',') : expandedIds"
         },
         {
           "events": "@collapseAllBtn:click, @collapseAllText:click",
+          "update": "','"
+        },
+        {
+          "events": "@expandAllBtn:click, @expandAllText:click",
           "update": "','"
         }
       ]
@@ -166,14 +170,18 @@
     {
       "name": "collapsedIds",
       "value": ",",
-      "description": "Comma-delimited string of node IDs that were expanded by default and explicitly collapsed",
+      "description": "Comma-delimited string of node IDs that were expanded by default (or via Expand All) and explicitly collapsed",
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "datum.rawDepth < defaultCollapseDepth ? (indexof(collapsedIds, ',' + datum.id + ',') >= 0 ? replace(collapsedIds, datum.id + ',', '') : collapsedIds + datum.id + ',') : collapsedIds"
+          "update": "(expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, ',' + datum.id + ',') >= 0 ? replace(collapsedIds, ',' + datum.id + ',', ',') : collapsedIds + datum.id + ',') : collapsedIds"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
+          "update": "','"
+        },
+        {
+          "events": "@collapseAllBtn:click, @collapseAllText:click",
           "update": "','"
         }
       ]
@@ -183,11 +191,11 @@
       "value": null,
       "on": [
         {
-          "events": "@cardBody:mouseover, @employeeName:mouseover, @employeeTitle:mouseover",
+          "events": "@cardBody:mouseover",
           "update": "datum.id"
         },
         {
-          "events": "@cardBody:mouseout, @employeeName:mouseout, @employeeTitle:mouseout",
+          "events": "@cardBody:mouseout",
           "update": "null"
         }
       ]
@@ -197,11 +205,11 @@
       "value": "",
       "on": [
         {
-          "events": "@cardBody:mouseover, @employeeName:mouseover, @employeeTitle:mouseover",
+          "events": "@cardBody:mouseover",
           "update": "datum.ancPath"
         },
         {
-          "events": "@cardBody:mouseout, @employeeName:mouseout, @employeeTitle:mouseout",
+          "events": "@cardBody:mouseout",
           "update": "''"
         }
       ]
@@ -510,8 +518,13 @@
         },
         {
           "type": "formula",
-          "expr": "datum.isTitleWrapped ? [slice(datum.Title_clean, 0, datum.titleBreakIdx), slice(datum.Title_clean, datum.titleBreakIdx + 1)] : [datum.Title_clean]",
-          "as": "Title_lines"
+          "expr": "datum.isTitleWrapped ? slice(datum.Title_clean, 0, datum.titleBreakIdx) : datum.Title_clean",
+          "as": "Title_line1"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.isTitleWrapped ? slice(datum.Title_clean, datum.titleBreakIdx + 1) : ''",
+          "as": "Title_line2"
         }
       ]
     },
@@ -598,13 +611,41 @@
           ]
         },
         {
+          "type": "lookup",
+          "from": "clean_data",
+          "key": "id",
+          "fields": [
+            "anc4"
+          ],
+          "values": [
+            "parentId"
+          ],
+          "as": [
+            "anc5"
+          ]
+        },
+        {
+          "type": "lookup",
+          "from": "clean_data",
+          "key": "id",
+          "fields": [
+            "anc5"
+          ],
+          "values": [
+            "parentId"
+          ],
+          "as": [
+            "anc6"
+          ]
+        },
+        {
           "type": "formula",
-          "expr": "!isValid(datum.parentId) ? 0 : (!isValid(datum.anc1) ? 1 : (!isValid(datum.anc2) ? 2 : (!isValid(datum.anc3) ? 3 : (!isValid(datum.anc4) ? 4 : 5))))",
+          "expr": "!isValid(datum.parentId) ? 0 : (!isValid(datum.anc1) ? 1 : (!isValid(datum.anc2) ? 2 : (!isValid(datum.anc3) ? 3 : (!isValid(datum.anc4) ? 4 : (!isValid(datum.anc5) ? 5 : (!isValid(datum.anc6) ? 6 : 7))))))",
           "as": "rawDepth"
         },
         {
           "type": "formula",
-          "expr": "',' + (isValid(datum.parentId) ? datum.parentId + ',' : '') + (isValid(datum.anc1) ? datum.anc1 + ',' : '') + (isValid(datum.anc2) ? datum.anc2 + ',' : '') + (isValid(datum.anc3) ? datum.anc3 + ',' : '') + (isValid(datum.anc4) ? datum.anc4 + ',' : '')",
+          "expr": "',' + (isValid(datum.parentId) ? datum.parentId + ',' : '') + (isValid(datum.anc1) ? datum.anc1 + ',' : '') + (isValid(datum.anc2) ? datum.anc2 + ',' : '') + (isValid(datum.anc3) ? datum.anc3 + ',' : '') + (isValid(datum.anc4) ? datum.anc4 + ',' : '') + (isValid(datum.anc5) ? datum.anc5 + ',' : '') + (isValid(datum.anc6) ? datum.anc6 + ',' : '')",
           "as": "ancPath"
         }
       ]
@@ -620,7 +661,9 @@
             "anc1",
             "anc2",
             "anc3",
-            "anc4"
+            "anc4",
+            "anc5",
+            "anc6"
           ],
           "as": [
             "ancLevel",
@@ -681,7 +724,7 @@
         },
         {
           "type": "formula",
-          "expr": "!expandAllOverride && ((isValid(datum.parentId) && ((datum.rawDepth - 1) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.parentId + ',') < 0 : indexof(collapsedIds, ',' + datum.parentId + ',') >= 0)) || (isValid(datum.anc1) && ((datum.rawDepth - 2) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc1 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc1 + ',') >= 0)) || (isValid(datum.anc2) && ((datum.rawDepth - 3) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc2 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc2 + ',') >= 0)) || (isValid(datum.anc3) && ((datum.rawDepth - 4) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc3 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc3 + ',') >= 0)) || (isValid(datum.anc4) && ((datum.rawDepth - 5) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc4 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc4 + ',') >= 0)))",
+          "expr": "(isValid(datum.parentId) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.parentId + ',') >= 0 : ((datum.rawDepth - 1) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.parentId + ',') < 0 : indexof(collapsedIds, ',' + datum.parentId + ',') >= 0))) || (isValid(datum.anc1) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc1 + ',') >= 0 : ((datum.rawDepth - 2) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc1 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc1 + ',') >= 0))) || (isValid(datum.anc2) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc2 + ',') >= 0 : ((datum.rawDepth - 3) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc2 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc2 + ',') >= 0))) || (isValid(datum.anc3) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc3 + ',') >= 0 : ((datum.rawDepth - 4) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc3 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc3 + ',') >= 0))) || (isValid(datum.anc4) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc4 + ',') >= 0 : ((datum.rawDepth - 5) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc4 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc4 + ',') >= 0))) || (isValid(datum.anc5) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc5 + ',') >= 0 : ((datum.rawDepth - 6) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc5 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc5 + ',') >= 0))) || (isValid(datum.anc6) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc6 + ',') >= 0 : ((datum.rawDepth - 7) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc6 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc6 + ',') >= 0)))",
           "as": "isCollapsedDescendant"
         }
       ]
@@ -841,8 +884,13 @@
         },
         {
           "type": "formula",
-          "expr": "datum.isTitleWrapped ? datum.cardY + round(cardHeight * 0.63) : datum.cardY + round(cardHeight * 0.65)",
+          "expr": "datum.isTitleWrapped ? datum.cardY + round(cardHeight * 0.55) : datum.cardY + round(cardHeight * 0.65)",
           "as": "titleY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + round(cardHeight * 0.77)",
+          "as": "title2Y"
         },
         {
           "type": "formula",
@@ -911,7 +959,7 @@
         },
         {
           "type": "formula",
-          "expr": "!expandAllOverride && (datum.rawDepth >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.id + ',') < 0 : indexof(collapsedIds, ',' + datum.id + ',') >= 0)",
+          "expr": "expandAllOverride ? indexof(collapsedIds, ',' + datum.id + ',') >= 0 : (datum.rawDepth >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.id + ',') < 0 : indexof(collapsedIds, ',' + datum.id + ',') >= 0)",
           "as": "isCollapsed"
         },
         {
@@ -1595,7 +1643,8 @@
             }
           ]
         }
-      }
+      },
+      "interactive": false
     },
     {
       "type": "rect",
@@ -1677,7 +1726,8 @@
             }
           ]
         }
-      }
+      },
+      "interactive": false
     },
     {
       "type": "rect",
@@ -1802,7 +1852,8 @@
             }
           ]
         }
-      }
+      },
+      "interactive": false
     },
     {
       "type": "rect",
@@ -1865,7 +1916,8 @@
             }
           ]
         }
-      }
+      },
+      "interactive": false
     },
     {
       "type": "text",
@@ -1925,7 +1977,8 @@
             }
           ]
         }
-      }
+      },
+      "interactive": false
     },
     {
       "type": "rect",
@@ -1985,7 +2038,8 @@
             }
           ]
         }
-      }
+      },
+      "interactive": false
     },
     {
       "type": "text",
@@ -2042,7 +2096,8 @@
             "value": "Segoe UI Emoji, Segoe UI, -apple-system, sans-serif"
           }
         }
-      }
+      },
+      "interactive": false
     },
     {
       "type": "text",
@@ -2100,11 +2155,13 @@
             }
           ]
         }
-      }
+      },
+      "interactive": false
     },
     {
       "type": "text",
       "name": "employeeTitle",
+      "interactive": false,
       "from": {
         "data": "tree_nodes"
       },
@@ -2117,10 +2174,66 @@
             "field": "titleY"
           },
           "text": {
-            "field": "Title_lines"
+            "field": "Title_line1"
           },
-          "lineHeight": {
-            "signal": "max(8, round(11.5 * zoomLevel))"
+          "align": {
+            "value": "left"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "signal": "max(6.5, round(8.5 * zoomLevel))"
+          },
+          "fontWeight": {
+            "value": "normal"
+          },
+          "fill": [
+            {
+              "value": "#64748B"
+            }
+          ],
+          "limit": [
+            {
+              "test": "!datum.isTitleWrapped && datum.totalDescendants > 0",
+              "signal": "cardWidth - (datum.descendantBadgeWidth + 18)"
+            },
+            {
+              "signal": "cardWidth - 20"
+            }
+          ],
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          },
+          "opacity": [
+            {
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "value": 1
+            },
+            {
+              "value": 0.35
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "employeeTitle2",
+      "interactive": false,
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "field": "textX"
+          },
+          "y": {
+            "field": "title2Y"
+          },
+          "text": {
+            "field": "Title_line2"
           },
           "align": {
             "value": "left"
@@ -2152,6 +2265,10 @@
             "value": "Segoe UI, -apple-system, sans-serif"
           },
           "opacity": [
+            {
+              "test": "!datum.isTitleWrapped",
+              "value": 0
+            },
             {
               "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
               "value": 1
@@ -2304,18 +2421,18 @@
     }
   ],
   "usermeta": {
-    "version": "1.5.1",
+    "version": "1.5.2",
     "releaseDate": "2026-11-22",
     "features": [
       "Configurable Stacking Mode (Standard Tree vs 2-Column Stacking)",
+      "Corridor-Aligned Central Spine Routing",
       "Active Reporting Line Hover Highlighting",
       "Modern Floating Glassmorphic Toolbar Dock with Layout Mode Toggle",
       "Dot-Matrix Spatial Background",
-      "Approachable Executive CEO Card Styling",
-      "★ CEO Amber Prestige Badge",
+      "Approachable Executive CEO Card Styling & ★ CEO Amber Prestige Badge",
       "👥 Modern Headcount Badge",
-      "165px Wider Cards & Interactive Elevation",
-      "Intelligent Multi-Line Title Wrapping"
+      "165×58px Cards & Interactive Elevation",
+      "Zoom-Invariant 2-Line Title Wrapping"
     ]
   }
 }

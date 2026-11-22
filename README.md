@@ -18,7 +18,7 @@ Built to handle everything from executive leadership overviews to massive enterp
 - **Interactive Card Elevation on Hover**: Hovering over any card elevates it with an expanded soft cobalt glow aura and crisp border highlight.
 - **Tactile Canvas Dot-Matrix Background**: Subtly patterned dot-grid canvas (`#F8FAFC` with fine slate dots, inspired by modern design tools like Linear, Miro, and Figma) providing spatial orientation while dragging and panning.
 - **True Orthogonal Midpoint Bus Line Routing**: Links drop vertically from parent cards through a dedicated stem into the corridor midpoint before branching horizontally, completely clearing sibling cards and toggle buttons.
-- **Version Identifier (`v1.5.1`)**: Specification version tracker embedded directly in root `usermeta`, `signals`, and rendered on the canvas toolbar badge for quick verification.
+- **Version Identifier (`v1.5.2`)**: Specification version tracker embedded directly in root `usermeta`, `signals`, and rendered on the canvas toolbar badge for quick verification.
 
 ### ⚡ Navigation & Interactive Micro-Delights
 - **Active Reporting Line Hover Highlighting**: Hovering over any employee (manager or individual contributor) dynamically illuminates their **entire upward management chain up to the CEO** and **all downward direct/indirect reports** in bold primary blue (`#2563EB`) with double-thickness connectors (`2.5px`), while softly dimming unrelated sibling branches to 35% opacity.
