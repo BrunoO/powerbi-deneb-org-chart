@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Power BI Deneb Org Chart Preview</title>
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
@@ -16,10 +17,11 @@
     .header {
       max-width: 1200px;
       margin: 0 auto 20px auto;
-      background: white;
+      background: #ffffff;
       padding: 20px 24px;
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
     }
     h1 {
       margin: 0 0 8px 0;
@@ -36,36 +38,671 @@
       margin: 0 auto;
       background: #ffffff;
       border-radius: 12px;
-      padding: 16px;
+      padding: 24px;
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
       border: 1px solid #e2e8f0;
-      overflow: auto;
+      overflow-x: auto;
     }
     #vis {
-      width: 100%;
-      min-height: 620px;
+      display: flex;
+      justify-content: center;
     }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>Org Chart - Deneb &amp; Vega Preview</h1>
-    <p>This preview uses the exact specification from <code>deneb-org-chart.json</code>. Hover over cards to see details and interactive highlights.</p>
+    <p>Self-contained preview. Hover over employee cards to see details and interactive highlights.</p>
   </div>
   <div id="chart-container">
     <div id="vis"></div>
   </div>
 
   <script>
-    fetch('deneb-org-chart.json')
-      .then(response => response.json())
-      .then(spec => {
-        // In PowerBI Deneb, width and height are provided by the container
-        spec.width = 1100;
-        spec.height = 600;
-        vegaEmbed('#vis', spec, { renderer: 'svg', actions: true });
-      })
-      .catch(err => console.error(err));
+    const spec = {
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "Interactive Executive Org Chart Visual for Power BI using Deneb & Vega",
+  "padding": 15,
+  "autosize": "none",
+  "signals": [
+    {
+      "name": "cardWidth",
+      "value": 185,
+      "description": "Width of each employee card in pixels"
+    },
+    {
+      "name": "cardHeight",
+      "value": 72,
+      "description": "Height of each employee card in pixels"
+    },
+    {
+      "name": "topMargin",
+      "value": 40,
+      "description": "Top margin offset from visual boundary"
+    },
+    {
+      "name": "bottomMargin",
+      "value": 50,
+      "description": "Bottom margin offset"
+    },
+    {
+      "name": "sideMargin",
+      "update": "cardWidth / 2 + 25",
+      "description": "Horizontal padding to keep outer nodes inside the canvas"
+    },
+    {
+      "name": "treeWidth",
+      "update": "max(cardWidth * 2, width - (2 * sideMargin))"
+    },
+    {
+      "name": "treeHeight",
+      "update": "max(cardHeight * 2, height - topMargin - bottomMargin)"
+    },
+    {
+      "name": "hoveredId",
+      "value": null,
+      "on": [
+        {
+          "events": "@cardBody:mouseover",
+          "update": "datum.ID_clean"
+        },
+        {
+          "events": "@cardBody:mouseout",
+          "update": "null"
+        }
+      ]
+    }
+  ],
+  "data": [
+    {
+      "name": "dataset",
+      "values": [
+        {
+          "ID": "1",
+          "ParentID": null,
+          "Name": "Sarah Jenkins",
+          "Title": "Chief Executive Officer"
+        },
+        {
+          "ID": "2",
+          "ParentID": "1",
+          "Name": "David Chen",
+          "Title": "VP of Engineering"
+        },
+        {
+          "ID": "3",
+          "ParentID": "1",
+          "Name": "Elena Rostova",
+          "Title": "VP of Product"
+        },
+        {
+          "ID": "4",
+          "ParentID": "1",
+          "Name": "Marcus Vance",
+          "Title": "VP of Sales & Marketing"
+        },
+        {
+          "ID": "5",
+          "ParentID": "2",
+          "Name": "Alex Rivera",
+          "Title": "Director of Platform"
+        },
+        {
+          "ID": "6",
+          "ParentID": "2",
+          "Name": "Priya Sharma",
+          "Title": "Director of QA & Infra"
+        },
+        {
+          "ID": "7",
+          "ParentID": "3",
+          "Name": "Liam O'Connor",
+          "Title": "Principal UX Lead"
+        },
+        {
+          "ID": "8",
+          "ParentID": "3",
+          "Name": "Sophia Martinez",
+          "Title": "Lead Product Manager"
+        },
+        {
+          "ID": "9",
+          "ParentID": "4",
+          "Name": "Chloe Bennett",
+          "Title": "Regional Sales Director"
+        },
+        {
+          "ID": "10",
+          "ParentID": "4",
+          "Name": "Tariq Al-Mansoor",
+          "Title": "Head of Growth"
+        },
+        {
+          "ID": "11",
+          "ParentID": "5",
+          "Name": "James Wilson",
+          "Title": "Staff Cloud Architect"
+        },
+        {
+          "ID": "12",
+          "ParentID": "5",
+          "Name": "Emma Watson",
+          "Title": "Senior DevOps Lead"
+        }
+      ]
+    },
+    {
+      "name": "tree_nodes",
+      "source": "dataset",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "isValid(datum['ID']) && datum['ID'] !== '' && datum['ID'] !== null"
+        },
+        {
+          "type": "formula",
+          "expr": "toString(datum['ID'])",
+          "as": "ID_clean"
+        },
+        {
+          "type": "formula",
+          "expr": "isValid(datum['ParentID']) && datum['ParentID'] !== '' && datum['ParentID'] !== null && datum['ParentID'] !== '0' && datum['ParentID'] !== 0 && datum['ParentID'] != datum['ID'] ? toString(datum['ParentID']) : null",
+          "as": "ParentID_clean"
+        },
+        {
+          "type": "formula",
+          "expr": "isValid(datum['Name']) && datum['Name'] !== '' ? toString(datum['Name']) : 'Unknown'",
+          "as": "Name_clean"
+        },
+        {
+          "type": "formula",
+          "expr": "isValid(datum['Title']) && datum['Title'] !== '' ? toString(datum['Title']) : 'Team Member'",
+          "as": "Title_clean"
+        },
+        {
+          "type": "formula",
+          "expr": "length(split(datum.Name_clean, ' ')) > 1 ? upper(slice(split(datum.Name_clean, ' ')[0], 0, 1) + slice(split(datum.Name_clean, ' ')[1], 0, 1)) : upper(slice(datum.Name_clean, 0, 2))",
+          "as": "Initials"
+        },
+        {
+          "type": "stratify",
+          "key": "ID_clean",
+          "parentKey": "ParentID_clean"
+        },
+        {
+          "type": "tree",
+          "method": "tidy",
+          "size": [
+            {
+              "signal": "treeWidth"
+            },
+            {
+              "signal": "treeHeight"
+            }
+          ],
+          "as": [
+            "rawX",
+            "rawY",
+            "depth",
+            "children"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "datum.rawX + sideMargin - (cardWidth / 2)",
+          "as": "cardX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.rawY + topMargin",
+          "as": "cardY"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardX + (cardWidth / 2)",
+          "as": "centerX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY",
+          "as": "cardTop"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardY + cardHeight",
+          "as": "cardBottom"
+        }
+      ]
+    },
+    {
+      "name": "tree_links",
+      "source": "tree_nodes",
+      "transform": [
+        {
+          "type": "treelinks"
+        },
+        {
+          "type": "linkpath",
+          "orient": "vertical",
+          "shape": "orthogonal",
+          "sourceX": "source.centerX",
+          "sourceY": "source.cardBottom",
+          "targetX": "target.centerX",
+          "targetY": "target.cardTop"
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "levelColor",
+      "type": "ordinal",
+      "domain": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "range": [
+        "#1D4ED8",
+        "#0284C7",
+        "#0F766E",
+        "#7C3AED",
+        "#64748B"
+      ]
+    },
+    {
+      "name": "levelBg",
+      "type": "ordinal",
+      "domain": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "range": [
+        "#EFF6FF",
+        "#F0F9FF",
+        "#F0FDFA",
+        "#F5F3FF",
+        "#F8FAFC"
+      ]
+    }
+  ],
+  "marks": [
+    {
+      "type": "path",
+      "name": "treeLinkPath",
+      "from": {
+        "data": "tree_links"
+      },
+      "encode": {
+        "update": {
+          "path": {
+            "field": "path"
+          },
+          "stroke": {
+            "value": "#CBD5E1"
+          },
+          "strokeWidth": {
+            "value": 1.75
+          },
+          "strokeCap": {
+            "value": "round"
+          },
+          "strokeJoin": {
+            "value": "round"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "cardShadow",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "field": "cardX"
+          },
+          "y": {
+            "expr": "datum.cardY + 2"
+          },
+          "width": {
+            "signal": "cardWidth"
+          },
+          "height": {
+            "signal": "cardHeight"
+          },
+          "cornerRadius": {
+            "value": 8
+          },
+          "fill": {
+            "value": "rgba(15, 23, 42, 0.05)"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "cardBody",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "field": "cardX"
+          },
+          "y": {
+            "field": "cardY"
+          },
+          "width": {
+            "signal": "cardWidth"
+          },
+          "height": {
+            "signal": "cardHeight"
+          },
+          "cornerRadius": {
+            "value": 8
+          },
+          "fill": {
+            "value": "#FFFFFF"
+          },
+          "stroke": [
+            {
+              "test": "datum.ID_clean === hoveredId",
+              "value": "#1D4ED8"
+            },
+            {
+              "value": "#E2E8F0"
+            }
+          ],
+          "strokeWidth": [
+            {
+              "test": "datum.ID_clean === hoveredId",
+              "value": 2
+            },
+            {
+              "value": 1
+            }
+          ],
+          "cursor": {
+            "value": "pointer"
+          },
+          "tooltip": {
+            "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.ID_clean, 'Reports To ID': isValid(datum.ParentID_clean) ? datum.ParentID_clean : 'None (Top of Org)', 'Org Level': datum.depth}"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "cardLeftAccent",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "expr": "datum.cardX + 3"
+          },
+          "y": {
+            "expr": "datum.cardY + 8"
+          },
+          "width": {
+            "value": 4
+          },
+          "height": {
+            "expr": "cardHeight - 16"
+          },
+          "cornerRadius": {
+            "value": 2
+          },
+          "fill": {
+            "scale": "levelColor",
+            "field": "depth"
+          }
+        }
+      }
+    },
+    {
+      "type": "symbol",
+      "name": "avatarCircle",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "shape": {
+            "value": "circle"
+          },
+          "size": {
+            "value": 520
+          },
+          "x": {
+            "expr": "datum.cardX + 27"
+          },
+          "y": {
+            "expr": "datum.cardY + (cardHeight / 2)"
+          },
+          "fill": {
+            "scale": "levelBg",
+            "field": "depth"
+          },
+          "stroke": {
+            "scale": "levelColor",
+            "field": "depth"
+          },
+          "strokeWidth": {
+            "value": 1.25
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "avatarInitials",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "expr": "datum.cardX + 27"
+          },
+          "y": {
+            "expr": "datum.cardY + (cardHeight / 2) + 0.5"
+          },
+          "text": {
+            "field": "Initials"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 9.5
+          },
+          "fontWeight": {
+            "value": "bold"
+          },
+          "fill": {
+            "scale": "levelColor",
+            "field": "depth"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "levelBadgeBg",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "expr": "datum.cardX + cardWidth - 32"
+          },
+          "y": {
+            "expr": "datum.cardY + 8"
+          },
+          "width": {
+            "value": 24
+          },
+          "height": {
+            "value": 13
+          },
+          "cornerRadius": {
+            "value": 6.5
+          },
+          "fill": {
+            "scale": "levelBg",
+            "field": "depth"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "levelBadgeText",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "expr": "datum.cardX + cardWidth - 20"
+          },
+          "y": {
+            "expr": "datum.cardY + 14.5"
+          },
+          "text": {
+            "signal": "'L' + datum.depth"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 7.5
+          },
+          "fontWeight": {
+            "value": "bold"
+          },
+          "fill": {
+            "scale": "levelColor",
+            "field": "depth"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "employeeName",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "expr": "datum.cardX + 46"
+          },
+          "y": {
+            "expr": "datum.cardY + 28"
+          },
+          "text": {
+            "field": "Name_clean"
+          },
+          "align": {
+            "value": "left"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 11.5
+          },
+          "fontWeight": {
+            "value": "600"
+          },
+          "fill": {
+            "value": "#0F172A"
+          },
+          "limit": {
+            "signal": "cardWidth - 82"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "employeeTitle",
+      "from": {
+        "data": "tree_nodes"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "expr": "datum.cardX + 46"
+          },
+          "y": {
+            "expr": "datum.cardY + 45"
+          },
+          "text": {
+            "field": "Title_clean"
+          },
+          "align": {
+            "value": "left"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 9.5
+          },
+          "fontWeight": {
+            "value": "normal"
+          },
+          "fill": {
+            "value": "#64748B"
+          },
+          "limit": {
+            "signal": "cardWidth - 54"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    }
+  ],
+  "width": 1100,
+  "height": 600
+};
+    vegaEmbed('#vis', spec, { renderer: 'svg', actions: true })
+      .catch(err => {
+        console.error('Vega render error:', err);
+        document.getElementById('vis').innerHTML = '<div style="color: red; padding: 20px;">Render Error: ' + err.message + '</div>';
+      });
   </script>
 </body>
 </html>
