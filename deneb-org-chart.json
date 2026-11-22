@@ -23,7 +23,7 @@
     },
     {
       "name": "zoomLevel",
-      "value": 1.0,
+      "value": 1,
       "description": "Current canvas zoom factor (0.4 to 1.6)",
       "on": [
         {
@@ -167,12 +167,26 @@
       "value": null,
       "on": [
         {
-          "events": "@cardBody:mouseover",
+          "events": "@cardBody:mouseover, @employeeName:mouseover, @employeeTitle:mouseover",
           "update": "datum.id"
         },
         {
-          "events": "@cardBody:mouseout",
+          "events": "@cardBody:mouseout, @employeeName:mouseout, @employeeTitle:mouseout",
           "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "hoveredAncPath",
+      "value": "",
+      "on": [
+        {
+          "events": "@cardBody:mouseover, @employeeName:mouseover, @employeeTitle:mouseover",
+          "update": "datum.ancPath"
+        },
+        {
+          "events": "@cardBody:mouseout, @employeeName:mouseout, @employeeTitle:mouseout",
+          "update": "''"
         }
       ]
     }
@@ -497,6 +511,11 @@
           "type": "formula",
           "expr": "!isValid(datum.parentId) ? 0 : (!isValid(datum.anc1) ? 1 : (!isValid(datum.anc2) ? 2 : (!isValid(datum.anc3) ? 3 : (!isValid(datum.anc4) ? 4 : 5))))",
           "as": "rawDepth"
+        },
+        {
+          "type": "formula",
+          "expr": "',' + (isValid(datum.parentId) ? datum.parentId + ',' : '') + (isValid(datum.anc1) ? datum.anc1 + ',' : '') + (isValid(datum.anc2) ? datum.anc2 + ',' : '') + (isValid(datum.anc3) ? datum.anc3 + ',' : '') + (isValid(datum.anc4) ? datum.anc4 + ',' : '')",
+          "as": "ancPath"
         }
       ]
     },
@@ -868,7 +887,7 @@
             "value": 0
           },
           "fill": {
-            "value": "#ffffff"
+            "value": "transparent"
           },
           "cursor": {
             "value": "grab"
@@ -886,32 +905,84 @@
     },
     {
       "type": "rect",
+      "name": "toolbarShadow",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 16
+          },
+          "y": {
+            "value": 11
+          },
+          "width": {
+            "value": 344
+          },
+          "height": {
+            "value": 32
+          },
+          "cornerRadius": {
+            "value": 16
+          },
+          "fill": {
+            "value": "rgba(15, 23, 42, 0.08)"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "toolbarBg",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 16
+          },
+          "y": {
+            "value": 10
+          },
+          "width": {
+            "value": 344
+          },
+          "height": {
+            "value": 32
+          },
+          "cornerRadius": {
+            "value": 16
+          },
+          "fill": {
+            "value": "#FFFFFF"
+          },
+          "stroke": {
+            "value": "#E2E8F0"
+          },
+          "strokeWidth": {
+            "value": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
       "name": "expandAllBtn",
       "encode": {
         "enter": {
           "x": {
-            "value": 15
+            "value": 20
           },
           "y": {
-            "value": 12
+            "value": 13
           },
           "width": {
-            "value": 78
+            "value": 86
           },
           "height": {
-            "value": 24
+            "value": 26
           },
           "cornerRadius": {
-            "value": 4
+            "value": 13
           },
           "fill": {
-            "value": "#F1F5F9"
-          },
-          "stroke": {
-            "value": "#CBD5E1"
-          },
-          "strokeWidth": {
-            "value": 1
+            "value": "transparent"
           },
           "cursor": {
             "value": "pointer"
@@ -925,13 +996,13 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 54
+            "value": 63
           },
           "y": {
-            "value": 24
+            "value": 26
           },
           "text": {
-            "value": "Expand All"
+            "value": "⤢ Expand All"
           },
           "align": {
             "value": "center"
@@ -940,13 +1011,13 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 10
+            "value": 10.5
           },
           "fontWeight": {
-            "value": "bold"
+            "value": "600"
           },
           "fill": {
-            "value": "#475569"
+            "value": "#334155"
           },
           "cursor": {
             "value": "pointer"
@@ -963,28 +1034,22 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 100
+            "value": 110
           },
           "y": {
-            "value": 12
+            "value": 13
           },
           "width": {
-            "value": 82
+            "value": 88
           },
           "height": {
-            "value": 24
+            "value": 26
           },
           "cornerRadius": {
-            "value": 4
+            "value": 13
           },
           "fill": {
-            "value": "#F1F5F9"
-          },
-          "stroke": {
-            "value": "#CBD5E1"
-          },
-          "strokeWidth": {
-            "value": 1
+            "value": "transparent"
           },
           "cursor": {
             "value": "pointer"
@@ -998,13 +1063,13 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 141
+            "value": 154
           },
           "y": {
-            "value": 24
+            "value": 26
           },
           "text": {
-            "value": "Collapse All"
+            "value": "⤡ Collapse All"
           },
           "align": {
             "value": "center"
@@ -1013,13 +1078,13 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 10
+            "value": 10.5
           },
           "fontWeight": {
-            "value": "bold"
+            "value": "600"
           },
           "fill": {
-            "value": "#475569"
+            "value": "#334155"
           },
           "cursor": {
             "value": "pointer"
@@ -1031,33 +1096,53 @@
       }
     },
     {
+      "type": "rule",
+      "name": "toolbarDivider",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 204
+          },
+          "x2": {
+            "value": 204
+          },
+          "y": {
+            "value": 16
+          },
+          "y2": {
+            "value": 36
+          },
+          "stroke": {
+            "value": "#E2E8F0"
+          },
+          "strokeWidth": {
+            "value": 1
+          }
+        }
+      }
+    },
+    {
       "type": "rect",
       "name": "zoomOutBtn",
       "encode": {
         "enter": {
           "x": {
-            "value": 190
+            "value": 210
           },
           "y": {
-            "value": 12
+            "value": 13
           },
           "width": {
             "value": 26
           },
           "height": {
-            "value": 24
+            "value": 26
           },
           "cornerRadius": {
-            "value": 4
+            "value": 6
           },
           "fill": {
-            "value": "#F1F5F9"
-          },
-          "stroke": {
-            "value": "#CBD5E1"
-          },
-          "strokeWidth": {
-            "value": 1
+            "value": "transparent"
           },
           "cursor": {
             "value": "pointer"
@@ -1071,13 +1156,13 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 203
+            "value": 223
           },
           "y": {
-            "value": 24
+            "value": 26
           },
           "text": {
-            "value": "-"
+            "value": "−"
           },
           "align": {
             "value": "center"
@@ -1089,7 +1174,7 @@
             "value": 14
           },
           "fontWeight": {
-            "value": "bold"
+            "value": "600"
           },
           "fill": {
             "value": "#475569"
@@ -1109,28 +1194,22 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 222
+            "value": 240
           },
           "y": {
-            "value": 12
+            "value": 13
           },
           "width": {
-            "value": 74
+            "value": 86
           },
           "height": {
-            "value": 24
+            "value": 26
           },
           "cornerRadius": {
-            "value": 4
+            "value": 6
           },
           "fill": {
-            "value": "#F1F5F9"
-          },
-          "stroke": {
-            "value": "#CBD5E1"
-          },
-          "strokeWidth": {
-            "value": 1
+            "value": "transparent"
           },
           "cursor": {
             "value": "pointer"
@@ -1144,10 +1223,10 @@
       "encode": {
         "update": {
           "x": {
-            "value": 259
+            "value": 283
           },
           "y": {
-            "value": 24
+            "value": 26
           },
           "text": {
             "signal": "'Reset (' + round(zoomLevel * 100) + '%)'"
@@ -1159,13 +1238,13 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 9.5
+            "value": 10
           },
           "fontWeight": {
-            "value": "bold"
+            "value": "600"
           },
           "fill": {
-            "value": "#475569"
+            "value": "#334155"
           },
           "cursor": {
             "value": "pointer"
@@ -1182,28 +1261,22 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 302
+            "value": 330
           },
           "y": {
-            "value": 12
+            "value": 13
           },
           "width": {
             "value": 26
           },
           "height": {
-            "value": 24
+            "value": 26
           },
           "cornerRadius": {
-            "value": 4
+            "value": 6
           },
           "fill": {
-            "value": "#F1F5F9"
-          },
-          "stroke": {
-            "value": "#CBD5E1"
-          },
-          "strokeWidth": {
-            "value": 1
+            "value": "transparent"
           },
           "cursor": {
             "value": "pointer"
@@ -1217,10 +1290,10 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 315
+            "value": 343
           },
           "y": {
-            "value": 24
+            "value": 26
           },
           "text": {
             "value": "+"
@@ -1235,7 +1308,7 @@
             "value": 14
           },
           "fontWeight": {
-            "value": "bold"
+            "value": "600"
           },
           "fill": {
             "value": "#475569"
@@ -1260,18 +1333,39 @@
           "path": {
             "signal": "(zoomLevel || panX || panY || 1) ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + round((datum.source.cardBottom + datum.target.cardTop) / 2) + 'H' + datum.target.centerX + 'V' + datum.target.cardTop) : ''"
           },
-          "stroke": {
-            "value": "#CBD5E1"
-          },
-          "strokeWidth": {
-            "value": 1.75
-          },
+          "stroke": [
+            {
+              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.target.id === hoveredId || indexof(hoveredAncPath, ',' + datum.target.id + ',') >= 0 || indexof(datum.target.ancPath, ',' + hoveredId + ',') >= 0))",
+              "value": "#2563EB"
+            },
+            {
+              "value": "#CBD5E1"
+            }
+          ],
+          "strokeWidth": [
+            {
+              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.target.id === hoveredId || indexof(hoveredAncPath, ',' + datum.target.id + ',') >= 0 || indexof(datum.target.ancPath, ',' + hoveredId + ',') >= 0))",
+              "value": 2.5
+            },
+            {
+              "value": 1.75
+            }
+          ],
           "strokeCap": {
             "value": "round"
           },
           "strokeJoin": {
             "value": "round"
-          }
+          },
+          "opacity": [
+            {
+              "test": "!hoveredId || ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.target.id === hoveredId || indexof(hoveredAncPath, ',' + datum.target.id + ',') >= 0 || indexof(datum.target.ancPath, ',' + hoveredId + ',') >= 0))",
+              "value": 1
+            },
+            {
+              "value": 0.2
+            }
+          ]
         }
       }
     },
@@ -1300,7 +1394,16 @@
           },
           "fill": {
             "value": "rgba(15, 23, 42, 0.05)"
-          }
+          },
+          "opacity": [
+            {
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "value": 1
+            },
+            {
+              "value": 0.35
+            }
+          ]
         }
       }
     },
@@ -1333,7 +1436,11 @@
           "stroke": [
             {
               "test": "datum.id === hoveredId",
-              "value": "#1D4ED8"
+              "value": "#2563EB"
+            },
+            {
+              "test": "hoveredId && (indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0)",
+              "value": "#3B82F6"
             },
             {
               "value": "#E2E8F0"
@@ -1342,6 +1449,10 @@
           "strokeWidth": [
             {
               "test": "datum.id === hoveredId",
+              "value": 2.5
+            },
+            {
+              "test": "hoveredId && (indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0)",
               "value": 2
             },
             {
@@ -1353,7 +1464,16 @@
           },
           "tooltip": {
             "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.id, 'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth, 'Status': datum.isCollapsed ? 'Collapsed' : 'Expanded'}"
-          }
+          },
+          "opacity": [
+            {
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "value": 1
+            },
+            {
+              "value": 0.35
+            }
+          ]
         }
       }
     },
@@ -1383,7 +1503,16 @@
           "fill": {
             "scale": "levelColor",
             "field": "rawDepth"
-          }
+          },
+          "opacity": [
+            {
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "value": 1
+            },
+            {
+              "value": 0.35
+            }
+          ]
         }
       }
     },
@@ -1413,7 +1542,16 @@
           "fill": {
             "scale": "levelBg",
             "field": "rawDepth"
-          }
+          },
+          "opacity": [
+            {
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "value": 1
+            },
+            {
+              "value": 0.35
+            }
+          ]
         }
       }
     },
@@ -1452,7 +1590,16 @@
           },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
-          }
+          },
+          "opacity": [
+            {
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "value": 1
+            },
+            {
+              "value": 0.35
+            }
+          ]
         }
       }
     },
@@ -1490,11 +1637,11 @@
           },
           "opacity": [
             {
-              "test": "datum.totalDescendants > 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
               "value": 1
             },
             {
-              "value": 0
+              "value": 0.35
             }
           ]
         }
@@ -1534,11 +1681,11 @@
           },
           "opacity": [
             {
-              "test": "datum.totalDescendants > 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
               "value": 1
             },
             {
-              "value": 0
+              "value": 0.35
             }
           ],
           "font": {
@@ -1584,7 +1731,16 @@
           },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
-          }
+          },
+          "opacity": [
+            {
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "value": 1
+            },
+            {
+              "value": 0.35
+            }
+          ]
         }
       }
     },
@@ -1631,7 +1787,16 @@
           ],
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
-          }
+          },
+          "opacity": [
+            {
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "value": 1
+            },
+            {
+              "value": 0.35
+            }
+          ]
         }
       }
     },
@@ -1684,11 +1849,11 @@
           },
           "opacity": [
             {
-              "test": "datum.reportCount > 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
               "value": 1
             },
             {
-              "value": 0
+              "value": 0.35
             }
           ]
         }
@@ -1737,11 +1902,11 @@
           },
           "opacity": [
             {
-              "test": "datum.reportCount > 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
               "value": 1
             },
             {
-              "value": 0
+              "value": 0.35
             }
           ],
           "font": {

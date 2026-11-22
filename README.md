@@ -65,15 +65,26 @@ Ensure your data table has the following four fields (or map your own column nam
 
 ## Large Organization Features (1,000+ Employees)
 
-Navigating a 1,000+ employee organization where single leaders have 50+ direct reports is made effortless through four built-in capabilities:
+Navigating a 1,000+ employee organization where single leaders have 50+ direct reports is made effortless through seven built-in capabilities:
 
-1. **Vertical Grid Stacking for Large Teams (> 6 direct reports)**:
+1. **Active Reporting Line Highlighting on Hover**:
+   - Hovering over any employee card illuminates their **entire upward reporting path up to the CEO** and all **downward direct/indirect reports** in vibrant primary blue (`#2563EB`).
+   - The exact branch connectors light up in bold blue with double thickness (`2.5px`).
+   - All unrelated sibling departments and links gently dim to **35% opacity**, providing instant spatial clarity without losing context in large 500+ org trees.
+2. **Modern Floating Glassmorphic Toolbar**:
+   - Clean floating dock pill container pinned at the top-left with rounded corners (`cornerRadius: 16`), soft shadow, and crisp icons:
+     - **`⤢ Expand All`** & **`⤡ Collapse All`** action buttons.
+     - Thin vertical hairline divider rule.
+     - Segmented Zoom Control: **`[ − | Reset (100%) | + ]`**.
+3. **Canvas Dot-Matrix Background**:
+   - Subtle spatial dot-matrix background (similar to Linear, FigJam, or Miro) providing tactile orientation when panning and zooming.
+4. **Vertical Grid Stacking for Large Teams (> 6 direct reports)**:
    - When a manager has $> 6$ direct reports (e.g. 10 to 50 individual contributors or reps), they are **automatically arranged in 2 neat vertical columns** directly underneath that manager, rather than stretching across thousands of pixels in a single horizontal line.
    - A team of 50 people occupies only **~350px wide** instead of **8,750px wide** (a 95% width reduction!).
    - Smaller teams ($\le 6$ direct reports) remain in clean standard horizontal rows.
    - **Executive Protection**: Level 1 executive teams (VPs / C-Suite reporting to the CEO) and managers with sub-teams are **never vertically stacked**; they always flow in a clean horizontal department row across the top.
    - Configurable via `gridThreshold` (default: `6`) and `stackMinDepth` (default: `2`). Set `gridThreshold` to `999` to disable.
-2. **Collapsed-by-Default (Progressive Disclosure)**:
+5. **Collapsed-by-Default (Progressive Disclosure)**:
    - On initial report load, only the executive team is visible (**Level 0** CEO and **Level 1** VPs / Department Heads).
    - All managers at Level 1 and below start collapsed (`+N`), displaying their total downstream headcount.
    - Users click into the specific department they wish to explore. Sibling departments stay collapsed, avoiding wide horizontal bloat.
@@ -81,16 +92,12 @@ Navigating a 1,000+ employee organization where single leaders have 50+ direct r
      - `1`: Shows Level 0 and Level 1 on load (default).
      - `2`: Shows Levels 0, 1, and 2.
      - `99`: Loads all levels expanded.
-3. **Interactive Zooming (`+`, `−`, Mouse Wheel)**:
+6. **Interactive Zooming (`+`, `−`, Mouse Wheel)**:
    - Use the **`+`** and **`−`** buttons on the top toolbar (or scroll your mouse wheel over the canvas) to zoom smoothly between `40%` and `160%`.
    - Cards, spacing, and typography scale proportionally.
    - Clicking **`Reset (100%)`** returns to normal scale immediately.
-4. **Interactive Drag-to-Pan**:
-   - Click and drag anywhere on the white canvas background to pan in any direction ($X$ and $Y$).
-5. **Toolbar Controls**:
-   - **`Expand All`**: Unrolls the entire organization hierarchy.
-   - **`Collapse All`**: Collapses all branches back to the clean top-level executive view.
-   - **`Reset`**: Resets pan offsets and zoom level back to `100%`.
+7. **Interactive Drag-to-Pan**:
+   - Click and drag anywhere on the canvas background to pan in any direction ($X$ and $Y$).
 
 ---
 
