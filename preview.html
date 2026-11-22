@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.4.2 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.5.0 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.4.2",
+      "value": "v1.5.0",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -151,7 +151,7 @@
     },
     {
       "name": "cardHeight",
-      "update": "round(56 * zoomLevel)",
+      "update": "round(58 * zoomLevel)",
       "description": "Height of each employee card in pixels"
     },
     {
@@ -546,6 +546,11 @@
           "type": "formula",
           "expr": "isValid(datum['Title']) && datum['Title'] !== '' ? toString(datum['Title']) : 'Team Member'",
           "as": "Title_clean"
+        },
+        {
+          "type": "formula",
+          "expr": "length(datum.Title_clean) > 20 && indexof(datum.Title_clean, ' ') > 0 ? replace(datum.Title_clean, regexp('^(.{1,21})\\\\s+'), '$1\\n') : datum.Title_clean",
+          "as": "Title_wrapped"
         }
       ]
     },
@@ -870,12 +875,12 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + round(cardHeight * 0.36)",
+          "expr": "indexof(datum.Title_wrapped, '\n') >= 0 ? datum.cardY + round(cardHeight * 0.28) : datum.cardY + round(cardHeight * 0.35)",
           "as": "nameY"
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + round(cardHeight * 0.66)",
+          "expr": "indexof(datum.Title_wrapped, '\n') >= 0 ? datum.cardY + round(cardHeight * 0.63) : datum.cardY + round(cardHeight * 0.65)",
           "as": "titleY"
         },
         {
@@ -2058,7 +2063,13 @@
             "field": "titleY"
           },
           "text": {
-            "field": "Title_clean"
+            "signal": "split(datum.Title_wrapped, '\\n')"
+          },
+          "lineBreak": {
+            "value": "\n"
+          },
+          "lineHeight": {
+            "signal": "max(8, round(11.5 * zoomLevel))"
           },
           "align": {
             "value": "left"
@@ -2067,7 +2078,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "signal": "max(6.5, round(9 * zoomLevel))"
+            "signal": "max(6.5, round(8.5 * zoomLevel))"
           },
           "fontWeight": {
             "value": "normal"
@@ -2242,7 +2253,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.4.2",
+    "version": "1.5.0",
     "releaseDate": "2026-11-22",
     "features": [
       "2-Column Grid Stacking for Large Teams",
@@ -2252,7 +2263,8 @@
       "Approachable Executive CEO Card Styling",
       "★ CEO Amber Prestige Badge",
       "👥 Modern Headcount Badge",
-      "165px Wider Cards & Interactive Elevation"
+      "165px Wider Cards & Interactive Elevation",
+      "Intelligent Multi-Line Title Wrapping"
     ]
   }
 };

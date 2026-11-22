@@ -1998,7 +1998,13 @@
             "field": "titleY"
           },
           "text": {
-            "field": "Title_clean"
+            "signal": "split(datum.Title_wrapped, '\\n')"
+          },
+          "lineBreak": {
+            "value": "\n"
+          },
+          "lineHeight": {
+            "signal": "max(8, round(11.5 * zoomLevel))"
           },
           "align": {
             "value": "left"
@@ -2007,7 +2013,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "signal": "max(6.5, round(9 * zoomLevel))"
+            "signal": "max(6.5, round(8.5 * zoomLevel))"
           },
           "fontWeight": {
             "value": "normal"
@@ -2182,7 +2188,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.4.2",
+    "version": "1.5.0",
     "releaseDate": "2026-11-22",
     "features": [
       "2-Column Grid Stacking for Large Teams",
@@ -2192,7 +2198,8 @@
       "Approachable Executive CEO Card Styling",
       "★ CEO Amber Prestige Badge",
       "👥 Modern Headcount Badge",
-      "165px Wider Cards & Interactive Elevation"
+      "165px Wider Cards & Interactive Elevation",
+      "Intelligent Multi-Line Title Wrapping"
     ]
   }
 }
