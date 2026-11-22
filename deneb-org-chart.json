@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.4.0 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.4.1 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.4.0",
+      "value": "v1.4.1",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -815,7 +815,12 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + cardWidth - 26",
+          "expr": "datum.rawDepth === 0 ? 36 : 19",
+          "as": "badgeWidth"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.cardX + cardWidth - datum.badgeWidth - 7",
           "as": "badgeX"
         },
         {
@@ -825,7 +830,7 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + cardWidth - 17",
+          "expr": "datum.badgeX + (datum.badgeWidth / 2)",
           "as": "badgeTextX"
         },
         {
@@ -1532,7 +1537,7 @@
             },
             {
               "test": "datum.rawDepth === 0",
-              "value": "rgba(15, 23, 42, 0.16)"
+              "value": "rgba(59, 130, 246, 0.10)"
             },
             {
               "value": "rgba(15, 23, 42, 0.06)"
@@ -1575,10 +1580,6 @@
           },
           "fill": [
             {
-              "test": "datum.rawDepth === 0",
-              "value": "#0F172A"
-            },
-            {
               "value": "#FFFFFF"
             }
           ],
@@ -1593,7 +1594,7 @@
             },
             {
               "test": "datum.rawDepth === 0",
-              "value": "#334155"
+              "value": "#3B82F6"
             },
             {
               "value": "#E2E8F0"
@@ -1607,6 +1608,10 @@
             {
               "test": "hoveredId && (indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0)",
               "value": 2
+            },
+            {
+              "test": "datum.rawDepth === 0",
+              "value": 1.5
             },
             {
               "value": 1
@@ -1656,7 +1661,7 @@
           "fill": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "#38BDF8"
+              "value": "#2563EB"
             },
             {
               "scale": "levelColor",
@@ -1690,7 +1695,7 @@
             "field": "badgeY"
           },
           "width": {
-            "value": 19
+            "field": "badgeWidth"
           },
           "height": {
             "value": 11
@@ -1701,13 +1706,25 @@
           "fill": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "rgba(56, 189, 248, 0.16)"
+              "value": "#EFF6FF"
             },
             {
               "scale": "levelBg",
               "field": "rawDepth"
             }
           ],
+          "stroke": [
+            {
+              "test": "datum.rawDepth === 0",
+              "value": "#BFDBFE"
+            },
+            {
+              "value": "transparent"
+            }
+          ],
+          "strokeWidth": {
+            "value": 0.75
+          },
           "opacity": [
             {
               "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
@@ -1737,7 +1754,7 @@
           "text": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "CEO"
+              "value": "👑 CEO"
             },
             {
               "signal": "'L' + datum.rawDepth"
@@ -1758,7 +1775,7 @@
           "fill": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "#38BDF8"
+              "value": "#1D4ED8"
             },
             {
               "scale": "levelColor",
@@ -1766,7 +1783,7 @@
             }
           ],
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "value": "Segoe UI Emoji, Segoe UI, -apple-system, sans-serif"
           },
           "opacity": [
             {
@@ -1806,7 +1823,7 @@
           "fill": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "rgba(255, 255, 255, 0.1)"
+              "value": "#EFF6FF"
             },
             {
               "value": "#F8FAFC"
@@ -1815,7 +1832,7 @@
           "stroke": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "rgba(255, 255, 255, 0.15)"
+              "value": "#DBEAFE"
             },
             {
               "value": "#E2E8F0"
@@ -1872,7 +1889,7 @@
           "fill": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "#E2E8F0"
+              "value": "#1E40AF"
             },
             {
               "value": "#64748B"
@@ -1928,16 +1945,18 @@
           },
           "fill": [
             {
-              "test": "datum.rawDepth === 0",
-              "value": "#FFFFFF"
-            },
-            {
               "value": "#0F172A"
             }
           ],
-          "limit": {
-            "signal": "cardWidth - 46"
-          },
+          "limit": [
+            {
+              "test": "datum.rawDepth === 0",
+              "signal": "cardWidth - 54"
+            },
+            {
+              "signal": "cardWidth - 46"
+            }
+          ],
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
           },
@@ -1983,10 +2002,6 @@
             "value": "normal"
           },
           "fill": [
-            {
-              "test": "datum.rawDepth === 0",
-              "value": "#94A3B8"
-            },
             {
               "value": "#64748B"
             }
@@ -2041,11 +2056,11 @@
           "fill": [
             {
               "test": "datum.rawDepth === 0 && datum.isCollapsed",
-              "value": "rgba(56, 189, 248, 0.2)"
+              "value": "#DBEAFE"
             },
             {
               "test": "datum.rawDepth === 0",
-              "value": "#1E293B"
+              "value": "#EFF6FF"
             },
             {
               "test": "datum.isCollapsed",
@@ -2058,7 +2073,7 @@
           "stroke": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "#38BDF8"
+              "value": "#3B82F6"
             },
             {
               "test": "datum.isCollapsed",
@@ -2122,7 +2137,7 @@
           "fill": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "#F8FAFC"
+              "value": "#1D4ED8"
             },
             {
               "test": "datum.isCollapsed",
@@ -2156,14 +2171,15 @@
     }
   ],
   "usermeta": {
-    "version": "1.4.0",
+    "version": "1.4.1",
     "releaseDate": "2026-11-22",
     "features": [
       "2-Column Grid Stacking for Large Teams",
       "Active Reporting Line Hover Highlighting",
       "Modern Floating Glassmorphic Toolbar Dock",
       "Dot-Matrix Spatial Background",
-      "Executive CEO Card Distinction",
+      "Approachable Executive CEO Card Styling",
+      "👑 CEO Prestige Badge",
       "👥 Modern Headcount Badge",
       "165px Wider Cards & Interactive Elevation"
     ]

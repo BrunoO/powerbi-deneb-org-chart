@@ -6,14 +6,18 @@ A production-ready, interactive, and beautifully designed **Collapsible Organiza
 
 ## Key Features
 
-- **Total Descendant Headcount Display**: Every manager card automatically calculates and displays their total descendant headcount in the bottom-right corner (e.g. `team 4` for David Chen, `team 11` for the CEO).
-- **Interactive Branch Collapsing & Expanding**: Click the **`−`** button at the bottom of any manager card to collapse all their direct and indirect sub-reports. When collapsed, the button displays a **`+ N`** badge showing the total headcount hidden (e.g. `+4`). Clicking it expands the branch back.
-- **Dynamic Re-layout & Re-centering**: When a branch collapses, the tree automatically re-packs horizontally and re-centers on the canvas, saving massive space for large organizations.
-- **"Expand All" Reset Button**: A quick-action button in the top-left corner restores the full organization view in one click.
+- **Approachable Executive CEO Distinction**: Level 0 (CEO) is framed with a crisp white card body, warm royal blue accent border (`#3B82F6`), soft royal aura glow, and a distinctive **`👑 CEO`** prestige badge—distinguished and approachable without heavy, ominous dark fills.
+- **Total Descendant Headcount Badge (`👥 N`)**: Every manager card automatically calculates and displays their total descendant headcount with a modern people icon pill badge in the bottom-right corner (e.g. `👥 15` for David Chen, `👥 41` for the CEO).
+- **Interactive Branch Collapsing & Expanding**: Click the **`−`** button at the bottom of any manager card to collapse all their direct and indirect sub-reports. When collapsed, the button displays a **`+ N`** badge showing the total headcount hidden (e.g. `+15`). Clicking it expands the branch back.
+- **Two-Column Vertical Grid Stacking for Large Teams**: Teams with more than 6 direct reports automatically stack child nodes into two neat vertical columns, dramatically condensing wide horizontal sprawl.
+- **Active Reporting Line Hover Highlighting**: Hovering over any employee card highlights their entire chain of command all the way to the CEO in vibrant blue (`#2563EB`), softly dimming unrelated branches.
+- **Interactive Card Elevation on Hover**: Cards dynamically float upward with an expanded soft cobalt glow aura when hovered.
+- **Floating Glassmorphic Toolbar**: Quick controls docked at the top center for Expand All (`⤢`), Collapse All (`⤡`), Zoom In (`+`), Zoom Out (`−`), and Reset (`100%`).
+- **Dynamic Re-layout & Re-centering**: When a branch collapses or expands, the tree automatically re-packs and smoothly aligns on the canvas.
 - **Zero-Overlap Architecture**: Built on Vega's `nodeSize` tidy layout and automatic dynamic centering, guaranteeing cards never collide regardless of how many branches are expanded or collapsed.
-- **Compact Executive Card Styling**: Clean rounded 145×54px cards with subtle drop shadows, left color accents coded by organizational depth level (`L0`, `L1`, `L2`, etc.), and top-right level badges.
-- **Orthogonal Branch Connectors**: Standard right-angled connectors branching neatly from parent cards to child cards.
-- **Interactive Tooltips & Hover Effects**: Hovering over any card highlights its border in primary blue and renders a detailed Power BI tooltip showing employee details, direct report counts, and collapse status.
+- **165×56px Cards for Breathing Room**: Generous width with left color accents coded by organizational depth level (`L0`, `L1`, `L2`, etc.), preventing awkward title truncations.
+- **Orthogonal Branch Connectors**: Standard right-angled connectors branching neatly from parent cards to child cards with subpixel alignment across all zoom scales.
+- **Version Identifier (`v1.4.1`)**: Embedded version tracker in `signals` and root `usermeta` for quick verification inside Power BI projects.
 
 ---
 
