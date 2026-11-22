@@ -15,13 +15,14 @@
       color: #1e293b;
     }
     .header {
-      max-width: 1450px;
+      max-width: 100%;
       margin: 0 auto 20px auto;
       background: #ffffff;
       padding: 20px 24px;
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       border: 1px solid #e2e8f0;
+      box-sizing: border-box;
     }
     h1 {
       margin: 0 0 8px 0;
@@ -53,7 +54,7 @@
 <body>
   <div class="header">
     <h1>Interactive Collapsible Org Chart Preview (Power BI / Deneb)</h1>
-    <p>Self-contained Vega 5 preview with dynamic canvas sizing, collapse/expand toggles, and downstream headcount badges.</p>
+    <p>Self-contained Vega 5 preview with 28 employees, 15+ nodes under Engineering, dynamic canvas sizing, collapse/expand toggles, and downstream headcount badges.</p>
   </div>
   <div id="chart-container">
     <div id="vis"></div>
@@ -182,39 +183,135 @@
         },
         {
           "ID": "7",
+          "ParentID": "2",
+          "Name": "Zack Taylor",
+          "Title": "Director of Core Apps"
+        },
+        {
+          "ID": "8",
           "ParentID": "3",
           "Name": "Liam O'Connor",
           "Title": "Principal UX Lead"
         },
         {
-          "ID": "8",
+          "ID": "9",
           "ParentID": "3",
           "Name": "Sophia Martinez",
           "Title": "Lead Product Manager"
         },
         {
-          "ID": "9",
+          "ID": "10",
           "ParentID": "4",
           "Name": "Chloe Bennett",
           "Title": "Regional Sales Director"
         },
         {
-          "ID": "10",
+          "ID": "11",
           "ParentID": "4",
           "Name": "Tariq Al-Mansoor",
           "Title": "Head of Growth"
         },
         {
-          "ID": "11",
+          "ID": "12",
           "ParentID": "5",
           "Name": "James Wilson",
           "Title": "Staff Cloud Architect"
         },
         {
-          "ID": "12",
+          "ID": "13",
           "ParentID": "5",
           "Name": "Emma Watson",
           "Title": "Senior DevOps Lead"
+        },
+        {
+          "ID": "14",
+          "ParentID": "5",
+          "Name": "Lucas Meyer",
+          "Title": "Lead Site Reliability Eng"
+        },
+        {
+          "ID": "15",
+          "ParentID": "5",
+          "Name": "Aisha Patel",
+          "Title": "Staff Security Engineer"
+        },
+        {
+          "ID": "16",
+          "ParentID": "5",
+          "Name": "Carlos Gomez",
+          "Title": "Principal Database Eng"
+        },
+        {
+          "ID": "17",
+          "ParentID": "6",
+          "Name": "Oliver Brown",
+          "Title": "Staff Performance Eng"
+        },
+        {
+          "ID": "18",
+          "ParentID": "6",
+          "Name": "Maya Lin",
+          "Title": "Lead Test Automation Eng"
+        },
+        {
+          "ID": "19",
+          "ParentID": "6",
+          "Name": "Noah Kim",
+          "Title": "Senior Infra Engineer"
+        },
+        {
+          "ID": "20",
+          "ParentID": "7",
+          "Name": "Isabella Rossi",
+          "Title": "Senior Frontend Lead"
+        },
+        {
+          "ID": "21",
+          "ParentID": "7",
+          "Name": "Ethan Hunt",
+          "Title": "Senior Backend Lead"
+        },
+        {
+          "ID": "22",
+          "ParentID": "7",
+          "Name": "Hannah Schmidt",
+          "Title": "Staff Fullstack Engineer"
+        },
+        {
+          "ID": "23",
+          "ParentID": "7",
+          "Name": "Leo Santos",
+          "Title": "Senior Mobile Engineer"
+        },
+        {
+          "ID": "24",
+          "ParentID": "8",
+          "Name": "Daniel Craig",
+          "Title": "Senior Design System Lead"
+        },
+        {
+          "ID": "25",
+          "ParentID": "9",
+          "Name": "Mia Davis",
+          "Title": "Senior Product Manager"
+        },
+        {
+          "ID": "26",
+          "ParentID": "10",
+          "Name": "Jordan Lee",
+          "Title": "Senior Account Executive"
+        },
+        {
+          "ID": "27",
+          "ParentID": "10",
+          "Name": "Grace Hopper",
+          "Title": "Enterprise Solutions Rep"
+        },
+        {
+          "ID": "28",
+          "ParentID": "11",
+          "Name": "Victor Hugo",
+          "Title": "Lead Content Strategist"
         }
       ]
     },

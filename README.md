@@ -20,7 +20,7 @@ A production-ready, interactive, and beautifully designed **Collapsible Organiza
 ## File Overview
 
 - [`deneb-org-chart.json`](./deneb-org-chart.json): The complete Vega specification ready to paste directly into Deneb.
-- [`sample-org-data.csv`](./sample-org-data.csv): Sample hierarchy dataset matching the required table schema.
+- [`sample-org-data.csv`](./sample-org-data.csv): Sample hierarchy dataset matching the required table schema (28 employees across 4 levels, featuring a 15-node organization under VP David Chen to easily test large subtrees and horizontal scrolling).
 - [`preview.html`](./preview.html): Standalone, self-contained HTML file to preview and test the visual directly in your browser.
 
 ---
