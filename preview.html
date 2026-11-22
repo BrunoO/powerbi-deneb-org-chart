@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.5.0 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.5.1 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,13 +73,24 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.5.0",
+      "value": "v1.5.1",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
       "name": "defaultCollapseDepth",
       "value": 1,
       "description": "Initial collapse level: 1 collapses managers at Level 1 and below (shows Level 0 and 1 on load). Set to 2 to show through Level 2, or 99 to expand all."
+    },
+    {
+      "name": "enableStacking",
+      "value": false,
+      "description": "Layout mode: true enables 2-column vertical grid stacking for large leaf teams (> 6 reports); false renders standard clean collision-free tree layout with all direct reports on horizontal bus line.",
+      "on": [
+        {
+          "events": "@stackModeBtn:click, @stackModeText:click",
+          "update": "!enableStacking"
+        }
+      ]
     },
     {
       "name": "gridThreshold",
@@ -786,7 +797,7 @@
         },
         {
           "type": "formula",
-          "expr": "(datum.rawDepth >= stackMinDepth && datum.parentReportCount > gridThreshold && datum.reportCount === 0 && isValid(datum.lag2Id)) ? datum.lag2Id : datum.parentId",
+          "expr": "(enableStacking && datum.rawDepth >= stackMinDepth && datum.parentReportCount > gridThreshold && datum.reportCount === 0 && isValid(datum.lag2Id)) ? datum.lag2Id : datum.parentId",
           "as": "layoutParentId"
         },
         {
@@ -1069,7 +1080,7 @@
             "value": 11
           },
           "width": {
-            "value": 344
+            "value": 447
           },
           "height": {
             "value": 32
@@ -1095,7 +1106,7 @@
             "value": 10
           },
           "width": {
-            "value": 344
+            "value": 447
           },
           "height": {
             "value": 32
@@ -1277,11 +1288,104 @@
     },
     {
       "type": "rect",
-      "name": "zoomOutBtn",
+      "name": "stackModeBtn",
       "encode": {
         "enter": {
           "x": {
             "value": 210
+          },
+          "y": {
+            "value": 13
+          },
+          "width": {
+            "value": 92
+          },
+          "height": {
+            "value": 26
+          },
+          "cornerRadius": {
+            "value": 13
+          },
+          "fill": {
+            "value": "transparent"
+          },
+          "cursor": {
+            "value": "pointer"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "stackModeText",
+      "encode": {
+        "update": {
+          "x": {
+            "value": 256
+          },
+          "y": {
+            "value": 26
+          },
+          "text": {
+            "signal": "enableStacking ? '☷ Stacked' : '☵ Standard'"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 10.5
+          },
+          "fontWeight": {
+            "value": "600"
+          },
+          "fill": {
+            "signal": "enableStacking ? '#2563EB' : '#475569'"
+          },
+          "cursor": {
+            "value": "pointer"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "name": "toolbarDivider2",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 308
+          },
+          "x2": {
+            "value": 308
+          },
+          "y": {
+            "value": 16
+          },
+          "y2": {
+            "value": 36
+          },
+          "stroke": {
+            "value": "#E2E8F0"
+          },
+          "strokeWidth": {
+            "value": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "zoomOutBtn",
+      "encode": {
+        "enter": {
+          "x": {
+            "value": 314
           },
           "y": {
             "value": 13
@@ -1310,7 +1414,7 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 223
+            "value": 327
           },
           "y": {
             "value": 26
@@ -1348,13 +1452,13 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 240
+            "value": 344
           },
           "y": {
             "value": 13
           },
           "width": {
-            "value": 86
+            "value": 84
           },
           "height": {
             "value": 26
@@ -1377,7 +1481,7 @@
       "encode": {
         "update": {
           "x": {
-            "value": 283
+            "value": 386
           },
           "y": {
             "value": 26
@@ -1415,7 +1519,7 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 330
+            "value": 432
           },
           "y": {
             "value": 13
@@ -1444,7 +1548,7 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 343
+            "value": 445
           },
           "y": {
             "value": 26
@@ -1482,7 +1586,7 @@
       "encode": {
         "enter": {
           "x": {
-            "value": 372
+            "value": 474
           },
           "y": {
             "value": 26
@@ -2265,12 +2369,12 @@
     }
   ],
   "usermeta": {
-    "version": "1.5.0",
+    "version": "1.5.1",
     "releaseDate": "2026-11-22",
     "features": [
-      "2-Column Grid Stacking for Large Teams",
+      "Configurable Stacking Mode (Standard Tree vs 2-Column Stacking)",
       "Active Reporting Line Hover Highlighting",
-      "Modern Floating Glassmorphic Toolbar Dock",
+      "Modern Floating Glassmorphic Toolbar Dock with Layout Mode Toggle",
       "Dot-Matrix Spatial Background",
       "Approachable Executive CEO Card Styling",
       "★ CEO Amber Prestige Badge",
