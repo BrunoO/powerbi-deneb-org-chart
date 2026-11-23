@@ -39,7 +39,7 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 
 ## 📁 Files
 
-- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.6.0`) to paste into Deneb in Power BI.
+- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.6.1`) to paste into Deneb in Power BI.
 - [`sample-org-data.csv`](./sample-org-data.csv): Sample dataset (42 employees across 4 levels) for testing large executive teams and sub-trees.
 - [`preview.html`](./preview.html) & [`index.html`](./index.html): Standalone HTML preview for testing offline in any browser.
 
@@ -102,6 +102,12 @@ You can adjust default behavior by editing the `signals` block at the top of [`d
 - **Row-Level Security (RLS)**: Power BI RLS filters are automatically respected.
   > [!WARNING]
   > Make sure RLS rules do not hide an intermediate manager while leaving their subordinates visible, as every visible employee needs an unbroken path up to the root node.
+
+---
+
+## 🤖 Use of AI
+
+This software was built almost entirely using automated code-generation tools. No human has fully reviewed the generated code for correctness or security. I have extensively tested the visual and use it as my daily driver, but there might be issues that I haven't encountered yet.
 
 ---
 
