@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.7.0 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.7.1 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.7.0",
+      "value": "v1.7.1",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -45,10 +45,61 @@
         {
           "events": "mousedown, touchstart",
           "update": "xy()"
+        }
+      ]
+    },
+    {
+      "name": "didPan",
+      "value": false,
+      "description": "Tracks whether the pointer dragged since mousedown/touchstart",
+      "on": [
+        {
+          "events": "mousedown, touchstart",
+          "update": "false"
         },
         {
-          "events": "touchend",
-          "update": "null"
+          "events": "[@canvasBg:mousedown, window:mouseup] > window:mousemove, [@cardBody:mousedown, window:mouseup] > window:mousemove, [@toggleBtn:mousedown, window:mouseup] > window:mousemove",
+          "update": "true"
+        },
+        {
+          "events": {
+            "type": "touchmove",
+            "filter": "event.touches.length === 1"
+          },
+          "update": "true"
+        }
+      ]
+    },
+    {
+      "name": "panStartX",
+      "value": 0,
+      "on": [
+        {
+          "events": "mousedown, touchstart",
+          "update": "panX"
+        }
+      ]
+    },
+    {
+      "name": "panStartY",
+      "value": 0,
+      "on": [
+        {
+          "events": "mousedown, touchstart",
+          "update": "panY"
+        }
+      ]
+    },
+    {
+      "name": "pinchStartZoom",
+      "value": 1,
+      "on": [
+        {
+          "events": {
+            "type": "touchstart",
+            "filter": "event.touches.length === 2"
+          },
+          "update": "zoomLevel"
         }
       ]
     },
@@ -64,10 +115,8 @@
           "update": "pinchDistance(event)"
         },
         {
-          "events": {
-            "signal": "pinchDist2"
-          },
-          "update": "pinchDist2"
+          "events": "touchend",
+          "update": "0"
         }
       ]
     },
@@ -82,6 +131,10 @@
             "filter": "event.touches.length === 2"
           },
           "update": "pinchDistance(event)"
+        },
+        {
+          "events": "touchend",
+          "update": "0"
         }
       ]
     },
@@ -100,14 +153,14 @@
             "consume": true,
             "filter": "event.touches.length === 1"
           },
-          "update": "panX + (x() - (downXY ? downXY[0] : x()))"
+          "update": "panStartX + (x() - (downXY ? downXY[0] : x()))"
         },
         {
-          "events": "@canvasBg:wheel!, @cardBody:wheel!",
+          "events": "@canvasBg:wheel!, @cardBody:wheel!, @toggleBtn:wheel!, @toggleText:wheel!",
           "update": "x() - (width / 2) - (x() - (width / 2) - panX) * (clamp(zoomLevel - event.deltaY * 0.001, 0.4, 1.6) / zoomLevel)"
         },
         {
-          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick",
+          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick, @toggleBtn:dblclick, @toggleText:dblclick",
           "update": "0"
         }
       ]
@@ -127,14 +180,14 @@
             "consume": true,
             "filter": "event.touches.length === 1"
           },
-          "update": "panY + (y() - (downXY ? downXY[1] : y()))"
+          "update": "panStartY + (y() - (downXY ? downXY[1] : y()))"
         },
         {
-          "events": "@canvasBg:wheel!, @cardBody:wheel!",
+          "events": "@canvasBg:wheel!, @cardBody:wheel!, @toggleBtn:wheel!, @toggleText:wheel!",
           "update": "y() - topMargin - (y() - topMargin - panY) * (clamp(zoomLevel - event.deltaY * 0.001, 0.4, 1.6) / zoomLevel)"
         },
         {
-          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick",
+          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick, @toggleBtn:dblclick, @toggleText:dblclick",
           "update": "0"
         }
       ]
@@ -153,18 +206,18 @@
           "update": "max(0.4, zoomLevel - 0.15)"
         },
         {
-          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick",
+          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick, @toggleBtn:dblclick, @toggleText:dblclick",
           "update": "1.0"
         },
         {
-          "events": "@canvasBg:wheel!, @cardBody:wheel!",
+          "events": "@canvasBg:wheel!, @cardBody:wheel!, @toggleBtn:wheel!, @toggleText:wheel!",
           "update": "clamp(zoomLevel - event.deltaY * 0.001, 0.4, 1.6)"
         },
         {
           "events": {
             "signal": "pinchDist2"
           },
-          "update": "pinchDist1 > 0 ? clamp(zoomLevel * (pinchDist2 / pinchDist1), 0.4, 1.6) : zoomLevel"
+          "update": "pinchDist1 > 0 && pinchDist2 > 0 ? clamp(pinchStartZoom * (pinchDist2 / pinchDist1), 0.4, 1.6) : zoomLevel"
         }
       ]
     },
@@ -238,7 +291,7 @@
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4)) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, ',' + datum.id + ',') >= 0 ? replace(expandedIds, ',' + datum.id + ',', ',') : expandedIds + datum.id + ',') : expandedIds) : expandedIds"
+          "update": "(datum.reportCount > 0 && !didPan && (!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, ',' + datum.id + ',') >= 0 ? replace(expandedIds, ',' + datum.id + ',', ',') : expandedIds + datum.id + ',') : expandedIds) : expandedIds"
         },
         {
           "events": "@collapseAllBtn:click, @collapseAllText:click",
@@ -257,7 +310,7 @@
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4)) ? ((expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, ',' + datum.id + ',') >= 0 ? replace(collapsedIds, ',' + datum.id + ',', ',') : collapsedIds + datum.id + ',') : collapsedIds) : collapsedIds"
+          "update": "(datum.reportCount > 0 && !didPan && (!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? ((expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, ',' + datum.id + ',') >= 0 ? replace(collapsedIds, ',' + datum.id + ',', ',') : collapsedIds + datum.id + ',') : collapsedIds) : collapsedIds"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
@@ -274,11 +327,11 @@
       "value": null,
       "on": [
         {
-          "events": "@cardBody:mouseover",
+          "events": "@cardBody:mouseover, @toggleBtn:mouseover, @toggleText:mouseover",
           "update": "datum.id"
         },
         {
-          "events": "@cardBody:mouseout",
+          "events": "@cardBody:mouseout, @toggleBtn:mouseout, @toggleText:mouseout",
           "update": "null"
         }
       ]
@@ -288,11 +341,11 @@
       "value": "",
       "on": [
         {
-          "events": "@cardBody:mouseover",
+          "events": "@cardBody:mouseover, @toggleBtn:mouseover, @toggleText:mouseover",
           "update": "datum.ancPath"
         },
         {
-          "events": "@cardBody:mouseout",
+          "events": "@cardBody:mouseout, @toggleBtn:mouseout, @toggleText:mouseout",
           "update": "''"
         }
       ]
@@ -868,26 +921,47 @@
       "transform": [
         {
           "type": "filter",
-          "expr": "isValid(datum['ID']) && datum['ID'] !== '' && datum['ID'] !== null"
+          "expr": "isValid(datum['ID']) && datum['ID'] !== null && length(trim(toString(datum['ID']))) > 0"
         },
         {
           "type": "formula",
-          "expr": "toString(datum['ID'])",
+          "expr": "trim(toString(datum['ID']))",
           "as": "id"
         },
         {
+          "type": "window",
+          "groupby": [
+            "id"
+          ],
+          "ops": [
+            "row_number"
+          ],
+          "as": [
+            "idRowNum"
+          ]
+        },
+        {
+          "type": "filter",
+          "expr": "datum.idRowNum === 1"
+        },
+        {
           "type": "formula",
-          "expr": "isValid(datum['ParentID']) && datum['ParentID'] !== '' && datum['ParentID'] !== null && datum['ParentID'] !== '0' && datum['ParentID'] !== 0 && datum['ParentID'] != datum['ID'] ? toString(datum['ParentID']) : null",
+          "expr": "isValid(datum['ParentID']) && datum['ParentID'] !== null && trim(toString(datum['ParentID'])) !== '' && datum['ParentID'] !== '0' && datum['ParentID'] !== 0 && trim(toString(datum['ParentID'])) !== datum.id ? trim(toString(datum['ParentID'])) : null",
           "as": "parentId"
         },
         {
           "type": "formula",
-          "expr": "isValid(datum['Name']) && datum['Name'] !== '' ? toString(datum['Name']) : 'Unknown'",
+          "expr": "isValid(datum.parentId) ? 1 : 0",
+          "as": "origRootOrder"
+        },
+        {
+          "type": "formula",
+          "expr": "isValid(datum['Name']) && trim(toString(datum['Name'])) !== '' ? trim(toString(datum['Name'])) : 'Unknown'",
           "as": "Name_clean"
         },
         {
           "type": "formula",
-          "expr": "isValid(datum['Title']) && datum['Title'] !== '' ? toString(datum['Title']) : 'Team Member'",
+          "expr": "isValid(datum['Title']) && trim(toString(datum['Title'])) !== '' ? trim(toString(datum['Title'])) : 'Team Member'",
           "as": "Title_clean"
         },
         {
@@ -918,8 +992,75 @@
       ]
     },
     {
-      "name": "report_counts",
+      "name": "sanitized_parents",
       "source": "clean_data",
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "isValid(datum.parentId) && indata('clean_data', 'id', datum.parentId)",
+          "as": "hasValidParent"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.hasValidParent ? datum.parentId : null",
+          "as": "parentId"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.hasValidParent ? 2 : datum.origRootOrder",
+          "as": "rootPriority"
+        }
+      ]
+    },
+    {
+      "name": "primary_root",
+      "source": "sanitized_parents",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "!isValid(datum.parentId)"
+        },
+        {
+          "type": "collect",
+          "sort": {
+            "field": "rootPriority"
+          }
+        },
+        {
+          "type": "window",
+          "ops": [
+            "row_number"
+          ],
+          "as": [
+            "rootRank"
+          ]
+        },
+        {
+          "type": "filter",
+          "expr": "datum.rootRank === 1"
+        },
+        {
+          "type": "project",
+          "fields": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sanitized_data",
+      "source": "sanitized_parents",
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "isValid(datum.parentId) ? datum.parentId : (indata('primary_root', 'id', datum.id) ? null : (length(data('primary_root')) > 0 ? data('primary_root')[0].id : null))",
+          "as": "parentId"
+        }
+      ]
+    },
+    {
+      "name": "report_counts",
+      "source": "sanitized_data",
       "transform": [
         {
           "type": "filter",
@@ -941,7 +1082,7 @@
     },
     {
       "name": "full_tree",
-      "source": "clean_data",
+      "source": "sanitized_data",
       "transform": [
         {
           "type": "stratify",
@@ -1235,16 +1376,6 @@
           ]
         },
         {
-          "type": "extent",
-          "field": "rawX",
-          "signal": "treeExtentX"
-        },
-        {
-          "type": "extent",
-          "field": "rawY",
-          "signal": "treeExtentY"
-        },
-        {
           "type": "joinaggregate",
           "fields": [
             "rawX",
@@ -1426,7 +1557,7 @@
         },
         {
           "type": "formula",
-          "expr": "(zoomLevel || panX || panY || 1) ? (abs(datum.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.cardTop) : (datum.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop))) : ''",
+          "expr": "abs(datum.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.cardTop) : (datum.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop))",
           "as": "path"
         }
       ]
@@ -2254,7 +2385,7 @@
       "encode": {
         "update": {
           "path": {
-            "signal": "(zoomLevel || panX || panY || 1) ? (abs(datum.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.cardTop) : (datum.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop))) : ''"
+            "field": "path"
           },
           "stroke": [
             {
@@ -2446,7 +2577,7 @@
             "value": "pointer"
           },
           "tooltip": {
-            "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.id, 'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth, 'Status': datum.isCollapsed ? 'Collapsed' : 'Expanded'}"
+            "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.id, 'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth, 'Status': datum.reportCount > 0 ? (datum.isCollapsed ? 'Collapsed' : 'Expanded') : 'Leaf'}"
           },
           "opacity": [
             {
@@ -3151,7 +3282,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.7.0",
+    "version": "1.7.1",
     "releaseDate": "2026-11-23",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",

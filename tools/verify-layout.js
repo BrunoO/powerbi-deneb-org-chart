@@ -49,8 +49,13 @@ function parseCsv(text) {
     } else cell += c;
   }
   if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  if (rows.length < 2) throw new Error('CSV has no data rows');
   const [head, ...body] = rows;
-  return body.map(r => Object.fromEntries(head.map((h, i) => [h.trim(), r[i] === '' ? null : r[i]])));
+  const cols = head.map(h => h.replace(/^\uFEFF/, '').trim());
+  for (const req of ['ID', 'ParentID', 'Name', 'Title']) {
+    if (!cols.includes(req)) throw new Error(`CSV is missing required column "${req}" (found: ${cols.join(', ')})`);
+  }
+  return body.map(r => Object.fromEntries(cols.map((h, i) => [h, r[i] === '' || r[i] === undefined ? null : r[i]])));
 }
 
 function loadExternal(file) {
@@ -110,6 +115,12 @@ async function runScenario(sc, values) {
   const issues = [];
   const fail = (check, msg) => issues.push(`[${check}] ${msg}`);
 
+  // ---- sanity: prevent vacuous passes ----
+  if (nodes.length < 2) fail('sanity', `expected >= 2 visible cards, got ${nodes.length}`);
+  if (links.length !== Math.max(0, nodes.length - 1)) fail('sanity', `expected ${Math.max(0, nodes.length - 1)} links for ${nodes.length} cards, got ${links.length}`);
+  const roots = nodes.filter(n => !n.parentId);
+  if (roots.length !== 1) fail('sanity', `expected exactly 1 root card, got ${roots.length}`);
+
   // ---- links: semantics ----
   const pairs = new Map();
   for (const l of links) {
@@ -132,6 +143,7 @@ async function runScenario(sc, values) {
       fail('cards', `${name(a)} overlaps ${name(b)}`);
   }
   const segs = links.flatMap(segmentsOf);
+  if (links.length > 0 && segs.length === 0) fail('sanity', 'links exist but no path geometry was generated');
   for (const s of segs) {
     const xa = Math.min(s.x1, s.x2), xb = Math.max(s.x1, s.x2);
     const ya = Math.min(s.y1, s.y2), yb = Math.max(s.y1, s.y2);
@@ -200,7 +212,11 @@ async function runScenario(sc, values) {
     }
     view.signal('hoveredId', null).signal('hoveredAncPath', '');
   }
-  return { nodes: nodes.length, links: links.length, stackedTeams: [...teams.values()].filter(t => t[0].isStacked).length, issues };
+  const stackedTeams = [...teams.values()].filter(t => t[0].isStacked).length;
+  if (!values && sc.stacking && sc.collapseDepth === 99 && stackedTeams === 0) {
+    fail('sanity', 'expected at least 1 stacked team in expanded Stacked mode on sample data');
+  }
+  return { nodes: nodes.length, links: links.length, stackedTeams, issues };
 }
 
 function checkPreview() {
@@ -219,7 +235,7 @@ function checkPreview() {
   const scenarios = [];
   for (const stacking of [false, true]) {
     scenarios.push({ stacking, collapseDepth: 1, zoom: 1, hover: false });
-    for (const zoom of [1, 0.55, 1.45]) scenarios.push({ stacking, collapseDepth: 99, zoom, hover: zoom === 1 });
+    for (const zoom of [1, 0.4, 1.6]) scenarios.push({ stacking, collapseDepth: 99, zoom, hover: zoom === 1 });
   }
   let total = 0;
   for (const sc of scenarios) {
