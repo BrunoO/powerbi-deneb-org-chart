@@ -117,21 +117,21 @@
     },
     {
       "name": "minCanvasWidth",
-      "value": 1200,
-      "description": "Minimum canvas width in pixels"
+      "value": 1400,
+      "description": "Fixed canvas width in pixels (keeps toolbar centered while panning/zooming)"
     },
     {
       "name": "minCanvasHeight",
       "value": 550,
-      "description": "Minimum canvas height in pixels"
+      "description": "Fixed canvas height in pixels"
     },
     {
       "name": "width",
-      "update": "(treeExtentX && isFinite(treeExtentX[0]) && isFinite(treeExtentX[1])) ? max(minCanvasWidth, (treeExtentX[1] - treeExtentX[0] + cardWidth) + 80) : minCanvasWidth"
+      "update": "minCanvasWidth"
     },
     {
       "name": "height",
-      "update": "(treeExtentY && isFinite(treeExtentY[0]) && isFinite(treeExtentY[1])) ? max(minCanvasHeight, treeExtentY[1] + cardHeight + topMargin + 80) : minCanvasHeight"
+      "update": "minCanvasHeight"
     },
     {
       "name": "toolbarOriginX",
@@ -1207,7 +1207,7 @@
         },
         {
           "type": "formula",
-          "expr": "max(40, (width - (datum.maxX - datum.minX + cardWidth)) / 2) - datum.minX",
+          "expr": "((width - (datum.maxX - datum.minX + cardWidth)) / 2) - datum.minX",
           "as": "originX"
         },
         {
