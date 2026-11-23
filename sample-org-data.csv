@@ -41,3 +41,46 @@ ID,ParentID,Name,Title
 40,1,George Clark,Chief Info Security Officer
 41,1,Helen Mirren,Chief Strategy Officer
 42,1,Ian Fleming,Head of Corp Development
+43,7,Ava Thompson,Senior iOS Engineer
+48,20,Bruno Costa,Frontend Engineer
+100,6,Felix Wagner,Load Test Engineer
+44,7,Ben Carter,Android Engineer
+55,8,Ines Duarte,Senior UX Designer
+49,20,Camille Dubois,UI Engineer
+45,7,Chiara Bianchi,API Platform Engineer
+1000,6,Greta Nilsson,Chaos Engineering Lead
+62,9,Omar Haddad,Product Manager
+46,7,Dmitri Volkov,Release Engineer
+50,20,Diego Ramirez,Accessibility Engineer
+51,21,Elif Yilmaz,Backend Engineer
+101,6,Hugo Lambert,QA Analyst
+47,7,Eva Novak,Mobile QA Engineer
+52,21,Farid Rahimi,Data Pipeline Engineer
+53,6,Ingrid Berg,Test Infra Engineer
+102,6,Jonas Becker,SDET
+54,6,Kenji Watanabe,Performance Analyst
+56,8,Jasper Quinn,Interaction Designer
+57,8,Kira Petrova,UX Researcher
+63,9,Paula Mendes,Associate PM
+58,8,Lars Eriksen,Visual Designer
+59,8,Mei Chen,Content Designer
+64,9,Quentin Moreau,Technical PM
+60,8,Nadia Ivanova,Motion Designer
+61,8,Oscar Lindqvist,Design Ops Specialist
+65,9,Rosa Jimenez,Growth PM
+66,9,Stefan Kowalski,Platform PM
+67,9,Tara Singh,Data PM
+68,10,Uma Patel,Account Executive
+69,10,Vince Romero,Sales Engineer
+70,10,Wendy Clarke,Account Manager
+71,10,Xavier Dupont,Partner Manager
+72,28,Nina Kowalczyk,Content Program Manager
+73,72,Omar Farouk,Editorial Team Lead
+81,73,Yara Haddad,Copywriter
+74,73,Adele Laurent,Senior Editor
+80,73,Bastian Krug,SEO Writer
+75,73,Clara Ruiz,Technical Writer
+79,73,Dario Conti,Localization Editor
+76,73,Esme Walsh,Video Producer
+78,73,Finn Larsen,Social Media Editor
+77,73,Gaia Russo,Newsletter Editor

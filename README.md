@@ -30,7 +30,7 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 - **Interactive Branch Collapse & Expand**: Click **`−`** on any manager card to collapse their team, or **`+N`** to expand it again.
 - **Floating Toolbar & Live Summary**:
   - **`⤢ Expand All`** / **`⤡ Collapse All`** for instant tree-wide control.
-  - **`☵ Standard` / `☷ Stacked`** toggle to switch between a traditional horizontal tree and compact 2-column stacking for large teams (`> 6` direct reports).
+  - **`☵ Standard` / `☷ Stacked`** toggle to switch between a traditional horizontal tree and compact 2-column stacking for large individual-contributor teams (`> 6` direct reports, none of whom manage anyone). Stacked teams hang off a central spine from their **real manager**, so every connector always points to the correct boss.
   - **`[ − | Reset (100%) | + ]`** zoom controls, plus drag-to-pan and mouse-wheel zoom.
   - **Live Summary Pill** showing total headcount and hierarchy depth (e.g., `👥 42 People · 4 Levels`).
 - **Collapsed by Default**: Opens with just the CEO and Level-1 leaders visible so large organizations load quickly without visual clutter.
@@ -40,8 +40,9 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 ## 📁 Files
 
 - [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.6.1`) to paste into Deneb in Power BI.
-- [`sample-org-data.csv`](./sample-org-data.csv): Sample dataset (42 employees across 4 levels) for testing large executive teams and sub-trees.
+- [`sample-org-data.csv`](./sample-org-data.csv): Sample dataset (85 employees across 7 levels) that exercises every layout edge case: a 12-person executive team, leaf-only teams that stack (even and odd sizes, side-by-side, at Level 6), a large *mixed* team of managers and engineers (stays horizontal), a team exactly at the threshold, and IDs that cross digit boundaries (`17` vs `100` vs `1000`) in shuffled input order.
 - [`preview.html`](./preview.html) & [`index.html`](./index.html): Standalone HTML preview for testing offline in any browser.
+- [`tools/verify-layout.js`](./tools/verify-layout.js): Automated layout checker (see [Development](#-development--layout-verification)).
 
 ---
 
@@ -89,9 +90,28 @@ You can adjust default behavior by editing the `signals` block at the top of [`d
 | :--- | :---: | :--- |
 | **`defaultCollapseDepth`** | `1` | Levels shown on initial load (`1` = CEO + Level-1 VPs; `2` = down to Directors; `99` = expand all). |
 | **`enableStacking`** | `false` | Set to `true` to start in 2-column stacked mode for large teams. Users can also toggle this live in the toolbar. |
-| **`gridThreshold`** | `6` | Minimum direct reports before a team stacks into 2 columns (when stacking is enabled). |
+| **`gridThreshold`** | `6` | A team stacks into 2 columns when it has more direct reports than this **and none of them are managers** (mixed teams stay horizontal so peers never share a row with a colleague's reports). |
 | **`stackMinDepth`** | `2` | Keeps top executives (Level 1) horizontal even when stacking is enabled. |
 | **`zoomLevel`** | `1.0` | Starting zoom level (`0.4` to `1.6`). |
+
+---
+
+## 🧪 Development & Layout Verification
+
+The repository ships a headless checker that renders the spec with Vega in Standard and Stacked mode (collapsed, fully expanded, and at several zoom levels) and fails if the chart becomes ambiguous:
+
+- every connector must go from an employee's **real manager** to the employee (no peer-to-peer chains), and every visible reporting line must be drawn exactly once;
+- no connector may pass through an unrelated card, no two managers' connector segments may overlap, and no cards may overlap;
+- stacked teams must be leaf-only, above the threshold, and laid out in 2 aligned columns in numeric-aware ID order;
+- hovering any card must highlight exactly its reporting chain (and its own reports);
+- `preview.html` must embed the same spec as `deneb-org-chart.json`.
+
+```bash
+npm install                                  # once (installs vega)
+npm test                                     # verify the built-in sample data
+node tools/verify-layout.js my-org.csv       # verify your own ID,ParentID,Name,Title export
+npm run sync-preview                         # copy deneb-org-chart.json into preview.html after editing
+```
 
 ---
 

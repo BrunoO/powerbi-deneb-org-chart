@@ -19,7 +19,7 @@
     {
       "name": "enableStacking",
       "value": false,
-      "description": "Layout mode: true enables 2-column vertical grid stacking for large leaf teams (> 6 reports); false renders standard clean collision-free tree layout with all direct reports on horizontal bus line.",
+      "description": "Layout mode: true stacks large individual-contributor teams (> gridThreshold reports, no managers among them) into 2 vertical columns connected to their manager by a central spine; false renders the standard tree with all direct reports on one horizontal bus line.",
       "on": [
         {
           "events": "@stackModeBtn:click, @stackModeText:click",
@@ -30,7 +30,7 @@
     {
       "name": "gridThreshold",
       "value": 6,
-      "description": "Direct report threshold for multi-column grid stacking (teams with more reports than this arrange in 2 vertical columns)"
+      "description": "Direct report threshold for 2-column stacking: a team stacks only if it has more reports than this AND none of those reports manage anyone (mixed teams stay horizontal so peers never share a row with a colleague's reports)."
     },
     {
       "name": "stackMinDepth",
@@ -528,6 +528,264 @@
           "ParentID": "1",
           "Name": "Ian Fleming",
           "Title": "Head of Corp Development"
+        },
+        {
+          "ID": "43",
+          "ParentID": "7",
+          "Name": "Ava Thompson",
+          "Title": "Senior iOS Engineer"
+        },
+        {
+          "ID": "48",
+          "ParentID": "20",
+          "Name": "Bruno Costa",
+          "Title": "Frontend Engineer"
+        },
+        {
+          "ID": "100",
+          "ParentID": "6",
+          "Name": "Felix Wagner",
+          "Title": "Load Test Engineer"
+        },
+        {
+          "ID": "44",
+          "ParentID": "7",
+          "Name": "Ben Carter",
+          "Title": "Android Engineer"
+        },
+        {
+          "ID": "55",
+          "ParentID": "8",
+          "Name": "Ines Duarte",
+          "Title": "Senior UX Designer"
+        },
+        {
+          "ID": "49",
+          "ParentID": "20",
+          "Name": "Camille Dubois",
+          "Title": "UI Engineer"
+        },
+        {
+          "ID": "45",
+          "ParentID": "7",
+          "Name": "Chiara Bianchi",
+          "Title": "API Platform Engineer"
+        },
+        {
+          "ID": "1000",
+          "ParentID": "6",
+          "Name": "Greta Nilsson",
+          "Title": "Chaos Engineering Lead"
+        },
+        {
+          "ID": "62",
+          "ParentID": "9",
+          "Name": "Omar Haddad",
+          "Title": "Product Manager"
+        },
+        {
+          "ID": "46",
+          "ParentID": "7",
+          "Name": "Dmitri Volkov",
+          "Title": "Release Engineer"
+        },
+        {
+          "ID": "50",
+          "ParentID": "20",
+          "Name": "Diego Ramirez",
+          "Title": "Accessibility Engineer"
+        },
+        {
+          "ID": "51",
+          "ParentID": "21",
+          "Name": "Elif Yilmaz",
+          "Title": "Backend Engineer"
+        },
+        {
+          "ID": "101",
+          "ParentID": "6",
+          "Name": "Hugo Lambert",
+          "Title": "QA Analyst"
+        },
+        {
+          "ID": "47",
+          "ParentID": "7",
+          "Name": "Eva Novak",
+          "Title": "Mobile QA Engineer"
+        },
+        {
+          "ID": "52",
+          "ParentID": "21",
+          "Name": "Farid Rahimi",
+          "Title": "Data Pipeline Engineer"
+        },
+        {
+          "ID": "53",
+          "ParentID": "6",
+          "Name": "Ingrid Berg",
+          "Title": "Test Infra Engineer"
+        },
+        {
+          "ID": "102",
+          "ParentID": "6",
+          "Name": "Jonas Becker",
+          "Title": "SDET"
+        },
+        {
+          "ID": "54",
+          "ParentID": "6",
+          "Name": "Kenji Watanabe",
+          "Title": "Performance Analyst"
+        },
+        {
+          "ID": "56",
+          "ParentID": "8",
+          "Name": "Jasper Quinn",
+          "Title": "Interaction Designer"
+        },
+        {
+          "ID": "57",
+          "ParentID": "8",
+          "Name": "Kira Petrova",
+          "Title": "UX Researcher"
+        },
+        {
+          "ID": "63",
+          "ParentID": "9",
+          "Name": "Paula Mendes",
+          "Title": "Associate PM"
+        },
+        {
+          "ID": "58",
+          "ParentID": "8",
+          "Name": "Lars Eriksen",
+          "Title": "Visual Designer"
+        },
+        {
+          "ID": "59",
+          "ParentID": "8",
+          "Name": "Mei Chen",
+          "Title": "Content Designer"
+        },
+        {
+          "ID": "64",
+          "ParentID": "9",
+          "Name": "Quentin Moreau",
+          "Title": "Technical PM"
+        },
+        {
+          "ID": "60",
+          "ParentID": "8",
+          "Name": "Nadia Ivanova",
+          "Title": "Motion Designer"
+        },
+        {
+          "ID": "61",
+          "ParentID": "8",
+          "Name": "Oscar Lindqvist",
+          "Title": "Design Ops Specialist"
+        },
+        {
+          "ID": "65",
+          "ParentID": "9",
+          "Name": "Rosa Jimenez",
+          "Title": "Growth PM"
+        },
+        {
+          "ID": "66",
+          "ParentID": "9",
+          "Name": "Stefan Kowalski",
+          "Title": "Platform PM"
+        },
+        {
+          "ID": "67",
+          "ParentID": "9",
+          "Name": "Tara Singh",
+          "Title": "Data PM"
+        },
+        {
+          "ID": "68",
+          "ParentID": "10",
+          "Name": "Uma Patel",
+          "Title": "Account Executive"
+        },
+        {
+          "ID": "69",
+          "ParentID": "10",
+          "Name": "Vince Romero",
+          "Title": "Sales Engineer"
+        },
+        {
+          "ID": "70",
+          "ParentID": "10",
+          "Name": "Wendy Clarke",
+          "Title": "Account Manager"
+        },
+        {
+          "ID": "71",
+          "ParentID": "10",
+          "Name": "Xavier Dupont",
+          "Title": "Partner Manager"
+        },
+        {
+          "ID": "72",
+          "ParentID": "28",
+          "Name": "Nina Kowalczyk",
+          "Title": "Content Program Manager"
+        },
+        {
+          "ID": "73",
+          "ParentID": "72",
+          "Name": "Omar Farouk",
+          "Title": "Editorial Team Lead"
+        },
+        {
+          "ID": "81",
+          "ParentID": "73",
+          "Name": "Yara Haddad",
+          "Title": "Copywriter"
+        },
+        {
+          "ID": "74",
+          "ParentID": "73",
+          "Name": "Adele Laurent",
+          "Title": "Senior Editor"
+        },
+        {
+          "ID": "80",
+          "ParentID": "73",
+          "Name": "Bastian Krug",
+          "Title": "SEO Writer"
+        },
+        {
+          "ID": "75",
+          "ParentID": "73",
+          "Name": "Clara Ruiz",
+          "Title": "Technical Writer"
+        },
+        {
+          "ID": "79",
+          "ParentID": "73",
+          "Name": "Dario Conti",
+          "Title": "Localization Editor"
+        },
+        {
+          "ID": "76",
+          "ParentID": "73",
+          "Name": "Esme Walsh",
+          "Title": "Video Producer"
+        },
+        {
+          "ID": "78",
+          "ParentID": "73",
+          "Name": "Finn Larsen",
+          "Title": "Social Media Editor"
+        },
+        {
+          "ID": "77",
+          "ParentID": "73",
+          "Name": "Gaia Russo",
+          "Title": "Newsletter Editor"
         }
       ]
     },
@@ -837,30 +1095,71 @@
           "default": 0
         },
         {
-          "type": "window",
+          "type": "formula",
+          "expr": "isFinite(toNumber(datum.id)) ? ('0' + pad(datum.id, 15, '0', 'left')) : ('1' + datum.id)",
+          "as": "sortKey"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.reportCount > 0 ? 1 : 0",
+          "as": "isManagerFlag"
+        },
+        {
+          "type": "joinaggregate",
           "groupby": [
             "parentId"
           ],
+          "fields": [
+            "isManagerFlag"
+          ],
+          "ops": [
+            "sum"
+          ],
+          "as": [
+            "siblingManagerCount"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "enableStacking && isValid(datum.parentId) && datum.rawDepth >= stackMinDepth && datum.parentReportCount > gridThreshold && datum.siblingManagerCount === 0",
+          "as": "isStacked"
+        },
+        {
+          "type": "window",
+          "groupby": [
+            "parentId",
+            "isStacked"
+          ],
           "sort": {
-            "field": "id"
+            "field": "sortKey"
           },
           "ops": [
+            "row_number",
             "lag"
           ],
           "fields": [
+            null,
             "id"
           ],
           "params": [
+            null,
             2
           ],
           "as": [
+            "stackIdx",
             "lag2Id"
           ]
         },
         {
           "type": "formula",
-          "expr": "(enableStacking && datum.rawDepth >= stackMinDepth && datum.parentReportCount > gridThreshold && datum.reportCount === 0 && isValid(datum.lag2Id)) ? datum.lag2Id : datum.parentId",
+          "expr": "(datum.isStacked && datum.stackIdx > 2 && isValid(datum.lag2Id)) ? datum.lag2Id : datum.parentId",
           "as": "layoutParentId"
+        },
+        {
+          "type": "collect",
+          "sort": {
+            "field": "sortKey"
+          }
         },
         {
           "type": "stratify",
@@ -1058,11 +1357,27 @@
       "source": "tree_nodes",
       "transform": [
         {
-          "type": "treelinks"
+          "type": "filter",
+          "expr": "isValid(datum.parentId)"
+        },
+        {
+          "type": "lookup",
+          "from": "tree_nodes",
+          "key": "id",
+          "fields": [
+            "parentId"
+          ],
+          "as": [
+            "source"
+          ]
+        },
+        {
+          "type": "filter",
+          "expr": "isValid(datum.source)"
         },
         {
           "type": "formula",
-          "expr": "(zoomLevel || panX || panY || 1) ? (abs(datum.target.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.target.cardTop) : (datum.target.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.target.centerX - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.target.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.target.centerX + ',' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'V' + datum.target.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.target.centerX + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.target.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.target.centerX + ',' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'V' + datum.target.cardTop))) : ''",
+          "expr": "(zoomLevel || panX || panY || 1) ? (abs(datum.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.cardTop) : (datum.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop))) : ''",
           "as": "path"
         }
       ]
@@ -1868,11 +2183,11 @@
       "encode": {
         "update": {
           "path": {
-            "signal": "(zoomLevel || panX || panY || 1) ? (abs(datum.target.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.target.cardTop) : (datum.target.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.target.centerX - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.target.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.target.centerX + ',' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'V' + datum.target.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX - min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.target.centerX + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'Q' + datum.target.centerX + ',' + round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.target.centerX + ',' + (round(datum.target.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.target.centerX - datum.source.centerX) / 2)) + 'V' + datum.target.cardTop))) : ''"
+            "signal": "(zoomLevel || panX || panY || 1) ? (abs(datum.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.cardTop) : (datum.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop))) : ''"
           },
           "stroke": [
             {
-              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.target.id === hoveredId || indexof(hoveredAncPath, ',' + datum.target.id + ',') >= 0 || indexof(datum.target.ancPath, ',' + hoveredId + ',') >= 0))",
+              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0 || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0))",
               "value": "#2563EB"
             },
             {
@@ -1881,7 +2196,7 @@
           ],
           "strokeWidth": [
             {
-              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.target.id === hoveredId || indexof(hoveredAncPath, ',' + datum.target.id + ',') >= 0 || indexof(datum.target.ancPath, ',' + hoveredId + ',') >= 0))",
+              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0 || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0))",
               "value": 2.5
             },
             {
@@ -1896,7 +2211,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.target.id === hoveredId || indexof(hoveredAncPath, ',' + datum.target.id + ',') >= 0 || indexof(datum.target.ancPath, ',' + hoveredId + ',') >= 0))",
+              "test": "!hoveredId || ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0 || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0))",
               "value": 1
             },
             {
@@ -2771,6 +3086,8 @@
       "Live Organization Summary Pill (Headcount & Levels)",
       "Configurable Stacking Mode (Standard Tree vs 2-Column Stacking)",
       "Corridor-Aligned Central Spine Routing",
+      "True Reporting-Line Links in Stacked Mode (No Peer-to-Peer Chains)",
+      "Leaf-Only Team Stacking with Numeric-Aware Deterministic Ordering",
       "Active Reporting Line Hover Highlighting",
       "Approachable Executive CEO Card Styling & ★ CEO Amber Prestige Badge",
       "165×58px Cards & Zoom-Invariant 2-Line Title Wrapping"

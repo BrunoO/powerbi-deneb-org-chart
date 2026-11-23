@@ -1,0 +1,14 @@
+{
+  "name": "deneb-org-chart",
+  "private": true,
+  "description": "Interactive collapsible org chart for Power BI (Deneb / Vega) - dev tooling",
+  "license": "MIT",
+  "scripts": {
+    "test": "node tools/verify-layout.js",
+    "verify": "node tools/verify-layout.js",
+    "sync-preview": "node tools/sync-preview.js"
+  },
+  "devDependencies": {
+    "vega": "^5.30.0"
+  }
+}
