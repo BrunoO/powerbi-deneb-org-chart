@@ -116,19 +116,14 @@
       "description": "Top margin offset reserving space for the top control bar"
     },
     {
-      "name": "denebContainer",
-      "value": null,
-      "description": "Automatically populated by Deneb in Power BI with { width, height, scrollWidth, scrollHeight, scrollLeft, scrollTop }"
-    },
-    {
       "name": "minCanvasWidth",
-      "update": "max(680, isObject(denebContainer) && denebContainer.width ? denebContainer.width - 32 : (containerSize()[0] > 0 ? containerSize()[0] - 32 : 1200))",
-      "description": "Minimum canvas width in pixels (auto-detects Power BI Deneb container width or browser container)"
+      "value": 1200,
+      "description": "Minimum canvas width in pixels"
     },
     {
       "name": "minCanvasHeight",
-      "update": "max(320, isObject(denebContainer) && denebContainer.height ? denebContainer.height - 32 : (containerSize()[1] > 0 ? containerSize()[1] - 32 : 550))",
-      "description": "Minimum canvas height in pixels (auto-detects Power BI Deneb container height or browser container)"
+      "value": 550,
+      "description": "Minimum canvas height in pixels"
     },
     {
       "name": "width",
