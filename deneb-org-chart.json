@@ -132,11 +132,11 @@
     },
     {
       "name": "width",
-      "update": "treeExtentX ? max(minCanvasWidth, (treeExtentX[1] - treeExtentX[0] + cardWidth) + 80) : minCanvasWidth"
+      "update": "(treeExtentX && isFinite(treeExtentX[0]) && isFinite(treeExtentX[1])) ? max(minCanvasWidth, (treeExtentX[1] - treeExtentX[0] + cardWidth) + 80) : minCanvasWidth"
     },
     {
       "name": "height",
-      "update": "treeExtentY ? max(minCanvasHeight, treeExtentY[1] + cardHeight + topMargin + 80) : minCanvasHeight"
+      "update": "(treeExtentY && isFinite(treeExtentY[0]) && isFinite(treeExtentY[1])) ? max(minCanvasHeight, treeExtentY[1] + cardHeight + topMargin + 80) : minCanvasHeight"
     },
     {
       "name": "toolbarOriginX",
