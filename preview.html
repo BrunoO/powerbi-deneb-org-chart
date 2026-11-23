@@ -199,6 +199,11 @@
       "update": "treeExtentY ? max(minCanvasHeight, treeExtentY[1] + cardHeight + topMargin + 80) : minCanvasHeight"
     },
     {
+      "name": "toolbarOriginX",
+      "update": "max(16, round(width / 2 - 326))",
+      "description": "Horizontal origin of the floating toolbar so it stays centered above the CEO / tree"
+    },
+    {
       "name": "expandAllOverride",
       "value": false,
       "description": "Global flag set to true when Expand All is clicked, false on Collapse All",
@@ -1195,9 +1200,6 @@
       "name": "toolbarShadow",
       "encode": {
         "enter": {
-          "x": {
-            "value": 16
-          },
           "y": {
             "value": 11
           },
@@ -1213,6 +1215,11 @@
           "fill": {
             "value": "rgba(15, 23, 42, 0.08)"
           }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX"
+          }
         }
       }
     },
@@ -1221,9 +1228,6 @@
       "name": "toolbarBg",
       "encode": {
         "enter": {
-          "x": {
-            "value": 16
-          },
           "y": {
             "value": 10
           },
@@ -1245,6 +1249,11 @@
           "strokeWidth": {
             "value": 1
           }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX"
+          }
         }
       }
     },
@@ -1253,9 +1262,6 @@
       "name": "expandAllBtn",
       "encode": {
         "enter": {
-          "x": {
-            "value": 20
-          },
           "y": {
             "value": 13
           },
@@ -1281,7 +1287,10 @@
             {
               "value": "transparent"
             }
-          ]
+          ],
+          "x": {
+            "signal": "toolbarOriginX + 4"
+          }
         }
       }
     },
@@ -1290,9 +1299,6 @@
       "name": "expandAllText",
       "encode": {
         "enter": {
-          "x": {
-            "value": 63
-          },
           "y": {
             "value": 26
           },
@@ -1320,6 +1326,11 @@
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
           }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 47"
+          }
         }
       }
     },
@@ -1328,9 +1339,6 @@
       "name": "collapseAllBtn",
       "encode": {
         "enter": {
-          "x": {
-            "value": 110
-          },
           "y": {
             "value": 13
           },
@@ -1356,7 +1364,10 @@
             {
               "value": "transparent"
             }
-          ]
+          ],
+          "x": {
+            "signal": "toolbarOriginX + 94"
+          }
         }
       }
     },
@@ -1365,9 +1376,6 @@
       "name": "collapseAllText",
       "encode": {
         "enter": {
-          "x": {
-            "value": 154
-          },
           "y": {
             "value": 26
           },
@@ -1395,6 +1403,11 @@
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
           }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 138"
+          }
         }
       }
     },
@@ -1403,12 +1416,6 @@
       "name": "toolbarDivider",
       "encode": {
         "enter": {
-          "x": {
-            "value": 204
-          },
-          "x2": {
-            "value": 204
-          },
           "y": {
             "value": 16
           },
@@ -1421,6 +1428,14 @@
           "strokeWidth": {
             "value": 1
           }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 188"
+          },
+          "x2": {
+            "signal": "toolbarOriginX + 188"
+          }
         }
       }
     },
@@ -1429,9 +1444,6 @@
       "name": "stackModeBtn",
       "encode": {
         "enter": {
-          "x": {
-            "value": 210
-          },
           "y": {
             "value": 13
           },
@@ -1465,7 +1477,10 @@
             {
               "value": "transparent"
             }
-          ]
+          ],
+          "x": {
+            "signal": "toolbarOriginX + 194"
+          }
         }
       }
     },
@@ -1475,7 +1490,7 @@
       "encode": {
         "update": {
           "x": {
-            "value": 256
+            "signal": "toolbarOriginX + 240"
           },
           "y": {
             "value": 26
@@ -1512,12 +1527,6 @@
       "name": "toolbarDivider2",
       "encode": {
         "enter": {
-          "x": {
-            "value": 308
-          },
-          "x2": {
-            "value": 308
-          },
           "y": {
             "value": 16
           },
@@ -1530,6 +1539,14 @@
           "strokeWidth": {
             "value": 1
           }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 292"
+          },
+          "x2": {
+            "signal": "toolbarOriginX + 292"
+          }
         }
       }
     },
@@ -1538,9 +1555,6 @@
       "name": "zoomOutBtn",
       "encode": {
         "enter": {
-          "x": {
-            "value": 314
-          },
           "y": {
             "value": 13
           },
@@ -1566,7 +1580,10 @@
             {
               "value": "transparent"
             }
-          ]
+          ],
+          "x": {
+            "signal": "toolbarOriginX + 298"
+          }
         }
       }
     },
@@ -1575,9 +1592,6 @@
       "name": "zoomOutText",
       "encode": {
         "enter": {
-          "x": {
-            "value": 327
-          },
           "y": {
             "value": 26
           },
@@ -1605,6 +1619,11 @@
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
           }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 311"
+          }
         }
       }
     },
@@ -1613,9 +1632,6 @@
       "name": "zoomResetBtn",
       "encode": {
         "enter": {
-          "x": {
-            "value": 344
-          },
           "y": {
             "value": 13
           },
@@ -1641,7 +1657,10 @@
             {
               "value": "transparent"
             }
-          ]
+          ],
+          "x": {
+            "signal": "toolbarOriginX + 328"
+          }
         }
       }
     },
@@ -1651,7 +1670,7 @@
       "encode": {
         "update": {
           "x": {
-            "value": 386
+            "signal": "toolbarOriginX + 370"
           },
           "y": {
             "value": 26
@@ -1688,9 +1707,6 @@
       "name": "zoomInBtn",
       "encode": {
         "enter": {
-          "x": {
-            "value": 432
-          },
           "y": {
             "value": 13
           },
@@ -1716,7 +1732,10 @@
             {
               "value": "transparent"
             }
-          ]
+          ],
+          "x": {
+            "signal": "toolbarOriginX + 416"
+          }
         }
       }
     },
@@ -1725,9 +1744,6 @@
       "name": "zoomInText",
       "encode": {
         "enter": {
-          "x": {
-            "value": 445
-          },
           "y": {
             "value": 26
           },
@@ -1755,6 +1771,11 @@
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
           }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 429"
+          }
         }
       }
     },
@@ -1764,9 +1785,6 @@
       "interactive": false,
       "encode": {
         "enter": {
-          "x": {
-            "value": 472
-          },
           "y": {
             "value": 11
           },
@@ -1782,6 +1800,11 @@
           "fill": {
             "value": "rgba(15, 23, 42, 0.06)"
           }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 456"
+          }
         }
       }
     },
@@ -1791,9 +1814,6 @@
       "interactive": false,
       "encode": {
         "enter": {
-          "x": {
-            "value": 472
-          },
           "y": {
             "value": 10
           },
@@ -1815,6 +1835,11 @@
           "strokeWidth": {
             "value": 1
           }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 456"
+          }
         }
       }
     },
@@ -1828,7 +1853,7 @@
       "encode": {
         "update": {
           "x": {
-            "value": 547
+            "signal": "toolbarOriginX + 531"
           },
           "y": {
             "value": 26
@@ -1862,9 +1887,6 @@
       "name": "versionBadgeText",
       "encode": {
         "enter": {
-          "x": {
-            "value": 632
-          },
           "y": {
             "value": 26
           },
@@ -1888,6 +1910,11 @@
           },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 616"
           }
         }
       }
@@ -2811,6 +2838,19 @@
   }
 };
     vegaEmbed('#vis', spec, { renderer: 'svg', actions: true })
+      .then(result => {
+        const container = document.getElementById('chart-container');
+        const nodes = result.view.data('tree_nodes');
+        const ceo = nodes && nodes.find(n => n.rawDepth === 0);
+        if (ceo && container) {
+          const svg = container.querySelector('svg');
+          const svgRect = svg ? svg.getBoundingClientRect() : null;
+          const containerRect = container.getBoundingClientRect();
+          const svgOffset = svgRect ? (svgRect.left - containerRect.left + container.scrollLeft) : 0;
+          const targetX = svgOffset + 15 + ceo.centerX;
+          container.scrollLeft = Math.max(0, Math.round(targetX - (container.clientWidth / 2)));
+        }
+      })
       .catch(err => {
         console.error('Vega render error:', err);
         document.getElementById('vis').innerHTML = '<div style="color: red; padding: 20px;">Render Error: ' + err.message + '</div>';
