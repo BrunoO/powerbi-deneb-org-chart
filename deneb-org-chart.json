@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.6.2 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.7.0 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.6.2",
+      "value": "v1.7.0",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -38,6 +38,108 @@
       "description": "Minimum hierarchy level depth where multi-column grid stacking is permitted (default: 2 prevents CEO / Level 1 executive team from stacking vertically)"
     },
     {
+      "name": "downXY",
+      "value": null,
+      "description": "Pointer position at mousedown/touchstart to distinguish clicks from drag-pans",
+      "on": [
+        {
+          "events": "mousedown, touchstart",
+          "update": "xy()"
+        },
+        {
+          "events": "touchend",
+          "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "pinchDist1",
+      "value": 0,
+      "on": [
+        {
+          "events": {
+            "type": "touchstart",
+            "filter": "event.touches.length === 2"
+          },
+          "update": "pinchDistance(event)"
+        },
+        {
+          "events": {
+            "signal": "pinchDist2"
+          },
+          "update": "pinchDist2"
+        }
+      ]
+    },
+    {
+      "name": "pinchDist2",
+      "value": 0,
+      "on": [
+        {
+          "events": {
+            "type": "touchmove",
+            "consume": true,
+            "filter": "event.touches.length === 2"
+          },
+          "update": "pinchDistance(event)"
+        }
+      ]
+    },
+    {
+      "name": "panX",
+      "value": 0,
+      "description": "Horizontal canvas pan offset",
+      "on": [
+        {
+          "events": "[@canvasBg:mousedown, window:mouseup] > window:mousemove, [@cardBody:mousedown, window:mouseup] > window:mousemove, [@toggleBtn:mousedown, window:mouseup] > window:mousemove",
+          "update": "panX + (event.movementX || 0)"
+        },
+        {
+          "events": {
+            "type": "touchmove",
+            "consume": true,
+            "filter": "event.touches.length === 1"
+          },
+          "update": "panX + (x() - (downXY ? downXY[0] : x()))"
+        },
+        {
+          "events": "@canvasBg:wheel!, @cardBody:wheel!",
+          "update": "x() - (width / 2) - (x() - (width / 2) - panX) * (clamp(zoomLevel - event.deltaY * 0.001, 0.4, 1.6) / zoomLevel)"
+        },
+        {
+          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick",
+          "update": "0"
+        }
+      ]
+    },
+    {
+      "name": "panY",
+      "value": 0,
+      "description": "Vertical canvas pan offset",
+      "on": [
+        {
+          "events": "[@canvasBg:mousedown, window:mouseup] > window:mousemove, [@cardBody:mousedown, window:mouseup] > window:mousemove, [@toggleBtn:mousedown, window:mouseup] > window:mousemove",
+          "update": "panY + (event.movementY || 0)"
+        },
+        {
+          "events": {
+            "type": "touchmove",
+            "consume": true,
+            "filter": "event.touches.length === 1"
+          },
+          "update": "panY + (y() - (downXY ? downXY[1] : y()))"
+        },
+        {
+          "events": "@canvasBg:wheel!, @cardBody:wheel!",
+          "update": "y() - topMargin - (y() - topMargin - panY) * (clamp(zoomLevel - event.deltaY * 0.001, 0.4, 1.6) / zoomLevel)"
+        },
+        {
+          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick",
+          "update": "0"
+        }
+      ]
+    },
+    {
       "name": "zoomLevel",
       "value": 1,
       "description": "Current canvas zoom factor (0.4 to 1.6)",
@@ -51,42 +153,18 @@
           "update": "max(0.4, zoomLevel - 0.15)"
         },
         {
-          "events": "@zoomResetBtn:click, @zoomResetText:click",
+          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick",
           "update": "1.0"
         },
         {
-          "events": "@canvasBg:wheel",
+          "events": "@canvasBg:wheel!, @cardBody:wheel!",
           "update": "clamp(zoomLevel - event.deltaY * 0.001, 0.4, 1.6)"
-        }
-      ]
-    },
-    {
-      "name": "panX",
-      "value": 0,
-      "description": "Horizontal canvas pan offset",
-      "on": [
-        {
-          "events": "[@canvasBg:mousedown, window:mouseup] > window:mousemove",
-          "update": "panX + (event.movementX || 0)"
         },
         {
-          "events": "@zoomResetBtn:click, @zoomResetText:click",
-          "update": "0"
-        }
-      ]
-    },
-    {
-      "name": "panY",
-      "value": 0,
-      "description": "Vertical canvas pan offset",
-      "on": [
-        {
-          "events": "[@canvasBg:mousedown, window:mouseup] > window:mousemove",
-          "update": "panY + (event.movementY || 0)"
-        },
-        {
-          "events": "@zoomResetBtn:click, @zoomResetText:click",
-          "update": "0"
+          "events": {
+            "signal": "pinchDist2"
+          },
+          "update": "pinchDist1 > 0 ? clamp(zoomLevel * (pinchDist2 / pinchDist1), 0.4, 1.6) : zoomLevel"
         }
       ]
     },
@@ -160,7 +238,7 @@
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, ',' + datum.id + ',') >= 0 ? replace(expandedIds, ',' + datum.id + ',', ',') : expandedIds + datum.id + ',') : expandedIds"
+          "update": "(!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4)) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, ',' + datum.id + ',') >= 0 ? replace(expandedIds, ',' + datum.id + ',', ',') : expandedIds + datum.id + ',') : expandedIds) : expandedIds"
         },
         {
           "events": "@collapseAllBtn:click, @collapseAllText:click",
@@ -179,7 +257,7 @@
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, ',' + datum.id + ',') >= 0 ? replace(collapsedIds, ',' + datum.id + ',', ',') : collapsedIds + datum.id + ',') : collapsedIds"
+          "update": "(!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4)) ? ((expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, ',' + datum.id + ',') >= 0 ? replace(collapsedIds, ',' + datum.id + ',', ',') : collapsedIds + datum.id + ',') : collapsedIds) : collapsedIds"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
@@ -862,101 +940,43 @@
       ]
     },
     {
-      "name": "lineage_base",
+      "name": "full_tree",
       "source": "clean_data",
       "transform": [
         {
-          "type": "lookup",
-          "from": "clean_data",
+          "type": "stratify",
           "key": "id",
-          "fields": [
-            "parentId"
-          ],
-          "values": [
-            "parentId"
-          ],
-          "as": [
-            "anc1"
-          ]
-        },
+          "parentKey": "parentId"
+        }
+      ]
+    },
+    {
+      "name": "lineage_base",
+      "source": "full_tree",
+      "transform": [
         {
-          "type": "lookup",
-          "from": "clean_data",
-          "key": "id",
-          "fields": [
-            "anc1"
-          ],
-          "values": [
-            "parentId"
-          ],
-          "as": [
-            "anc2"
-          ]
-        },
-        {
-          "type": "lookup",
-          "from": "clean_data",
-          "key": "id",
-          "fields": [
-            "anc2"
-          ],
-          "values": [
-            "parentId"
-          ],
-          "as": [
-            "anc3"
-          ]
-        },
-        {
-          "type": "lookup",
-          "from": "clean_data",
-          "key": "id",
-          "fields": [
-            "anc3"
-          ],
-          "values": [
-            "parentId"
-          ],
-          "as": [
-            "anc4"
-          ]
-        },
-        {
-          "type": "lookup",
-          "from": "clean_data",
-          "key": "id",
-          "fields": [
-            "anc4"
-          ],
-          "values": [
-            "parentId"
-          ],
-          "as": [
-            "anc5"
-          ]
-        },
-        {
-          "type": "lookup",
-          "from": "clean_data",
-          "key": "id",
-          "fields": [
-            "anc5"
-          ],
-          "values": [
-            "parentId"
-          ],
-          "as": [
-            "anc6"
-          ]
+          "type": "formula",
+          "expr": "pluck(treeAncestors('full_tree', datum.id), 'id')",
+          "as": "ancList"
         },
         {
           "type": "formula",
-          "expr": "!isValid(datum.parentId) ? 0 : (!isValid(datum.anc1) ? 1 : (!isValid(datum.anc2) ? 2 : (!isValid(datum.anc3) ? 3 : (!isValid(datum.anc4) ? 4 : (!isValid(datum.anc5) ? 5 : (!isValid(datum.anc6) ? 6 : 7))))))",
+          "expr": "slice(datum.ancList, 1)",
+          "as": "ancOnly"
+        },
+        {
+          "type": "formula",
+          "expr": "max(0, length(datum.ancList) - 1)",
           "as": "rawDepth"
         },
         {
           "type": "formula",
-          "expr": "',' + (isValid(datum.parentId) ? datum.parentId + ',' : '') + (isValid(datum.anc1) ? datum.anc1 + ',' : '') + (isValid(datum.anc2) ? datum.anc2 + ',' : '') + (isValid(datum.anc3) ? datum.anc3 + ',' : '') + (isValid(datum.anc4) ? datum.anc4 + ',' : '') + (isValid(datum.anc5) ? datum.anc5 + ',' : '') + (isValid(datum.anc6) ? datum.anc6 + ',' : '')",
+          "expr": "datum.rawDepth >= 1 ? datum.ancList[datum.rawDepth - 1] : datum.id",
+          "as": "branchLeaderId"
+        },
+        {
+          "type": "formula",
+          "expr": "length(datum.ancOnly) > 0 ? (',' + join(datum.ancOnly, ',') + ',') : ''",
           "as": "ancPath"
         }
       ]
@@ -966,24 +986,17 @@
       "source": "lineage_base",
       "transform": [
         {
-          "type": "fold",
+          "type": "flatten",
           "fields": [
-            "parentId",
-            "anc1",
-            "anc2",
-            "anc3",
-            "anc4",
-            "anc5",
-            "anc6"
+            "ancOnly"
           ],
           "as": [
-            "ancLevel",
             "ancestorId"
           ]
         },
         {
           "type": "filter",
-          "expr": "isValid(datum.ancestorId) && datum.ancestorId !== '' && datum.ancestorId !== null"
+          "expr": "isValid(datum.ancestorId) && datum.ancestorId !== ''"
         },
         {
           "type": "aggregate",
@@ -1061,8 +1074,49 @@
         },
         {
           "type": "formula",
-          "expr": "(isValid(datum.parentId) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.parentId + ',') >= 0 : ((datum.rawDepth - 1) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.parentId + ',') < 0 : indexof(collapsedIds, ',' + datum.parentId + ',') >= 0))) || (isValid(datum.anc1) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc1 + ',') >= 0 : ((datum.rawDepth - 2) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc1 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc1 + ',') >= 0))) || (isValid(datum.anc2) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc2 + ',') >= 0 : ((datum.rawDepth - 3) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc2 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc2 + ',') >= 0))) || (isValid(datum.anc3) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc3 + ',') >= 0 : ((datum.rawDepth - 4) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc3 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc3 + ',') >= 0))) || (isValid(datum.anc4) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc4 + ',') >= 0 : ((datum.rawDepth - 5) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc4 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc4 + ',') >= 0))) || (isValid(datum.anc5) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc5 + ',') >= 0 : ((datum.rawDepth - 6) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc5 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc5 + ',') >= 0))) || (isValid(datum.anc6) && (expandAllOverride ? indexof(collapsedIds, ',' + datum.anc6 + ',') >= 0 : ((datum.rawDepth - 7) >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.anc6 + ',') < 0 : indexof(collapsedIds, ',' + datum.anc6 + ',') >= 0)))",
-          "as": "isCollapsedDescendant"
+          "expr": "expandAllOverride ? indexof(collapsedIds, ',' + datum.id + ',') >= 0 : (datum.rawDepth >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.id + ',') < 0 : indexof(collapsedIds, ',' + datum.id + ',') >= 0)",
+          "as": "isSelfCollapsed"
+        }
+      ]
+    },
+    {
+      "name": "collapsed_nodes",
+      "source": "data_with_lineage",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.isSelfCollapsed"
+        },
+        {
+          "type": "project",
+          "fields": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "collapsed_descendants",
+      "source": "data_with_lineage",
+      "transform": [
+        {
+          "type": "flatten",
+          "fields": [
+            "ancOnly"
+          ],
+          "as": [
+            "ancId"
+          ]
+        },
+        {
+          "type": "filter",
+          "expr": "indata('collapsed_nodes', 'id', datum.ancId)"
+        },
+        {
+          "type": "aggregate",
+          "groupby": [
+            "id"
+          ]
         }
       ]
     },
@@ -1072,7 +1126,7 @@
       "transform": [
         {
           "type": "filter",
-          "expr": "!datum.isCollapsedDescendant"
+          "expr": "!indata('collapsed_descendants', 'id', datum.id)"
         },
         {
           "type": "lookup",
@@ -1413,6 +1467,28 @@
         "#F0FDFA",
         "#F5F3FF",
         "#F8FAFC"
+      ]
+    },
+    {
+      "name": "branchColor",
+      "type": "ordinal",
+      "domain": {
+        "data": "tree_nodes",
+        "field": "branchLeaderId"
+      },
+      "range": [
+        "#1D4ED8",
+        "#0284C7",
+        "#0F766E",
+        "#7C3AED",
+        "#D97706",
+        "#E11D48",
+        "#059669",
+        "#4F46E5",
+        "#0891B2",
+        "#9333EA",
+        "#CA8A04",
+        "#DC2626"
       ]
     }
   ],
@@ -2325,7 +2401,11 @@
           },
           "fill": [
             {
-              "value": "#FFFFFF"
+              "test": "datum.rawDepth === 0",
+              "value": "#EFF6FF"
+            },
+            {
+              "signal": "merge(hsl(scale('branchColor', datum.branchLeaderId)), {l: 0.97})"
             }
           ],
           "stroke": [
@@ -2342,7 +2422,7 @@
               "value": "#3B82F6"
             },
             {
-              "value": "#E2E8F0"
+              "signal": "merge(hsl(scale('branchColor', datum.branchLeaderId)), {l: 0.82})"
             }
           ],
           "strokeWidth": [
@@ -2409,8 +2489,8 @@
               "value": "#2563EB"
             },
             {
-              "scale": "levelColor",
-              "field": "rawDepth"
+              "scale": "branchColor",
+              "field": "branchLeaderId"
             }
           ],
           "opacity": [
@@ -2455,8 +2535,7 @@
               "value": "#FEF3C7"
             },
             {
-              "scale": "levelBg",
-              "field": "rawDepth"
+              "signal": "merge(hsl(scale('branchColor', datum.branchLeaderId)), {l: 0.93})"
             }
           ],
           "stroke": [
@@ -2531,8 +2610,8 @@
               "value": "#92400E"
             },
             {
-              "scale": "levelColor",
-              "field": "rawDepth"
+              "scale": "branchColor",
+              "field": "branchLeaderId"
             }
           ],
           "font": {
@@ -3072,17 +3151,17 @@
     }
   ],
   "usermeta": {
-    "version": "1.6.2",
+    "version": "1.7.0",
     "releaseDate": "2026-11-23",
     "features": [
-      "Rounded Orthogonal Connector Elbows (6px Bézier)",
-      "Connector Anchor Dots with Active Chain Highlighting",
-      "Tactile Hover States on Toolbar & Card Toggle Pills",
-      "Live Organization Summary Pill (Headcount & Levels)",
+      "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
+      "Unlimited Hierarchy Depth via Vega treeAncestors()",
+      "Branch / Division Color Coding with HSL Tinting",
       "Configurable Stacking Mode (Standard Tree vs 2-Column Stacking)",
-      "Corridor-Aligned Central Spine Routing",
       "True Reporting-Line Links in Stacked Mode (No Peer-to-Peer Chains)",
       "Leaf-Only Team Stacking with Numeric-Aware Deterministic Ordering",
+      "Rounded Orthogonal Connector Elbows (6px Bézier) & Anchor Dots",
+      "Live Organization Summary Pill (Headcount & Levels)",
       "Active Reporting Line Hover Highlighting",
       "Approachable Executive CEO Card Styling & ★ CEO Amber Prestige Badge",
       "165×58px Cards & Zoom-Invariant 2-Line Title Wrapping"
