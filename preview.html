@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.7.3 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.7.5 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.7.3",
+      "value": "v1.7.5",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -225,7 +225,15 @@
           "update": "x() - (width / 2) - (x() - (width / 2) - panX) * (clamp(zoomLevel - event.deltaY * 0.001, 0.4, 1.6) / zoomLevel)"
         },
         {
-          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick, @toggleBtn:dblclick, @toggleText:dblclick",
+          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick",
+          "update": "0"
+        },
+        {
+          "events": "@cardBody:dblclick, @toggleBtn:dblclick, @toggleText:dblclick",
+          "update": "panX + (width / 2) - datum.centerX"
+        },
+        {
+          "events": "@fitBtn:click, @fitText:click",
           "update": "0"
         }
       ]
@@ -252,8 +260,16 @@
           "update": "y() - topMargin - (y() - topMargin - panY) * (clamp(zoomLevel - event.deltaY * 0.001, 0.4, 1.6) / zoomLevel)"
         },
         {
-          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick, @toggleBtn:dblclick, @toggleText:dblclick",
+          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick",
           "update": "0"
+        },
+        {
+          "events": "@cardBody:dblclick, @toggleBtn:dblclick, @toggleText:dblclick",
+          "update": "panY + (height / 2) - datum.cardY - (cardHeight / 2)"
+        },
+        {
+          "events": "@fitBtn:click, @fitText:click",
+          "update": "length(data('tree_nodes')) > 0 ? 8 - data('tree_nodes')[0].minY * fitZoom * 165 / max(1, cardWidth) : panY"
         }
       ]
     },
@@ -271,8 +287,12 @@
           "update": "max(0.4, zoomLevel - 0.15)"
         },
         {
-          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick, @toggleBtn:dblclick, @toggleText:dblclick",
+          "events": "@zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick",
           "update": "1.0"
+        },
+        {
+          "events": "@fitBtn:click, @fitText:click",
+          "update": "fitZoom"
         },
         {
           "events": "@canvasBg:wheel!, @cardBody:wheel!, @toggleBtn:wheel!, @toggleText:wheel!",
@@ -285,6 +305,12 @@
           "update": "pinchDist1 > 0 && pinchDist2 > 0 ? clamp(pinchStartZoom * (pinchDist2 / pinchDist1), 0.4, 1.6) : zoomLevel"
         }
       ]
+    },
+    {
+      "name": "fitZoom",
+      "value": 1,
+      "description": "Zoom level that fits the whole tree in view (used by the Fit button)",
+      "update": "length(data('tree_nodes')) > 0 ? clamp((cardWidth / 165) * min((width - 96) / max(1, data('tree_nodes')[0].maxX - data('tree_nodes')[0].minX + cardWidth), (height - topMargin - 64) / max(1, data('tree_nodes')[0].maxY - data('tree_nodes')[0].minY + cardHeight)), 0.4, 1.6) : 1"
     },
     {
       "name": "cardWidth",
@@ -331,7 +357,7 @@
     },
     {
       "name": "toolbarOriginX",
-      "update": "max(16, round(width / 2 - 346))",
+      "update": "max(16, round(width / 2 - 360))",
       "description": "Horizontal origin of the floating toolbar so it stays centered above the CEO / tree"
     },
     {
@@ -444,7 +470,11 @@
           "update": "'zoomIn'"
         },
         {
-          "events": "@expandAllBtn:mouseout, @expandAllText:mouseout, @collapseAllBtn:mouseout, @collapseAllText:mouseout, @stackModeBtn:mouseout, @stackModeText:mouseout, @zoomOutBtn:mouseout, @zoomOutText:mouseout, @zoomResetBtn:mouseout, @zoomResetText:mouseout, @zoomInBtn:mouseout, @zoomInText:mouseout",
+          "events": "@fitBtn:mouseover, @fitText:mouseover",
+          "update": "'fit'"
+        },
+        {
+          "events": "@expandAllBtn:mouseout, @expandAllText:mouseout, @collapseAllBtn:mouseout, @collapseAllText:mouseout, @stackModeBtn:mouseout, @stackModeText:mouseout, @zoomOutBtn:mouseout, @zoomOutText:mouseout, @zoomResetBtn:mouseout, @zoomResetText:mouseout, @zoomInBtn:mouseout, @zoomInText:mouseout, @fitBtn:mouseout, @fitText:mouseout",
           "update": "null"
         }
       ]
@@ -1480,15 +1510,21 @@
           "type": "joinaggregate",
           "fields": [
             "rawX",
-            "rawX"
+            "rawX",
+            "rawY",
+            "rawY"
           ],
           "ops": [
+            "min",
+            "max",
             "min",
             "max"
           ],
           "as": [
             "minX",
-            "maxX"
+            "maxX",
+            "minY",
+            "maxY"
           ]
         },
         {
@@ -1634,6 +1670,36 @@
       ]
     },
     {
+      "name": "depth_bands",
+      "source": "tree_nodes",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": [
+            "rawY"
+          ],
+          "ops": [
+            "count"
+          ],
+          "as": [
+            "bandSize"
+          ]
+        },
+        {
+          "type": "window",
+          "sort": {
+            "field": "rawY"
+          },
+          "ops": [
+            "row_number"
+          ],
+          "as": [
+            "bandIdx"
+          ]
+        }
+      ]
+    },
+    {
       "name": "tree_links",
       "source": "tree_nodes",
       "transform": [
@@ -1684,7 +1750,15 @@
         "#0891B2",
         "#9333EA",
         "#CA8A04",
-        "#DC2626"
+        "#DC2626",
+        "#65A30D",
+        "#EA580C",
+        "#DB2777",
+        "#A21CAF",
+        "#166534",
+        "#92400E",
+        "#334155",
+        "#7C2D12"
       ]
     }
   ],
@@ -1713,6 +1787,33 @@
           },
           "height": {
             "signal": "height"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "levelBand",
+      "interactive": false,
+      "from": {
+        "data": "depth_bands"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "value": 0
+          },
+          "y": {
+            "signal": "datum.rawY + topMargin + panY"
+          },
+          "width": {
+            "signal": "width"
+          },
+          "height": {
+            "signal": "nodeSpacingY"
+          },
+          "fill": {
+            "signal": "datum.bandIdx % 2 === 0 ? '#F1F5F9' : 'rgba(0,0,0,0)'"
           }
         }
       }
@@ -2303,6 +2404,83 @@
     },
     {
       "type": "rect",
+      "name": "fitBtn",
+      "encode": {
+        "enter": {
+          "y": {
+            "value": 13
+          },
+          "width": {
+            "value": 36
+          },
+          "height": {
+            "value": 26
+          },
+          "cornerRadius": {
+            "value": 6
+          },
+          "cursor": {
+            "value": "pointer"
+          }
+        },
+        "update": {
+          "fill": [
+            {
+              "test": "hoveredToolbarBtn === 'fit'",
+              "value": "#F1F5F9"
+            },
+            {
+              "value": "transparent"
+            }
+          ],
+          "x": {
+            "signal": "toolbarOriginX + 448"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "fitText",
+      "encode": {
+        "enter": {
+          "y": {
+            "value": 26
+          },
+          "text": {
+            "value": "Fit"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 10.5
+          },
+          "fontWeight": {
+            "value": "600"
+          },
+          "fill": {
+            "value": "#475569"
+          },
+          "cursor": {
+            "value": "pointer"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 466"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
       "name": "summaryPillShadow",
       "interactive": false,
       "encode": {
@@ -2325,7 +2503,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 456"
+            "signal": "toolbarOriginX + 492"
           }
         }
       }
@@ -2360,7 +2538,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 456"
+            "signal": "toolbarOriginX + 492"
           }
         }
       }
@@ -2375,7 +2553,7 @@
       "encode": {
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 551"
+            "signal": "toolbarOriginX + 587"
           },
           "y": {
             "value": 26
@@ -2436,7 +2614,46 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 656"
+            "signal": "toolbarOriginX + 690"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "emptyNoticeText",
+      "interactive": false,
+      "encode": {
+        "update": {
+          "x": {
+            "signal": "width / 2"
+          },
+          "y": {
+            "signal": "height / 2"
+          },
+          "text": {
+            "value": "No data to display — map ID, ParentID, Name and Title in Deneb"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 13
+          },
+          "fontWeight": {
+            "value": "600"
+          },
+          "fill": {
+            "value": "#94A3B8"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          },
+          "opacity": {
+            "signal": "length(data('tree_nodes')) === 0 ? 1 : 0"
           }
         }
       }
@@ -3347,7 +3564,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.7.3",
+    "version": "1.7.5",
     "releaseDate": "2026-11-24",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
@@ -3364,7 +3581,12 @@
       "Unit-Separator ID State (comma-safe expand/collapse & hover lineage)",
       "Stable Branch Colors from Full Lineage (collapse-proof domain)",
       "Zoom-Scaled Toggle & Badge Chrome with Wider Summary Pill",
-      "Fallback Root Election (pure-cycle datasets render instead of erroring)"
+      "Fallback Root Election (pure-cycle datasets render instead of erroring)",
+      "20-Color Branch Palette (no recycling below 20 divisions)",
+      "Empty-Dataset Notice (blank data explains itself instead of rendering silently)",
+      "Double-Click Card to Center (background double-click still resets the view)",
+      "Zoom-to-Fit Toolbar Button (whole tree in view at any size)",
+      "Subtle Level Banding (alternating row wash, pan-aware, zero re-layout)"
     ]
   }
 };

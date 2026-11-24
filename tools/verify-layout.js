@@ -121,6 +121,14 @@ async function runScenario(sc, values) {
   if (links.length !== Math.max(0, nodes.length - 1)) fail('sanity', `expected ${Math.max(0, nodes.length - 1)} links for ${nodes.length} cards, got ${links.length}`);
   const roots = nodes.filter(n => !n.parentId);
   if (roots.length !== 1) fail('sanity', `expected exactly 1 root card, got ${roots.length}`);
+  const fz = view.signal('fitZoom');
+  if (!isFinite(fz) || fz < 0.4 || fz > 1.6) fail('fit', `fitZoom ${fz} out of [0.4, 1.6]`);
+  const bands = view.data('depth_bands');
+  const depths = new Set(nodes.map(n => n.rawY));
+  if (bands.length !== depths.size) fail('bands', `expected ${depths.size} level bands, got ${bands.length}`);
+  const palette = (baseSpec.scales.find(s => s.name === 'branchColor') || {}).range || [];
+  const branches = new Set(view.data('lineage_base').map(n => n.branchLeaderId));
+  if (branches.size > palette.length) fail('colors', `${branches.size} divisions exceed the ${palette.length}-color branch palette; branch colors will repeat`);
 
   // ---- links: semantics ----
   const pairs = new Map();

@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.7.3`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.7.5`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. Remaining open items are low/conditional priority.
 
 ## Summary
 
@@ -36,6 +36,23 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 |---|---|---|
 | New | `deneb-org-chart.json` (`fallback_root`, `sanitized_data`) | Pure-cycle datasets (every row has a valid `ParentID`, e.g. `A↔B`, so `primary_root` is empty) no longer throw `no root`: `fallback_root` elects the smallest-keyed node and `sanitized_data` nulls only its parent link. Verified with 2-cycle / 3-cycle verifier scenarios. |
 | Cleanup | `tools/verify-layout.js` | Added built-in pure 2-cycle / 3-cycle scenarios (expanded + hover) to `npm test`. |
+
+## Resolved in `v1.7.4`
+
+| # | Where | Resolution |
+|---|---|---|
+| New | `deneb-org-chart.json` (`branchColor`) | Palette extended from 12 to 20 colors (existing assignments preserved by appending) so the sample's 13 divisions no longer collide; the verifier now fails if divisions ever exceed the palette size. |
+| New | `deneb-org-chart.json` (`emptyNoticeText`) | An empty dataset now shows a centered "No data to display — map ID, ParentID, Name and Title in Deneb" notice instead of a silent blank canvas. |
+| Docs | `README.md` | Touch limitations documented: no reporting-line highlight on touch, gestures are provisional and untested by the author. |
+
+## Resolved in `v1.7.5`
+
+| # | Where | Resolution |
+|---|---|---|
+| New | `deneb-org-chart.json` (signals) | Double-clicking any card/toggle recenters it in view (`pan + viewport/2 − node center`); background double-click still resets. Zoom is preserved on card double-click. |
+| New | `deneb-org-chart.json` (`fitZoom`, toolbar) | New Fit button zooms the whole tree into view (scalar `fitZoom` from live extents, clamped to zoom bounds) and centers via `panX = 0` + top-anchored `panY`; min/max Y extents added to the existing `joinaggregate`. |
+| New | `deneb-org-chart.json` (`depth_bands`, `levelBand`) | One full-width band rect per distinct `rawY` (alternating wash, `panY`-aware in encode so no re-layout, `interactive: false` so canvas gestures pass through). |
+| Cleanup | `tools/verify-layout.js` | New `fit` check (`fitZoom` finite and within bounds) and `bands` check (one band per distinct depth) in every scenario. |
 
 ## Remaining Open Items (Low / Conditional Priority)
 
