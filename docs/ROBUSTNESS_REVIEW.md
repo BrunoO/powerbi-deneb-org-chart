@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.9.0`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.9.1`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Branch-fit zoom and gesture caption landed in `v1.8.x`. Extra 2 branch filtering landed in `v1.9.0`. Single/double-click reconciliation and 4px click-slop landed in `v1.9.1`. Remaining open items are low/conditional priority.
 
 ## Summary
 
@@ -103,6 +103,14 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 | # | Where | Resolution |
 |---|---|---|
 | Fix | `deneb-org-chart.json` (`treeLinkCasing`, `treeLinkPath`) | Links were unreadable on level bands (`#CBD5E1` on `#F1F5F9`). Core darkened to `#94A3B8` at 2px with a 4.5px white casing underneath (same dimming logic), so connectors separate from any background. |
+
+## Resolved in `v1.9.1`
+
+| # | Where | Resolution |
+|---|---|---|
+| Fix | `deneb-org-chart.json` (signals) + `tools/verify-layout.js` | Removed conflicting `@cardBody:dblclick` from `panX`, `panY`, and `anchorId`. Click 1 of a double-click was shifting the card via branch-fit, causing Click 2 and `dblclick` to hit empty canvas and trigger an unintended full reset. Single-click reliably focuses/centers the branch; double-click is reserved for canvas background reset. |
+| Fix | `deneb-org-chart.json` (`panX`, `panY`, `zoomLevel`, `expandedIds`, `collapsedIds`) | Added 4px movement slop check `(abs(xy()[0] - downXY[0]) >= 4 \|\| abs(xy()[1] - downXY[1]) >= 4)` to `@cardBody:click` and fixed toggle condition so trackpad micro-jitter no longer swallows clicks as drags. |
+| Docs | `README.md` / `preview.html` / `gestureHint` | Updated touch gesture note (tapping card focuses branch, tapping pill toggles collapse), updated gesture caption to "Double-click canvas to reset", and bumped spec to `v1.9.1`. |
 
 ## Resolved in `v1.9.0`
 

@@ -264,20 +264,16 @@ function checkTooltip() {
 }
 
 function checkDblclick() {
-  // Centering reads datum layout fields into the viewport signals. Only cardBody
-  // may trigger it: toggle re-layouts between a double-click's two clicks
-  // (measured ~1000px shifts), so a toggle dblclick would mistarget its second
-  // click and dblclick. (anchorX/anchorY legitimately record datum.cardX/cardY
-  // on toggle clicks — they store position, they don't center — so only panX/panY
-  // updates are checked here.)
+  // Double-clicking elements that shift on click (cards on branch-fit, toggles on re-layout)
+  // causes the second click / dblclick to strike empty space or canvasBg.
+  // Viewport centering must not listen to toggle or card marks on dblclick.
   const issues = [];
   for (const s of baseSpec.signals) {
     if (s.name !== 'panX' && s.name !== 'panY') continue;
     for (const h of s.on || []) {
       const ev = String(h.events || '');
-      const up = String(h.update || '');
-      if ((up.includes('datum.centerX') || up.includes('datum.cardY') || up.includes('datum.rawX') || up.includes('datum.rawY')) && (ev.includes('@toggleBtn') || ev.includes('@toggleText')))
-        issues.push(`[dblclick] ${s.name} centers on datum but listens to toggle marks (${ev}): toggle re-layout mistargets the second click`);
+      if (ev.includes('dblclick') && !ev.includes('@canvasBg:dblclick'))
+        issues.push(`[dblclick] ${s.name} listens to dblclick on mark (${ev}): clicks shift geometry and mistarget`);
     }
   }
   return issues;
@@ -457,7 +453,7 @@ async function checkExtraFilter() {
   t.forEach(i => console.log('    ' + i));
   const dc = checkDblclick();
   total += dc.length;
-  console.log(`${dc.length ? '✗' : '✓'} dblclick-centering scoped to card body only`);
+  console.log(`${dc.length ? '✗' : '✓'} double-click scoped to canvas background only (no card/toggle displacement)`);
   dc.forEach(i => console.log('    ' + i));
   const gc = checkCaption();
   total += gc.length;

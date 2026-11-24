@@ -18,10 +18,10 @@ Guidance for coding agents working in this repository.
 - **Leaf-only stacking & deterministic ordering**:
   - Only stack teams where `siblingManagerCount === 0`, `parentReportCount > gridThreshold`, and `rawDepth >= stackMinDepth`. Mixed teams (managers + individual contributors) must stay on a horizontal bus so peers never share a row with a colleague's reports.
   - Sort by numeric-aware `sortKey` (`pad(datum.id, 15, '0', 'left')` for numeric IDs) in both the `window` transform (`groupby: ["parentId", "isStacked"]`) and a `collect` transform before `stratify`.
-- **Click-to-focus branch zoom**: `@cardBody:click` (guarded by `!didPan`) fits the clicked subtree via per-row `branchFitZ` and ratio-scaled centering. Subtree bounds can't feed back into `tree_nodes` (Vega requires sources defined before use), so `card_nodes` (source `tree_nodes` + box lookup) exists solely as `cardBody`'s datum; every other mark stays on `tree_nodes`.
+- **Click-to-focus branch zoom**: `@cardBody:click` (guarded by drag-slop: `didPan` with >= 4px movement) fits the clicked subtree via per-row `branchFitZ` and ratio-scaled centering. Subtree bounds can't feed back into `tree_nodes` (Vega requires sources defined before use), so `card_nodes` (source `tree_nodes` + box lookup) exists solely as `cardBody`'s datum; every other mark stays on `tree_nodes`.
 - **Focus pinning on toggle**:
   - `@toggleBtn/click` stores `anchorId/anchorX/anchorY/anchorZoom` (node id + screen pos + zoom); `cardX/cardY` add a rigid compensating shift (`anchor − anchorBase − pan`) while zoom matches, so the clicked node never moves on expand/collapse.
-  - Presses (`@canvasBg/@cardBody/@toggleBtn:mousedown`, `touchstart`) fold the shift into `panX/panY` *before* clearing `anchorId`, so the press itself is pixel-identical — never clear-then-re-arm across separate pulses. Fit, zoom reset, center-dblclick, and Collapse All clear `anchorId` outright (they set pan absolutely). Center-on-dblclick must use layout terms (`rawX`/`originX`), never `centerX`, so it stays exact while a pin is active.
+  - Presses (`@canvasBg/@cardBody/@toggleBtn:mousedown`, `touchstart`) fold the shift into `panX/panY` *before* clearing `anchorId`, so the press itself is pixel-identical — never clear-then-re-arm across separate pulses. Fit, zoom reset, double-click canvas reset, and Collapse All clear `anchorId` outright (they set pan absolutely).
 
 ## Power BI Deneb Constraints (Do Not Regress)
 

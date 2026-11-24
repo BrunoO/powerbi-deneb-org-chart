@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.9.0 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
+  "description": "Interactive Collapsible Org Chart Visual v1.9.1 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.9.0",
+      "value": "v1.9.1",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -234,10 +234,6 @@
           "update": "0"
         },
         {
-          "events": "@cardBody:dblclick",
-          "update": "(width - cardWidth) / 2 - datum.rawX - datum.originX"
-        },
-        {
           "events": "@fitBtn:click, @fitText:click",
           "update": "0"
         },
@@ -247,7 +243,7 @@
         },
         {
           "events": "@cardBody:click",
-          "update": "didPan ? panX : (datum.branchFitZ * 165 / max(1, cardWidth)) * ((datum.maxX + datum.minX) / 2 - (datum.bMinX + datum.bMaxX) / 2)"
+          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? panX : (datum.branchFitZ * 165 / max(1, cardWidth)) * ((datum.maxX + datum.minX) / 2 - (datum.bMinX + datum.bMaxX) / 2)"
         }
       ]
     },
@@ -277,10 +273,6 @@
           "update": "0"
         },
         {
-          "events": "@cardBody:dblclick",
-          "update": "(height - cardHeight) / 2 - datum.rawY - topMargin"
-        },
-        {
           "events": "@fitBtn:click, @fitText:click",
           "update": "length(data('tree_nodes')) > 0 ? 8 - data('tree_nodes')[0].minY * fitZoom * 165 / max(1, cardWidth) : panY"
         },
@@ -290,7 +282,7 @@
         },
         {
           "events": "@cardBody:click",
-          "update": "didPan ? panY : height / 2 - topMargin - (datum.branchFitZ * 165 / max(1, cardWidth)) * ((datum.bMinY + datum.bMaxY) / 2 + cardHeight / 2)"
+          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? panY : height / 2 - topMargin - (datum.branchFitZ * 165 / max(1, cardWidth)) * ((datum.bMinY + datum.bMaxY) / 2 + cardHeight / 2)"
         }
       ]
     },
@@ -327,7 +319,7 @@
         },
         {
           "events": "@cardBody:click",
-          "update": "didPan ? zoomLevel : datum.branchFitZ"
+          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? zoomLevel : datum.branchFitZ"
         }
       ]
     },
@@ -430,7 +422,7 @@
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(datum.reportCount > 0 && !didPan && (!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, '\u001F' + datum.id + '\u001F') >= 0 ? replace(expandedIds, '\u001F' + datum.id + '\u001F', '\u001F') : expandedIds + datum.id + '\u001F') : expandedIds) : expandedIds"
+          "update": "(datum.reportCount > 0 && (!didPan || !downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, '\u001F' + datum.id + '\u001F') >= 0 ? replace(expandedIds, '\u001F' + datum.id + '\u001F', '\u001F') : expandedIds + datum.id + '\u001F') : expandedIds) : expandedIds"
         },
         {
           "events": "@collapseAllBtn:click, @collapseAllText:click",
@@ -449,7 +441,7 @@
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(datum.reportCount > 0 && !didPan && (!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? ((expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, '\u001F' + datum.id + '\u001F') >= 0 ? replace(collapsedIds, '\u001F' + datum.id + '\u001F', '\u001F') : collapsedIds + datum.id + '\u001F') : collapsedIds) : collapsedIds"
+          "update": "(datum.reportCount > 0 && (!didPan || !downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? ((expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, '\u001F' + datum.id + '\u001F') >= 0 ? replace(collapsedIds, '\u001F' + datum.id + '\u001F', '\u001F') : collapsedIds + datum.id + '\u001F') : collapsedIds) : collapsedIds"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
@@ -559,7 +551,7 @@
           "update": "datum.id"
         },
         {
-          "events": "@fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick, @collapseAllBtn:click, @collapseAllText:click, @cardBody:click",
+          "events": "@fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @collapseAllBtn:click, @collapseAllText:click, @cardBody:click",
           "update": "null"
         }
       ]
@@ -2208,7 +2200,7 @@
       "encode": {
         "enter": {
           "text": {
-            "value": "ⓘ Click a card to focus its branch · Double-click to center · Drag to pan · Scroll to zoom"
+            "value": "ⓘ Click a card to focus its branch · Double-click canvas to reset · Drag to pan · Scroll to zoom"
           },
           "align": {
             "value": "center"
@@ -4287,7 +4279,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.9.0",
+    "version": "1.9.1",
     "releaseDate": "2026-11-24",
     "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
@@ -4308,7 +4300,6 @@
       "Fallback Root Election (pure-cycle datasets render instead of erroring)",
       "20-Color Branch Palette (no recycling below 20 divisions)",
       "Empty-Dataset Notice (blank data explains itself instead of rendering silently)",
-      "Double-Click Card to Center (background double-click still resets the view)",
       "Zoom-to-Fit Toolbar Button (whole tree in view at any size)",
       "Subtle Level Banding (alternating row wash, pan-aware, zero re-layout)",
       "Configurable Tooltip ID (hidden by default for confidentiality)",
@@ -4320,8 +4311,9 @@
       "Readable Links on Bands (white casing + slate-400 core)",
       "Eyebrow Gesture Caption (ⓘ prefix, centered on toolbar, breathing room)",
       "Filter by Extra 2 (matches + hierarchy kept, rest hidden)",
-      "Click-to-Focus Branch Zoom (Fit = whole tree, double-click = center node)",
-      "Persistent Gesture Caption (click / double-click / drag / scroll hints)"
+      "Click-to-Focus Branch Zoom (click card to fit & center branch)",
+      "Robust Click Slop (4px movement threshold distinguishes clicks from drag-pans)",
+      "Double-Click Canvas to Reset View"
     ]
   }
 };

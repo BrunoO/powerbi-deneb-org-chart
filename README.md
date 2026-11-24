@@ -28,20 +28,20 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 - **2-Line Title Wrapping**: Long job titles wrap cleanly onto a second line at word boundaries instead of being cut off with `...`.
 - **Total Team Headcount (`👥 N`)**: Every manager card displays its total downstream headcount.
 - **Active Reporting-Line Highlighting**: Hover over any employee to highlight their full management chain up to the CEO and all of their direct/indirect reports, while gently dimming unrelated branches.
-- **Interactive Branch Collapse & Expand**: Click **`−`** on any manager card to collapse their team, or **`+N`** to expand it again. The clicked node stays pinned exactly where it is (pan compensates for the re-layout); drag, Fit, reset, center, Collapse All, or clicking any card to release it.
+- **Interactive Branch Collapse & Expand**: Click **`−`** on any manager card to collapse their team, or **`+N`** to expand it again. The clicked node stays pinned exactly where it is (pan compensates for the re-layout); drag, Fit, reset, Collapse All, or clicking any card to release it.
 - **Floating Toolbar & Live Summary**:
-  - **`⤢ Expand All`** / **`⤡ Collapse All`** for instant tree-wide control. Click any card to zoom-to-fit just its branch (double-click a card body to center it instead). **`Filter: All`** cycles the distinct `Extra 2` values, keeping only matches plus their management chain.
+  - **`⤢ Expand All`** / **`⤡ Collapse All`** for instant tree-wide control. Click any card to zoom-to-fit and center its branch. **`Filter: All`** cycles the distinct `Extra 2` values, keeping only matches plus their management chain.
   - **`☵ Standard` / `☷ Stacked`** toggle (starts stacked) to switch between the standard horizontal tree and compact 2-column stacking for large individual-contributor teams (`> 6` direct reports, none of whom manage anyone). Stacked teams hang off a central spine from their **real manager**, so every connector always points to the correct boss.
-  - **`[ − | Reset (100%) | + | Fit ]`** zoom controls, plus cursor-anchored mouse-wheel zoom, drag-anywhere panning, double-click background to reset, double-click a card body to center it (not the +/− pill), and touch pinch-to-zoom.
+  - **`[ − | Reset (100%) | + | Fit ]`** zoom controls, plus cursor-anchored mouse-wheel zoom, drag-anywhere panning, double-click canvas background to reset, and touch pinch-to-zoom.
   - **Live Summary Pill** showing total headcount and hierarchy depth (e.g., `👥 85 People · 7 Levels`).
-- **On-Canvas Gesture Hint**: A subtle caption under the toolbar reminds viewers of the essentials — click a card to focus its branch, double-click to center, drag to pan, scroll to zoom.
+- **On-Canvas Gesture Hint**: A subtle caption under the toolbar reminds viewers of the essentials — click a card to focus its branch, double-click canvas to reset, drag to pan, scroll to zoom.
 - **Collapsed by Default**: Opens with just the CEO and Level-1 leaders visible so large organizations load quickly without visual clutter.
 
 ---
 
 ## 📁 Files
 
-- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.9.0`) to paste into Deneb in Power BI.
+- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.9.1`) to paste into Deneb in Power BI.
 - [`sample-org-data.csv`](./sample-org-data.csv): Sample dataset (85 employees across 7 levels) that exercises every layout edge case: a 12-person executive team, leaf-only teams that stack (even and odd sizes, side-by-side, at Level 6), a large *mixed* team of managers and engineers (stays horizontal), a team exactly at the threshold, IDs that cross digit boundaries (`17` vs `100` vs `1000`) in shuffled input order, and `Extra 2` office cohorts (`Paris`/`London`/`New York`) scattered across teams to exercise filtering.
 - [`preview.html`](./preview.html) & [`index.html`](./index.html): Standalone HTML preview for testing in any browser (no Power BI needed; requires internet for the Vega CDN).
 - [`tools/verify-layout.js`](./tools/verify-layout.js): Automated layout checker (see [Development](#-development--layout-verification)).
@@ -141,7 +141,7 @@ Check these before publishing — the visual sanitizes sloppy inputs where it ca
 | 3 | **Exactly one blank-`ParentID` root is supported.** | Orphan `ParentID`s (no matching `ID`) and extra roots are tolerated — they are attached under the elected root instead of erroring — but the layout verifier enforces a single root, so treat multiples as data to fix. |
 | 4 | **No reporting loops.** | A dataset with *no* root at all (pure cycle, e.g. `A↔B`) renders via fallback-root election, but a loop in one branch *alongside* a valid root still breaks the visual. Validate with `node tools/verify-layout.js your-data.csv` before publishing. |
 | 5 | **Exotic ID formats only affect sibling order.** | Numeric IDs over 15 digits, negatives, or scientific notation (e.g. `1e3`) still draw a correct hierarchy; only the left-to-right order of siblings may differ from numeric order — deterministically (same data, same layout). Comma-containing text IDs are fully supported. |
-| 6 | **Touch devices get no reporting-line highlight.** | Hover highlighting is mouse-driven; tapping a card toggles collapse instead. Touch pan/pinch/zoom gestures are provided on a best-effort, provisional basis and have **not been tested by the author** — please report anything that misbehaves. |
+| 6 | **Touch devices get no reporting-line highlight.** | Hover highlighting is mouse-driven; tapping a card body focuses and centers its branch, while tapping the **+ / −** pill toggles collapse. Touch pan/pinch/zoom gestures are provided on a best-effort, provisional basis and have **not been tested by the author** — please report anything that misbehaves. |
 | 7 | **Toolbar background ignores pan/zoom gestures (by design).** | Dragging, wheeling, or double-clicking on the toolbar background does nothing — start those gestures on the canvas or a card. This keeps the toolbar click-stable so a missed button click can't accidentally pan or zoom the chart. |
 | 8 | **Extra card lines need exact column names and stay short.** | Add columns named exactly `Extra 1`, `Extra 2`, `Extra 3` (rename in Power Query if needed); values must be short single-line text — longer values are truncated with `…`. All cards adopt the height of the fullest card (max 3 lines); cards with fewer lines show whitespace instead. |
 | 9 | **Filtering keeps the chain, not the team.** | The `Filter` button (fixed on `Extra 2`) hides everything except matches plus their ancestors up to the root, so reporting lines stay true. A matching manager's non-matching reports are hidden too. The summary pill still shows whole-org totals. |
