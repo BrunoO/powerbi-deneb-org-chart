@@ -251,6 +251,20 @@ function checkTooltip() {
   return issues;
 }
 
+function checkDblclick() {
+  // Centering reads datum.centerX/cardY: only cardBody may trigger it. Toggle
+  // re-layouts between a double-click's two clicks (measured ~1000px shifts),
+  // so a toggle dblclick would mistarget its second click and dblclick.
+  const issues = [];
+  for (const s of baseSpec.signals) for (const h of s.on || []) {
+    const ev = String(h.events || '');
+    const up = String(h.update || '');
+    if ((up.includes('datum.centerX') || up.includes('datum.cardY')) && (ev.includes('@toggleBtn') || ev.includes('@toggleText')))
+      issues.push(`[dblclick] ${s.name} centers on datum but listens to toggle marks (${ev}): toggle re-layout mistargets the second click`);
+  }
+  return issues;
+}
+
 (async () => {
   const ext = process.argv[2];
   const values = ext ? loadExternal(ext) : null;
@@ -301,6 +315,10 @@ function checkTooltip() {
   total += t.length;
   console.log(`${t.length ? '✗' : '✓'} tooltip hides ID by default (showIdInTooltip)`);
   t.forEach(i => console.log('    ' + i));
+  const dc = checkDblclick();
+  total += dc.length;
+  console.log(`${dc.length ? '✗' : '✓'} dblclick-centering scoped to card body only`);
+  dc.forEach(i => console.log('    ' + i));
   console.log(total ? `\nFAILED: ${total} issue(s)` : '\nAll layout checks passed.');
   process.exit(total ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });

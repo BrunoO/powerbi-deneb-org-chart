@@ -49,7 +49,7 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 
 | # | Where | Resolution |
 |---|---|---|
-| New | `deneb-org-chart.json` (signals) | Double-clicking any card/toggle recenters it in view (`pan + viewport/2 − node center`); background double-click still resets. Zoom is preserved on card double-click. |
+| New | `deneb-org-chart.json` (signals) | Double-clicking a card body recenters it in view (`pan + viewport/2 − node center`); background double-click still resets. Zoom is preserved. Scoped to card body only: toggle re-layouts between a double-click's two clicks (measured ~1000px shifts), mistargeting the second click — verified by probe, guarded in the verifier. |
 | New | `deneb-org-chart.json` (`fitZoom`, toolbar) | New Fit button zooms the whole tree into view (scalar `fitZoom` from live extents, clamped to zoom bounds) and centers via `panX = 0` + top-anchored `panY`; min/max Y extents added to the existing `joinaggregate`. |
 | New | `deneb-org-chart.json` (`depth_bands`, `levelBand`) | One full-width band rect per distinct `rawY` (alternating wash, `panY`-aware in encode so no re-layout, `interactive: false` so canvas gestures pass through). |
 | Cleanup | `tools/verify-layout.js` | New `fit` check (`fitZoom` finite and within bounds) and `bands` check (one band per distinct depth) in every scenario. |
@@ -67,6 +67,12 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 | # | Where | Resolution |
 |---|---|---|
 | New | `deneb-org-chart.json` (`Extra 1-3`, `extra_stats`, `maxExtraLines`) | Optional extra card lines from columns literally named `Extra 1/2/3` (blank when unmapped). Global uniform height (`58`, or `67+12·maxExtra`) via `cardHeight`; `nodeSpacingY` tracks it so pitch never overlaps. Text Y switched to absolute scaled offsets (identical output when unused). Verifier gains an extras scenario plus a `cardHeight` regression guard. |
+
+## Resolved in `v1.7.8`
+
+| # | Where | Resolution |
+|---|---|---|
+| Fix | `deneb-org-chart.json` (signals) + `tools/verify-layout.js` | Double-click centering scoped to `@cardBody:dblclick` only. Probe proved toggle re-layout shifts sibling toggles ~1000px between a double-click's clicks, mistargeting click 2 and the dblclick; new `checkDblclick` guard fails if centering ever listens to toggle marks again. |
 
 ## Remaining Open Items (Low / Conditional Priority)
 

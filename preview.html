@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.7.7 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.7.8 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.7.7",
+      "value": "v1.7.8",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -234,7 +234,7 @@
           "update": "0"
         },
         {
-          "events": "@cardBody:dblclick, @toggleBtn:dblclick, @toggleText:dblclick",
+          "events": "@cardBody:dblclick",
           "update": "panX + (width / 2) - datum.centerX"
         },
         {
@@ -269,7 +269,7 @@
           "update": "0"
         },
         {
-          "events": "@cardBody:dblclick, @toggleBtn:dblclick, @toggleText:dblclick",
+          "events": "@cardBody:dblclick",
           "update": "panY + (height / 2) - datum.cardY - (cardHeight / 2)"
         },
         {
@@ -3817,7 +3817,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.7.7",
+    "version": "1.7.8",
     "releaseDate": "2026-11-24",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
