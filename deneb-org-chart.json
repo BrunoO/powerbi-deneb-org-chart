@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.8.1 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.8.2 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.8.1",
+      "value": "v1.8.2",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -4020,8 +4020,9 @@
     }
   ],
   "usermeta": {
-    "version": "1.8.1",
+    "version": "1.8.2",
     "releaseDate": "2026-11-24",
+    "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
       "Unlimited Hierarchy Depth via Vega treeAncestors()",

@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.8.1`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.8.2`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Remaining open items are low/conditional priority.
 
 ## Summary
 
@@ -115,6 +115,12 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 | # | Where | Resolution |
 |---|---|---|
 | New | `deneb-org-chart.json` (`gestureHint`) | Persistent eyebrow caption just above the toolbar documenting click / double-click / drag / scroll gestures (non-interactive, paints under cards). New `checkCaption` verifier guard. |
+
+## Resolved in `v1.8.2`
+
+| # | Where | Resolution |
+|---|---|---|
+| Docs | `deneb-org-chart.json` (`description`, `usermeta.repository`) | GitHub source URL embedded in the spec itself (description + `usermeta.repository`), so anyone holding only the pasted JSON can trace it back. Canvas text is not clickable in Deneb, so no in-visual link was added. |
 
 ## Remaining Open Items (Low / Conditional Priority)
 
