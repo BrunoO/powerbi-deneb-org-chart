@@ -3480,7 +3480,7 @@
         "update": {
           "x": [
             {
-              "test": "datum.id === activeHighlightId",
+              "test": "datum.isActiveNode",
               "signal": "datum.cardX - 1.5"
             },
             {
@@ -3489,7 +3489,7 @@
           ],
           "y": [
             {
-              "test": "datum.id === activeHighlightId",
+              "test": "datum.isActiveNode",
               "signal": "datum.cardY + 5"
             },
             {
@@ -3498,7 +3498,7 @@
           ],
           "width": [
             {
-              "test": "datum.id === activeHighlightId",
+              "test": "datum.isActiveNode",
               "signal": "cardWidth + 3"
             },
             {
@@ -3507,7 +3507,7 @@
           ],
           "height": [
             {
-              "test": "datum.id === activeHighlightId",
+              "test": "datum.isActiveNode",
               "signal": "cardHeight + 2"
             },
             {
@@ -3516,7 +3516,7 @@
           ],
           "cornerRadius": [
             {
-              "test": "datum.id === activeHighlightId",
+              "test": "datum.isActiveNode",
               "value": 9
             },
             {
@@ -3525,11 +3525,11 @@
           ],
           "fill": [
             {
-              "test": "datum.id === focusedId",
+              "test": "datum.isFocusedNode",
               "value": "rgba(29, 78, 216, 0.35)"
             },
             {
-              "test": "datum.id === activeHighlightId",
+              "test": "datum.isActiveNode",
               "value": "rgba(37, 99, 235, 0.22)"
             },
             {
@@ -3591,11 +3591,11 @@
           ],
           "stroke": [
             {
-              "test": "datum.id === focusedId",
+              "test": "datum.isFocusedNode",
               "value": "#1D4ED8"
             },
             {
-              "test": "datum.id === activeHighlightId",
+              "test": "datum.isActiveNode",
               "signal": "activeColor"
             },
             {
@@ -3612,11 +3612,11 @@
           ],
           "strokeWidth": [
             {
-              "test": "datum.id === focusedId",
+              "test": "datum.isFocusedNode",
               "value": 3
             },
             {
-              "test": "datum.id === activeHighlightId",
+              "test": "datum.isActiveNode",
               "value": 2.5
             },
             {
