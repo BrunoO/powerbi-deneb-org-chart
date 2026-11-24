@@ -22,7 +22,7 @@ Quick reference for navigating and safely changing `deneb-org-chart.json` (Vega 
 ## Signals (key groups)
 
 ### Config / metadata
-- `versionId`, `defaultCollapseDepth`, `enableStacking`, `gridThreshold`, `stackMinDepth`, `showIdInTooltip`.
+- `versionId`, `defaultCollapseDepth`, `enableStacking`, `gridThreshold`, `stackMinDepth`, `showIdInTooltip`, `showReportingLineInTooltip`.
 - Style constants: `activeColor`, `dimOpacity`, `fontUi`, `fontEmoji`.
 
 ### Pointer / gesture state

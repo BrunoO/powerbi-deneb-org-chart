@@ -288,6 +288,12 @@ async function checkTooltip() {
     issues.push('[tooltip] showIdInTooltip must default to false (IDs can be confidential)');
   if (!expr || !expr.includes('Direct Manager') || !expr.includes('managerName'))
     issues.push('[tooltip] cardBody tooltip must include Direct Manager via managerName lookup');
+  if (!expr || !expr.includes('Reporting Line') || !expr.includes('managerLine'))
+    issues.push('[tooltip] cardBody tooltip must include Reporting Line via managerLine lookup');
+  if (!expr || !expr.includes('showReportingLineInTooltip'))
+    issues.push('[tooltip] Reporting Line must be gated by showReportingLineInTooltip');
+  if ((baseSpec.signals.find(s => s.name === 'showReportingLineInTooltip') || {}).value !== true)
+    issues.push('[tooltip] showReportingLineInTooltip must default to true');
   if (expr && expr.includes("'Status':"))
     issues.push('[tooltip] Redundant UI "Status" field should be removed from tooltip');
 
@@ -301,12 +307,40 @@ async function checkTooltip() {
 
     if (ceoItem && ceoItem.tooltip['Direct Manager'])
       issues.push('[tooltip] CEO must not have a Direct Manager in tooltip');
+    if (ceoItem && ceoItem.tooltip['Reporting Line'])
+      issues.push('[tooltip] CEO must not have a Reporting Line in tooltip');
     if (ceoItem && ceoItem.tooltip['Status'])
       issues.push('[tooltip] CEO tooltip must not contain "Status"');
     if (vpItem && vpItem.tooltip['Direct Manager'] !== 'Sarah Jenkins')
       issues.push(`[tooltip] VP Direct Manager [${vpItem ? vpItem.tooltip['Direct Manager'] : 'none'}] != 'Sarah Jenkins'`);
+    if (vpItem && vpItem.tooltip['Reporting Line'])
+      issues.push('[tooltip] Level 1 (VP) must not duplicate Direct Manager in Reporting Line');
     if (vpItem && vpItem.tooltip['Status'])
       issues.push('[tooltip] VP tooltip must not contain "Status"');
+
+    // Test expanded tree for Level 2+ reporting lines
+    const expSpec = JSON.parse(JSON.stringify(baseSpec));
+    expSpec.signals.find(s => s.name === 'expandAllOverride').value = true;
+    const expView = new vega.View(vega.parse(expSpec), { renderer: 'none' });
+    await expView.runAsync();
+    const expCards = expView.scenegraph().root.items[0].items.find(m => m.name === 'cardBody');
+    const dirItem = expCards && expCards.items.find(it => it.datum.id === '5');
+    const empItem = expCards && expCards.items.find(it => it.datum.id === '12');
+
+    if (dirItem && dirItem.tooltip['Reporting Line'] !== 'David Chen → Sarah Jenkins')
+      issues.push(`[tooltip] Director Reporting Line [${dirItem ? dirItem.tooltip['Reporting Line'] : 'none'}] != 'David Chen → Sarah Jenkins'`);
+    if (empItem && empItem.tooltip['Reporting Line'] !== 'Alex Rivera → David Chen → Sarah Jenkins')
+      issues.push(`[tooltip] Emp Reporting Line [${empItem ? empItem.tooltip['Reporting Line'] : 'none'}] != 'Alex Rivera → David Chen → Sarah Jenkins'`);
+
+    // Test showReportingLineInTooltip = false gating
+    const gatedSpec = JSON.parse(JSON.stringify(expSpec));
+    gatedSpec.signals.find(s => s.name === 'showReportingLineInTooltip').value = false;
+    const gatedView = new vega.View(vega.parse(gatedSpec), { renderer: 'none' });
+    await gatedView.runAsync();
+    const gatedCards = gatedView.scenegraph().root.items[0].items.find(m => m.name === 'cardBody');
+    const gatedEmp = gatedCards && gatedCards.items.find(it => it.datum.id === '12');
+    if (gatedEmp && gatedEmp.tooltip['Reporting Line'])
+      issues.push('[tooltip] Reporting Line was present even when showReportingLineInTooltip was false');
   } catch (e) { issues.push(`[tooltip] threw: ${String(e.message || e).split('\n')[0]}`); }
   return issues;
 }
@@ -602,7 +636,7 @@ async function checkFilterPill() {
   vm.forEach(i => console.log('    ' + i));
   const t = await checkTooltip();
   total += t.length;
-  console.log(`${t.length ? '✗' : '✓'} tooltip includes Direct Manager, Extra metadata & gated ID`);
+  console.log(`${t.length ? '✗' : '✓'} tooltip includes Direct Manager, Reporting Line, Extra metadata & gated ID`);
   t.forEach(i => console.log('    ' + i));
   const dc = checkDblclick();
   total += dc.length;

@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.9.5 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
+  "description": "Interactive Collapsible Org Chart Visual v1.9.6 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.9.5",
+      "value": "v1.9.6",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -106,6 +106,11 @@
       "name": "showIdInTooltip",
       "value": false,
       "description": "Show employee ID in the card hover tooltip (default false: IDs can be confidential)"
+    },
+    {
+      "name": "showReportingLineInTooltip",
+      "value": true,
+      "description": "Show the line of managers up to the CEO in the card hover tooltip (default true: bottom-up reporting chain)"
     },
     {
       "name": "activeColor",
@@ -1484,7 +1489,12 @@
       "transform": [
         {
           "type": "formula",
-          "expr": "pluck(treeAncestors('full_tree', datum.id), 'id')",
+          "expr": "treeAncestors('full_tree', datum.id)",
+          "as": "ancNodes"
+        },
+        {
+          "type": "formula",
+          "expr": "pluck(datum.ancNodes, 'id')",
           "as": "ancList"
         },
         {
@@ -1506,6 +1516,11 @@
           "type": "formula",
           "expr": "length(datum.ancOnly) > 0 ? ('\u001F' + join(datum.ancOnly, '\u001F') + '\u001F') : ''",
           "as": "ancPath"
+        },
+        {
+          "type": "formula",
+          "expr": "join(pluck(slice(datum.ancNodes, 1), 'Name_clean'), ' → ')",
+          "as": "managerLine"
         }
       ]
     },
@@ -3635,7 +3650,7 @@
             "value": "pointer"
           },
           "tooltip": {
-            "signal": "merge({'Employee': datum.Name_clean, 'Title': datum.Title_clean}, isValid(datum.managerName) ? {'Direct Manager': datum.managerName} : {}, datum.Extra1_clean !== '' ? {'Extra 1': datum.Extra1_clean} : {}, datum.Extra2_clean !== '' ? {'Extra 2': datum.Extra2_clean} : {}, datum.Extra3_clean !== '' ? {'Extra 3': datum.Extra3_clean} : {}, {'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth}, showIdInTooltip ? {'ID': datum.id} : {})"
+            "signal": "merge({'Employee': datum.Name_clean, 'Title': datum.Title_clean}, isValid(datum.managerName) ? {'Direct Manager': datum.managerName} : {}, (showReportingLineInTooltip && isValid(datum.managerLine) && datum.managerLine !== '' && datum.rawDepth > 1) ? {'Reporting Line': datum.managerLine} : {}, datum.Extra1_clean !== '' ? {'Extra 1': datum.Extra1_clean} : {}, datum.Extra2_clean !== '' ? {'Extra 2': datum.Extra2_clean} : {}, datum.Extra3_clean !== '' ? {'Extra 3': datum.Extra3_clean} : {}, {'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth}, showIdInTooltip ? {'ID': datum.id} : {})"
           },
           "opacity": [
             {
@@ -4529,7 +4544,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.9.5",
+    "version": "1.9.6",
     "releaseDate": "2026-11-24",
     "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
@@ -4564,6 +4579,7 @@
       "Branch Focus Mode (single-click card locks active lineage without shifting view)",
       "Double-Click Card to Fit & Center Branch (smooth branch zoom)",
       "Enriched Tooltip with Direct Manager & Extra 1/2/3 Metadata",
+      "Full Reporting Line Tooltip (bottom-up manager chain up to CEO)",
       "Solid Extra 2 Filter Pill & Unmapped Visibility Guard",
       "Robust Click Slop (4px movement threshold distinguishes clicks from drag-pans)",
       "Double-Click Canvas to Reset View"
