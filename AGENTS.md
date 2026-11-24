@@ -20,7 +20,7 @@ Guidance for coding agents working in this repository.
   - Sort by numeric-aware `sortKey` (`pad(datum.id, 15, '0', 'left')` for numeric IDs) in both the `window` transform (`groupby: ["parentId", "isStacked"]`) and a `collect` transform before `stratify`.
 - **Focus pinning on toggle**:
   - `@toggleBtn/click` stores `anchorId/anchorX/anchorY/anchorZoom` (node id + screen pos + zoom); `cardX/cardY` add a rigid compensating shift (`anchor − anchorBase − pan`) while zoom matches, so the clicked node never moves on expand/collapse.
-  - Any `mousedown`/`touchstart` (manual pan intent), Fit, zoom reset, center-dblclick, or Collapse All clears `anchorId`. Center-on-dblclick must use layout terms (`rawX`/`originX`), never `centerX`, so it stays exact while a pin is active.
+  - Presses (`@canvasBg/@cardBody/@toggleBtn:mousedown`, `touchstart`) fold the shift into `panX/panY` *before* clearing `anchorId`, so the press itself is pixel-identical — never clear-then-re-arm across separate pulses. Fit, zoom reset, center-dblclick, and Collapse All clear `anchorId` outright (they set pan absolutely). Center-on-dblclick must use layout terms (`rawX`/`originX`), never `centerX`, so it stays exact while a pin is active.
 
 ## Power BI Deneb Constraints (Do Not Regress)
 

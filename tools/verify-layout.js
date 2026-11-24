@@ -293,6 +293,16 @@ async function checkAnchor() {
     await view.runAsync();
     let d = { x: Math.abs(pos('2').cardX - before.x), y: Math.abs(pos('2').cardY - before.y) };
     if (d.x > 1 || d.y > 1) fail(`expanding node 2 moved it by ${d.x.toFixed(1)},${d.y.toFixed(1)}px`);
+    // press with active anchor (mousedown fold + clear): must not move anything
+    const t0 = view.data('tree_nodes');
+    if (t0.length && t0[0].anchorBaseX != null && view.signal('zoomLevel') === view.signal('anchorZoom'))
+      view.signal('panX', view.signal('anchorX') - t0[0].anchorBaseX);
+    if (t0.length && t0[0].anchorBaseY != null && view.signal('zoomLevel') === view.signal('anchorZoom'))
+      view.signal('panY', view.signal('anchorY') - t0[0].anchorBaseY - view.signal('topMargin'));
+    view.signal('anchorId', null);
+    await view.runAsync();
+    d = { x: Math.abs(pos('2').cardX - before.x), y: Math.abs(pos('2').cardY - before.y) };
+    if (d.x > 1 || d.y > 1) fail(`press with active anchor moved node 2 by ${d.x.toFixed(1)},${d.y.toFixed(1)}px`);
     const mid = snap();
     view.signal('expandedIds', US); arm(mid);
     await view.runAsync();

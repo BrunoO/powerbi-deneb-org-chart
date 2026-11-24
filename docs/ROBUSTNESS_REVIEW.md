@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.7.9`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.7.10`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Remaining open items are low/conditional priority.
 
 ## Summary
 
@@ -78,7 +78,13 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 
 | # | Where | Resolution |
 |---|---|---|
-| New | `deneb-org-chart.json` (`anchorId/anchorZoom/anchorX/anchorY`, `cardX/cardY`) | Toggle expand/collapse now pins the clicked node: anchor (id + screen pos + zoom) captured on toggle click, `cardX/cardY` add a rigid compensating shift (`anchor − anchorBase − pan`) while zoom matches. Any `mousedown`/`touchstart`, Fit, reset, center-dblclick, or Collapse All clears it. New `checkAnchor` verifier test toggles node 2 both ways and requires 0px drift. |
+| New | `deneb-org-chart.json` (`anchorId/anchorZoom/anchorX/anchorY`, `cardX/cardY`) | Toggle expand/collapse now pins the clicked node: anchor (id + screen pos + zoom) captured on toggle click, `cardX/cardY` add a rigid compensating shift (`anchor − anchorBase − pan`) while zoom matches. Presses fold the shift into pan before clearing (no jump); drag, Fit, reset, center, collapse-all clear it. New `checkAnchor` verifier test toggles node 2 both ways and requires 0px drift. |
+
+## Resolved in `v1.7.10`
+
+| # | Where | Resolution |
+|---|---|---|
+| Fix | `deneb-org-chart.json` (press handlers) + `tools/verify-layout.js` | Clearing the anchor on `mousedown` jumped the view mid-gesture because the shift vanished a pulse before the click re-armed it (visible on collapse-after-expand). Presses now fold the shift into `panX/panY` atomically before clearing, so the press itself is pixel-identical; `checkAnchor` covers the full press-then-toggle sequence. |
 
 ## Remaining Open Items (Low / Conditional Priority)
 
