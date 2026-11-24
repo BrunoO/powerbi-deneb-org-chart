@@ -40,9 +40,9 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 
 ## 📁 Files
 
-- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.7.1`) to paste into Deneb in Power BI.
+- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.7.3`) to paste into Deneb in Power BI.
 - [`sample-org-data.csv`](./sample-org-data.csv): Sample dataset (85 employees across 7 levels) that exercises every layout edge case: a 12-person executive team, leaf-only teams that stack (even and odd sizes, side-by-side, at Level 6), a large *mixed* team of managers and engineers (stays horizontal), a team exactly at the threshold, and IDs that cross digit boundaries (`17` vs `100` vs `1000`) in shuffled input order.
-- [`preview.html`](./preview.html) & [`index.html`](./index.html): Standalone HTML preview for testing offline in any browser.
+- [`preview.html`](./preview.html) & [`index.html`](./index.html): Standalone HTML preview for testing in any browser (no Power BI needed; requires internet for the Vega CDN).
 - [`tools/verify-layout.js`](./tools/verify-layout.js): Automated layout checker (see [Development](#-development--layout-verification)).
 
 ---
@@ -97,6 +97,20 @@ You can adjust default behavior by editing the `signals` block at the top of [`d
 
 ---
 
+## ⚠️ Limitations & Data Prerequisites
+
+Check these before publishing — the visual sanitizes sloppy inputs where it can, but a few cases still need clean data:
+
+| # | Rule | What happens if you break it |
+| :--- | :--- | :--- |
+| 1 | **IDs must be unique and non-blank.** | The first occurrence wins; duplicates are dropped silently. |
+| 2 | **Do not use `0` as an employee ID.** | `ParentID` `0` / `'0'` is treated as "no manager" (the common Power BI root sentinel), so a real `ID` of `0` would misattach its reports. |
+| 3 | **Exactly one blank-`ParentID` root is supported.** | Orphan `ParentID`s (no matching `ID`) and extra roots are tolerated — they are attached under the elected root instead of erroring — but the layout verifier enforces a single root, so treat multiples as data to fix. |
+| 4 | **No reporting loops.** | A dataset with *no* root at all (pure cycle, e.g. `A↔B`) renders via fallback-root election, but a loop in one branch *alongside* a valid root still breaks the visual. Validate with `node tools/verify-layout.js your-data.csv` before publishing. |
+| 5 | **Exotic ID formats only affect sibling order.** | Numeric IDs over 15 digits, negatives, or scientific notation (e.g. `1e3`) still draw a correct hierarchy; only the left-to-right order of siblings may differ from numeric order — deterministically (same data, same layout). Comma-containing text IDs are fully supported. |
+
+---
+
 ## 🧪 Development & Layout Verification
 
 The repository ships a headless checker that renders the spec with Vega in Standard and Stacked mode (collapsed, fully expanded, and at several zoom levels) and fails if the chart becomes ambiguous:
@@ -114,6 +128,9 @@ node tools/verify-layout.js my-org.csv       # verify your own ID,ParentID,Name,
 npm run sync-preview                         # copy deneb-org-chart.json into preview.html after editing
 ```
 
+> [!NOTE]
+> `npm run sync-preview` and the `preview.html` sync check locate the embedded spec by string matching (`const spec = ` … `\n};`). Do not reformat or move that block in `preview.html` — edit `deneb-org-chart.json` and re-run the sync instead. Note that `node tools/verify-layout.js your-data.csv` validates your data but skips the `preview.html` sync check; run plain `npm test` to include it.
+
 ---
 
 ## 🔒 Security & Row-Level Security (RLS)
@@ -128,7 +145,7 @@ npm run sync-preview                         # copy deneb-org-chart.json into pr
 
 ## 🤖 Use of AI
 
-This software was built almost entirely using automated code-generation tools. No human has fully reviewed the generated code for correctness or security. I have extensively tested the visual and use it as my daily driver, but there might be issues that I haven't encountered yet.
+This software was built almost entirely using automated code-generation tools. No human has fully reviewed the generated code for correctness or security. I have extensively tested the visual and use it daily, but there might be issues that I haven't encountered yet.
 
 ---
 

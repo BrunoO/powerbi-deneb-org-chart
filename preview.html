@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.7.1 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.7.3 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.7.1",
+      "value": "v1.7.3",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -331,7 +331,7 @@
     },
     {
       "name": "toolbarOriginX",
-      "update": "max(16, round(width / 2 - 326))",
+      "update": "max(16, round(width / 2 - 346))",
       "description": "Horizontal origin of the floating toolbar so it stays centered above the CEO / tree"
     },
     {
@@ -351,39 +351,39 @@
     },
     {
       "name": "expandedIds",
-      "value": ",",
-      "description": "Comma-delimited string of node IDs that were collapsed by default and explicitly expanded",
+      "value": "\u001F",
+      "description": "Unit-separator-delimited string of node IDs that were collapsed by default and explicitly expanded",
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(datum.reportCount > 0 && !didPan && (!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, ',' + datum.id + ',') >= 0 ? replace(expandedIds, ',' + datum.id + ',', ',') : expandedIds + datum.id + ',') : expandedIds) : expandedIds"
+          "update": "(datum.reportCount > 0 && !didPan && (!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, '\u001F' + datum.id + '\u001F') >= 0 ? replace(expandedIds, '\u001F' + datum.id + '\u001F', '\u001F') : expandedIds + datum.id + '\u001F') : expandedIds) : expandedIds"
         },
         {
           "events": "@collapseAllBtn:click, @collapseAllText:click",
-          "update": "','"
+          "update": "'\u001F'"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
-          "update": "','"
+          "update": "'\u001F'"
         }
       ]
     },
     {
       "name": "collapsedIds",
-      "value": ",",
-      "description": "Comma-delimited string of node IDs that were expanded by default (or via Expand All) and explicitly collapsed",
+      "value": "\u001F",
+      "description": "Unit-separator-delimited string of node IDs that were expanded by default (or via Expand All) and explicitly collapsed",
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(datum.reportCount > 0 && !didPan && (!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? ((expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, ',' + datum.id + ',') >= 0 ? replace(collapsedIds, ',' + datum.id + ',', ',') : collapsedIds + datum.id + ',') : collapsedIds) : collapsedIds"
+          "update": "(datum.reportCount > 0 && !didPan && (!downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? ((expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, '\u001F' + datum.id + '\u001F') >= 0 ? replace(collapsedIds, '\u001F' + datum.id + '\u001F', '\u001F') : collapsedIds + datum.id + '\u001F') : collapsedIds) : collapsedIds"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
-          "update": "','"
+          "update": "'\u001F'"
         },
         {
           "events": "@collapseAllBtn:click, @collapseAllText:click",
-          "update": "','"
+          "update": "'\u001F'"
         }
       ]
     },
@@ -1113,12 +1113,48 @@
       ]
     },
     {
+      "name": "fallback_root",
+      "source": "clean_data",
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "isFinite(toNumber(datum.id)) ? ('0' + pad(datum.id, 15, '0', 'left')) : ('1' + datum.id)",
+          "as": "fallbackKey"
+        },
+        {
+          "type": "collect",
+          "sort": {
+            "field": "fallbackKey"
+          }
+        },
+        {
+          "type": "window",
+          "ops": [
+            "row_number"
+          ],
+          "as": [
+            "fallbackRank"
+          ]
+        },
+        {
+          "type": "filter",
+          "expr": "datum.fallbackRank === 1"
+        },
+        {
+          "type": "project",
+          "fields": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
       "name": "sanitized_data",
       "source": "sanitized_parents",
       "transform": [
         {
           "type": "formula",
-          "expr": "isValid(datum.parentId) ? datum.parentId : (indata('primary_root', 'id', datum.id) ? null : (length(data('primary_root')) > 0 ? data('primary_root')[0].id : null))",
+          "expr": "isValid(datum.parentId) ? (length(data('primary_root')) > 0 ? datum.parentId : ((length(data('fallback_root')) > 0 && datum.id === data('fallback_root')[0].id) ? null : datum.parentId)) : (indata('primary_root', 'id', datum.id) ? null : (length(data('primary_root')) > 0 ? data('primary_root')[0].id : null))",
           "as": "parentId"
         }
       ]
@@ -1182,7 +1218,7 @@
         },
         {
           "type": "formula",
-          "expr": "length(datum.ancOnly) > 0 ? (',' + join(datum.ancOnly, ',') + ',') : ''",
+          "expr": "length(datum.ancOnly) > 0 ? ('\u001F' + join(datum.ancOnly, '\u001F') + '\u001F') : ''",
           "as": "ancPath"
         }
       ]
@@ -1280,7 +1316,7 @@
         },
         {
           "type": "formula",
-          "expr": "expandAllOverride ? indexof(collapsedIds, ',' + datum.id + ',') >= 0 : (datum.rawDepth >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.id + ',') < 0 : indexof(collapsedIds, ',' + datum.id + ',') >= 0)",
+          "expr": "expandAllOverride ? indexof(collapsedIds, '\u001F' + datum.id + '\u001F') >= 0 : (datum.rawDepth >= defaultCollapseDepth ? indexof(expandedIds, '\u001F' + datum.id + '\u001F') < 0 : indexof(collapsedIds, '\u001F' + datum.id + '\u001F') >= 0)",
           "as": "isSelfCollapsed"
         }
       ]
@@ -1522,17 +1558,17 @@
         },
         {
           "type": "formula",
-          "expr": "datum.rawDepth === 0 ? 38 : 19",
+          "expr": "datum.rawDepth === 0 ? max(38, round(38 * zoomLevel)) : max(19, round(19 * zoomLevel))",
           "as": "badgeWidth"
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + cardWidth - datum.badgeWidth - 7",
+          "expr": "datum.cardX + cardWidth - datum.badgeWidth - round(7 * zoomLevel)",
           "as": "badgeX"
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + 5",
+          "expr": "datum.cardY + round(5 * zoomLevel)",
           "as": "badgeY"
         },
         {
@@ -1542,17 +1578,17 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + 11",
+          "expr": "datum.badgeY + (max(11, round(11 * zoomLevel)) / 2)",
           "as": "badgeTextY"
         },
         {
           "type": "formula",
-          "expr": "datum.totalDescendants >= 1000 ? 40 : (datum.totalDescendants >= 100 ? 35 : (datum.totalDescendants >= 10 ? 30 : 26))",
+          "expr": "datum.totalDescendants >= 1000 ? max(40, round(40 * zoomLevel)) : (datum.totalDescendants >= 100 ? max(35, round(35 * zoomLevel)) : (datum.totalDescendants >= 10 ? max(30, round(30 * zoomLevel)) : max(26, round(26 * zoomLevel))))",
           "as": "descendantBadgeWidth"
         },
         {
           "type": "formula",
-          "expr": "datum.cardX + cardWidth - datum.descendantBadgeWidth - 6",
+          "expr": "datum.cardX + cardWidth - datum.descendantBadgeWidth - round(6 * zoomLevel)",
           "as": "descendantBadgeX"
         },
         {
@@ -1562,22 +1598,22 @@
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + cardHeight - 16",
+          "expr": "datum.cardY + cardHeight - round(5 * zoomLevel) - max(11, round(11 * zoomLevel))",
           "as": "descendantBadgeY"
         },
         {
           "type": "formula",
-          "expr": "datum.cardY + cardHeight - 10.5",
+          "expr": "datum.descendantBadgeY + (max(11, round(11 * zoomLevel)) / 2)",
           "as": "descendantTextY"
         },
         {
           "type": "formula",
-          "expr": "datum.centerX - 14",
+          "expr": "datum.centerX - (max(20, round(28 * zoomLevel)) / 2)",
           "as": "toggleBtnX"
         },
         {
           "type": "formula",
-          "expr": "datum.cardBottom - 7",
+          "expr": "datum.cardBottom - (max(10, round(14 * zoomLevel)) / 2)",
           "as": "toggleBtnY"
         },
         {
@@ -1587,7 +1623,7 @@
         },
         {
           "type": "formula",
-          "expr": "expandAllOverride ? indexof(collapsedIds, ',' + datum.id + ',') >= 0 : (datum.rawDepth >= defaultCollapseDepth ? indexof(expandedIds, ',' + datum.id + ',') < 0 : indexof(collapsedIds, ',' + datum.id + ',') >= 0)",
+          "expr": "datum.isSelfCollapsed",
           "as": "isCollapsed"
         },
         {
@@ -1630,46 +1666,10 @@
   ],
   "scales": [
     {
-      "name": "levelColor",
-      "type": "ordinal",
-      "domain": [
-        0,
-        1,
-        2,
-        3,
-        4
-      ],
-      "range": [
-        "#1D4ED8",
-        "#0284C7",
-        "#0F766E",
-        "#7C3AED",
-        "#64748B"
-      ]
-    },
-    {
-      "name": "levelBg",
-      "type": "ordinal",
-      "domain": [
-        0,
-        1,
-        2,
-        3,
-        4
-      ],
-      "range": [
-        "#EFF6FF",
-        "#F0F9FF",
-        "#F0FDFA",
-        "#F5F3FF",
-        "#F8FAFC"
-      ]
-    },
-    {
       "name": "branchColor",
       "type": "ordinal",
       "domain": {
-        "data": "tree_nodes",
+        "data": "lineage_base",
         "field": "branchLeaderId"
       },
       "range": [
@@ -2311,7 +2311,7 @@
             "value": 11
           },
           "width": {
-            "value": 150
+            "value": 190
           },
           "height": {
             "value": 32
@@ -2340,7 +2340,7 @@
             "value": 10
           },
           "width": {
-            "value": 150
+            "value": 190
           },
           "height": {
             "value": 32
@@ -2375,7 +2375,7 @@
       "encode": {
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 531"
+            "signal": "toolbarOriginX + 551"
           },
           "y": {
             "value": 26
@@ -2436,7 +2436,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 616"
+            "signal": "toolbarOriginX + 656"
           }
         }
       }
@@ -2454,7 +2454,7 @@
           },
           "stroke": [
             {
-              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0 || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0))",
+              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + hoveredId + '\u001F') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0))",
               "value": "#2563EB"
             },
             {
@@ -2463,7 +2463,7 @@
           ],
           "strokeWidth": [
             {
-              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0 || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0))",
+              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + hoveredId + '\u001F') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0))",
               "value": 2.5
             },
             {
@@ -2478,7 +2478,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || ((datum.source.id === hoveredId || indexof(hoveredAncPath, ',' + datum.source.id + ',') >= 0 || indexof(datum.source.ancPath, ',' + hoveredId + ',') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0 || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0))",
+              "test": "!hoveredId || ((datum.source.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + hoveredId + '\u001F') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0))",
               "value": 1
             },
             {
@@ -2548,7 +2548,7 @@
               "value": "rgba(37, 99, 235, 0.22)"
             },
             {
-              "test": "hoveredId && (indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0)",
+              "test": "hoveredId && (indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0)",
               "value": "rgba(59, 130, 246, 0.12)"
             },
             {
@@ -2561,7 +2561,7 @@
           ],
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -2610,7 +2610,7 @@
               "value": "#2563EB"
             },
             {
-              "test": "hoveredId && (indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0)",
+              "test": "hoveredId && (indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0)",
               "value": "#3B82F6"
             },
             {
@@ -2627,7 +2627,7 @@
               "value": 2.5
             },
             {
-              "test": "hoveredId && (indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0)",
+              "test": "hoveredId && (indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0)",
               "value": 2
             },
             {
@@ -2646,7 +2646,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -2691,7 +2691,7 @@
           ],
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -2720,7 +2720,7 @@
             "field": "badgeWidth"
           },
           "height": {
-            "value": 11
+            "signal": "max(11, round(11 * zoomLevel))"
           },
           "cornerRadius": {
             "value": 5.5
@@ -2754,7 +2754,7 @@
           ],
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -2815,7 +2815,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -2844,7 +2844,7 @@
             "field": "descendantBadgeWidth"
           },
           "height": {
-            "value": 11
+            "signal": "max(11, round(11 * zoomLevel))"
           },
           "cornerRadius": {
             "value": 4
@@ -2876,7 +2876,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -2931,7 +2931,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -2993,7 +2993,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3053,7 +3053,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3116,7 +3116,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3141,13 +3141,13 @@
             "field": "toggleBtnY"
           },
           "width": {
-            "value": 28
+            "signal": "max(20, round(28 * zoomLevel))"
           },
           "height": {
-            "value": 14
+            "signal": "max(10, round(14 * zoomLevel))"
           },
           "cornerRadius": {
-            "value": 7
+            "signal": "max(5, round(7 * zoomLevel))"
           },
           "fill": [
             {
@@ -3209,7 +3209,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3243,7 +3243,7 @@
             "value": "middle"
           },
           "fontSize": {
-            "value": 8.5
+            "signal": "max(6.5, round(8.5 * zoomLevel))"
           },
           "fontWeight": {
             "value": "bold"
@@ -3274,7 +3274,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3307,7 +3307,7 @@
           },
           "size": [
             {
-              "test": "hoveredId && (datum.id === hoveredId || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0 || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0)",
+              "test": "hoveredId && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0)",
               "signal": "max(12, round(24 * zoomLevel))"
             },
             {
@@ -3316,7 +3316,7 @@
           ],
           "fill": [
             {
-              "test": "hoveredId && (datum.id === hoveredId || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0 || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0)",
+              "test": "hoveredId && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0)",
               "value": "#2563EB"
             },
             {
@@ -3335,7 +3335,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, ',' + hoveredId + ',') >= 0 || indexof(hoveredAncPath, ',' + datum.id + ',') >= 0",
+              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3347,8 +3347,8 @@
     }
   ],
   "usermeta": {
-    "version": "1.7.1",
-    "releaseDate": "2026-11-23",
+    "version": "1.7.3",
+    "releaseDate": "2026-11-24",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
       "Unlimited Hierarchy Depth via Vega treeAncestors()",
@@ -3360,7 +3360,11 @@
       "Live Organization Summary Pill (Headcount & Levels)",
       "Active Reporting Line Hover Highlighting",
       "Approachable Executive CEO Card Styling & ★ CEO Amber Prestige Badge",
-      "165×58px Cards & Zoom-Invariant 2-Line Title Wrapping"
+      "165×58px Cards & Zoom-Invariant 2-Line Title Wrapping",
+      "Unit-Separator ID State (comma-safe expand/collapse & hover lineage)",
+      "Stable Branch Colors from Full Lineage (collapse-proof domain)",
+      "Zoom-Scaled Toggle & Badge Chrome with Wider Summary Pill",
+      "Fallback Root Election (pure-cycle datasets render instead of erroring)"
     ]
   }
 };

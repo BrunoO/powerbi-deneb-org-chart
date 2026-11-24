@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.7.1` (`0eff0b3`).** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.7.3`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. Remaining open items are low/conditional priority.
 
 ## Summary
 
@@ -20,13 +20,29 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 | 9 | `tools/verify-layout.js` passed vacuously on empty/malformed CSVs | Added required header validation (`ID`, `ParentID`, `Name`, `Title`), sanity assertions (`nodes >= 2`, `links === nodes - 1`, `roots === 1`, non-empty path geometry, `stackedTeams > 0`), and `0.40`/`1.60` zoom boundary coverage. |
 | Cleanup | Unused `treeExtentX`/`treeExtentY`, duplicated `treeLinkPath` formula, leaf tooltip `Status: Collapsed` | Removed unused `extent` transforms, pointed `treeLinkPath` at `{ "field": "path" }`, and updated leaf tooltip status to `Leaf`. |
 
+## Resolved in `v1.7.2`
+
+| # | Where | Resolution |
+|---|---|---|
+| 7 | `expandedIds`, `collapsedIds`, `ancPath` | State strings now use the unit separator (`U+001F`) instead of commas, so text IDs containing `,` no longer cause false expand/collapse/hover matches. Verified with comma-ID probes. |
+| Cleanup | `deneb-org-chart.json` (`branchColor`) | Scale domain now reads `branchLeaderId` from `lineage_base` (full data) instead of visible `tree_nodes`, so collapsing or filtering a branch can no longer recolor the rest. |
+| Cleanup | `deneb-org-chart.json` (scales) | Removed unused `levelColor` / `levelBg` scales. |
+| Cleanup | `deneb-org-chart.json` (badges/toggles) | Toggle pill, toggle label, level/descendant badges, and their offsets now scale with `zoomLevel` (with readability minimums); summary pill widened `150` → `190` with recentered toolbar. |
+| Cleanup | `deneb-org-chart.json` (`tree_nodes`) | `isCollapsed` is now a direct alias of `isSelfCollapsed` instead of a duplicated expression, so the two cannot drift apart. |
+
+## Resolved in `v1.7.3`
+
+| # | Where | Resolution |
+|---|---|---|
+| New | `deneb-org-chart.json` (`fallback_root`, `sanitized_data`) | Pure-cycle datasets (every row has a valid `ParentID`, e.g. `A↔B`, so `primary_root` is empty) no longer throw `no root`: `fallback_root` elects the smallest-keyed node and `sanitized_data` nulls only its parent link. Verified with 2-cycle / 3-cycle verifier scenarios. |
+| Cleanup | `tools/verify-layout.js` | Added built-in pure 2-cycle / 3-cycle scenarios (expanded + hover) to `npm test`. |
+
 ## Remaining Open Items (Low / Conditional Priority)
 
 | # | Where | Issue | Notes / Assessment |
 |---|---|---|---|
 | 2 | `deneb-org-chart.json` (`clean_data`) | `ParentID` `0` / `'0'` is treated as "no manager" | **Intentional Power BI trade-off:** many Power BI parent-child tables use `0` as the root sentinel. Changing this blindly would break existing reports; if needed, gate behind a config signal. |
-| 7 | `expandedIds`, `collapsedIds`, `ancPath` | Comma-delimited strings are ambiguous if text IDs contain `,` | Low risk for typical employee IDs; could switch to array-based state / `indexof` or a rarer delimiter if comma-containing IDs are expected. |
 | 10 | `sortKey` in `tree_nodes` | Lexical 15-digit zero-padding only handles non-negative integers up to 15 digits cleanly | Restricting the numeric branch to `/^[0-9]{1,15}$/` or adding a numeric sort field would cover negatives/decimals/16+ digits. |
-| Cleanup | `deneb-org-chart.json` | `isSelfCollapsed` (`data_with_lineage`) and `isCollapsed` (`tree_nodes`) duplicate the same expression | Minor cleanup; kept readable. |
-| Cleanup | `deneb-org-chart.json` | Badge/toggle sizing at extreme zoom (`0.4×` / `1.6×`) and title-wrap fallback when no early space exists | Minor visual polish. |
-| Cleanup | `README.md` / `preview.html` / `tools/` | `README.md` mentions "offline" though `preview.html` loads Vega from CDN; `verify-layout.js` skips `checkPreview` when given an external CSV; `sync-preview.js` matches `const spec = ` / `\n};` | Minor docs/tooling polish. |
+| New | `deneb-org-chart.json` (`full_tree`) | A cycle in a *detached* component alongside a valid root (e.g. CEO + `A↔B`) still throws in `stratify` | Needs option 3 (bounded ancestor-walk breaker) or upstream repair; the pure-cycle (no-root) case is fixed in `v1.7.3`. |
+| Cleanup | `deneb-org-chart.json` | Title-wrap fallback when no early space exists | Minor visual polish; long single-token titles truncate via `limit`. |
+| Cleanup | `preview.html` / `tools/` | `verify-layout.js` skips `checkPreview` when given an external CSV; `sync-preview.js` matches `const spec = ` / `\n};` | Minor tooling polish. |

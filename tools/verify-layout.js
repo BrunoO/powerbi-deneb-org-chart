@@ -97,7 +97,8 @@ async function runScenario(sc, values) {
     if (s.name === 'enableStacking') s.value = sc.stacking;
     if (s.name === 'zoomLevel') s.value = sc.zoom;
   }
-  if (values) spec.data.find(d => d.name === 'dataset').values = values;
+  const rows = sc.values !== undefined ? sc.values : values;
+  if (rows) spec.data.find(d => d.name === 'dataset').values = rows;
 
   const view = new vega.View(vega.parse(spec), { renderer: 'none' });
   await view.runAsync();
@@ -204,7 +205,7 @@ async function runScenario(sc, values) {
       const expected = new Set();
       for (let c = n; c && c.parentId && byId.has(c.parentId); c = byId.get(c.parentId)) expected.add(c.parentId + '>' + c.id);
       // descendants of the hovered node are highlighted too
-      for (const l of links) if (l.target.ancPath && l.target.ancPath.includes(',' + n.id + ',')) expected.add(l.target.parentId + '>' + l.target.id);
+      for (const l of links) if (l.target.ancPath && l.target.ancPath.includes('\u001F' + n.id + '\u001F')) expected.add(l.target.parentId + '>' + l.target.id);
       const missing = [...expected].filter(k => !lit.has(k));
       const extra = [...lit].filter(k => !expected.has(k));
       if (missing.length || extra.length)
@@ -237,9 +238,24 @@ function checkPreview() {
     scenarios.push({ stacking, collapseDepth: 1, zoom: 1, hover: false });
     for (const zoom of [1, 0.4, 1.6]) scenarios.push({ stacking, collapseDepth: 99, zoom, hover: zoom === 1 });
   }
+  if (!ext) {
+    // Pure-cycle datasets (no blank ParentID): fallback_root elects a root so the chart renders.
+    const CYCLE_TWO = [
+      { ID: 'A', ParentID: 'B', Name: 'A', Title: 't' },
+      { ID: 'B', ParentID: 'A', Name: 'B', Title: 't' }
+    ];
+    const CYCLE_THREE = [
+      { ID: 'A', ParentID: 'C', Name: 'A', Title: 't' },
+      { ID: 'B', ParentID: 'A', Name: 'B', Title: 't' },
+      { ID: 'C', ParentID: 'B', Name: 'C', Title: 'y' }
+    ];
+    for (const [tag, rows] of [['pure 2-cycle', CYCLE_TWO], ['pure 3-cycle', CYCLE_THREE]]) {
+      scenarios.push({ stacking: false, collapseDepth: 99, zoom: 1, hover: true, values: rows, tag });
+    }
+  }
   let total = 0;
   for (const sc of scenarios) {
-    const label = `${sc.stacking ? 'Stacked ' : 'Standard'} | ${sc.collapseDepth === 99 ? 'expanded ' : 'collapsed'} | zoom ${sc.zoom.toFixed(2)}`;
+    const label = `${sc.tag ? sc.tag + ' | ' : ''}${sc.stacking ? 'Stacked ' : 'Standard'} | ${sc.collapseDepth === 99 ? 'expanded ' : 'collapsed'} | zoom ${sc.zoom.toFixed(2)}`;
     const r = await runScenario(sc, values);
     total += r.issues.length;
     console.log(`${r.issues.length ? '✗' : '✓'} ${label} | ${r.nodes} cards, ${r.links} links, ${r.stackedTeams} stacked teams${r.issues.length ? ` | ${r.issues.length} issues` : ''}`);
