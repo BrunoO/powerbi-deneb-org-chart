@@ -8,6 +8,7 @@ Guidance for coding agents working in this repository.
 - [`preview.html`](./preview.html): Standalone browser preview embedding the spec in `const spec = {...};`. **Never hand-edit the embedded spec**—run `npm run sync-preview` (`node tools/sync-preview.js`) after editing `deneb-org-chart.json`.
 - [`sample-org-data.csv`](./sample-org-data.csv): CSV mirror (`ID,ParentID,Name,Title`) of the 85-employee built-in `dataset` in `deneb-org-chart.json`. Keep both in sync when updating sample data.
 - [`tools/verify-layout.js`](./tools/verify-layout.js): Headless Vega layout & invariant test suite (`npm test`).
+- [`docs/SPEC_MAP.md`](./docs/SPEC_MAP.md): Spec map and dev checklist — read before changing signals, data pipeline, layout, interaction, or marks.
 - [`README.md`](./README.md) & `images/`: Documentation and 2× Chrome-rendered showcase screenshots (`org-chart-overview.png`, `org-chart-hover-lineage.png`, `org-chart-stacked-mode.png`).
 
 ## Architecture & Layout Invariants
@@ -31,6 +32,24 @@ Guidance for coding agents working in this repository.
 - **Focus pinning on toggle**:
   - `@toggleBtn/click` stores `anchorId/anchorX/anchorY/anchorZoom` (node id + screen pos + zoom); `cardX/cardY` add a rigid compensating shift (`anchor − anchorBase − pan`) while zoom matches, so the clicked node never moves on expand/collapse.
   - Presses (`@canvasBg/@cardBody/@toggleBtn:mousedown`, `touchstart`) fold the shift into `panX/panY` *before* clearing `anchorId`, so the press itself is pixel-identical — never clear-then-re-arm across separate pulses. Fit, zoom reset, double-click canvas reset, and Collapse All clear `anchorId` outright (they set pan absolutely).
+
+## Domain Ontology (Canonical Terms)
+
+Use these terms consistently; do not conflate them.
+
+| Term | Meaning |
+|---|---|
+| **Real parent / manager** | `parentId` reporting relationship. Drives `tree_links`, tooltips, lineage, and semantics. |
+| **Layout parent** | `layoutParentId` (`lag2Id` for stacked rows). Used only for `stratify/tree` placement; never for reporting links. |
+| **Lineage / ancestors / descendants** | Reporting chain along `parentId` (`ancPath`, `descendant_counts`), not layout adjacency. |
+| **Active highlight** | Unified highlight target (`activeHighlightId`/`activeHighlightAncPath`) from hover or locked focus. |
+| **Focused node** | Card selected by single click; locks active lineage until cleared. |
+| **Branch fit** | Double-click action that zooms/centers clicked subtree; uses `card_nodes.branchFitZ`. |
+| **Branch leader** | Level-1 division owner (`branchLeaderId`) used for color/domain stability. |
+| **Stacked team** | Leaf-only team with `parentReportCount > gridThreshold`, `rawDepth >= stackMinDepth`, and `siblingManagerCount === 0`, laid out in 2 columns. |
+| **Visible node** | Node not removed by collapse/filter logic in `tree_nodes`. |
+| **Filtered out** | Hidden by Extra 2 filter unless match or ancestor of a match. |
+| **Anchor pinning** | Toggle-time compensation so clicked node stays at same screen position across re-layout. |
 
 ## Power BI Deneb Constraints (Do Not Regress)
 
