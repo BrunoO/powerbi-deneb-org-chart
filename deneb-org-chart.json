@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.8.3 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
+  "description": "Interactive Collapsible Org Chart Visual v1.9.0 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.8.3",
+      "value": "v1.9.0",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -279,6 +279,23 @@
       "update": "length(data('extra_stats')) > 0 ? data('extra_stats')[0].maxExtra : 0"
     },
     {
+      "name": "extraFilterIdx",
+      "value": -1,
+      "description": "Selected Extra 2 filter value by rank (-1 = All); advanced by the Filter toolbar button",
+      "on": [
+        {
+          "events": "@filterBtn:click, @filterText:click",
+          "update": "(extraFilterIdx + 2) % (length(data('extra_filter_values')) + 1) - 1"
+        }
+      ]
+    },
+    {
+      "name": "extraFilterValue",
+      "value": "",
+      "description": "Active Extra 2 filter value ('' = no filtering)",
+      "update": "extraFilterIdx < 0 || length(data('extra_filter_values')) === 0 ? '' : data('extra_filter_values')[extraFilterIdx].Extra2_clean"
+    },
+    {
       "name": "cardWidth",
       "update": "round(165 * zoomLevel)",
       "description": "Width of each employee card in pixels"
@@ -323,7 +340,7 @@
     },
     {
       "name": "toolbarOriginX",
-      "update": "max(16, round(width / 2 - 360))",
+      "update": "max(16, round(width / 2 - 422))",
       "description": "Horizontal origin of the floating toolbar so it stays centered above the CEO / tree"
     },
     {
@@ -440,7 +457,11 @@
           "update": "'fit'"
         },
         {
-          "events": "@expandAllBtn:mouseout, @expandAllText:mouseout, @collapseAllBtn:mouseout, @collapseAllText:mouseout, @stackModeBtn:mouseout, @stackModeText:mouseout, @zoomOutBtn:mouseout, @zoomOutText:mouseout, @zoomResetBtn:mouseout, @zoomResetText:mouseout, @zoomInBtn:mouseout, @zoomInText:mouseout, @fitBtn:mouseout, @fitText:mouseout",
+          "events": "@filterBtn:mouseover, @filterText:mouseover",
+          "update": "'filter'"
+        },
+        {
+          "events": "@expandAllBtn:mouseout, @expandAllText:mouseout, @collapseAllBtn:mouseout, @collapseAllText:mouseout, @stackModeBtn:mouseout, @stackModeText:mouseout, @zoomOutBtn:mouseout, @zoomOutText:mouseout, @zoomResetBtn:mouseout, @zoomResetText:mouseout, @zoomInBtn:mouseout, @zoomInText:mouseout, @fitBtn:mouseout, @fitText:mouseout, @filterBtn:mouseout, @filterText:mouseout",
           "update": "null"
         }
       ]
@@ -562,19 +583,22 @@
           "ID": "8",
           "ParentID": "3",
           "Name": "Liam O'Connor",
-          "Title": "Principal UX Lead"
+          "Title": "Principal UX Lead",
+          "Extra 2": "London"
         },
         {
           "ID": "9",
           "ParentID": "3",
           "Name": "Sophia Martinez",
-          "Title": "Lead Product Manager"
+          "Title": "Lead Product Manager",
+          "Extra 2": "Paris"
         },
         {
           "ID": "10",
           "ParentID": "4",
           "Name": "Chloe Bennett",
-          "Title": "Regional Sales Director"
+          "Title": "Regional Sales Director",
+          "Extra 2": "New York"
         },
         {
           "ID": "11",
@@ -658,25 +682,29 @@
           "ID": "24",
           "ParentID": "8",
           "Name": "Daniel Craig",
-          "Title": "Senior Design System Lead"
+          "Title": "Senior Design System Lead",
+          "Extra 2": "London"
         },
         {
           "ID": "25",
           "ParentID": "9",
           "Name": "Mia Davis",
-          "Title": "Senior Product Manager"
+          "Title": "Senior Product Manager",
+          "Extra 2": "Paris"
         },
         {
           "ID": "26",
           "ParentID": "10",
           "Name": "Jordan Lee",
-          "Title": "Senior Account Executive"
+          "Title": "Senior Account Executive",
+          "Extra 2": "New York"
         },
         {
           "ID": "27",
           "ParentID": "10",
           "Name": "Grace Hopper",
-          "Title": "Enterprise Solutions Rep"
+          "Title": "Enterprise Solutions Rep",
+          "Extra 2": "New York"
         },
         {
           "ID": "28",
@@ -796,7 +824,8 @@
           "ID": "55",
           "ParentID": "8",
           "Name": "Ines Duarte",
-          "Title": "Senior UX Designer"
+          "Title": "Senior UX Designer",
+          "Extra 2": "Paris"
         },
         {
           "ID": "49",
@@ -820,7 +849,8 @@
           "ID": "62",
           "ParentID": "9",
           "Name": "Omar Haddad",
-          "Title": "Product Manager"
+          "Title": "Product Manager",
+          "Extra 2": "London"
         },
         {
           "ID": "46",
@@ -880,91 +910,106 @@
           "ID": "56",
           "ParentID": "8",
           "Name": "Jasper Quinn",
-          "Title": "Interaction Designer"
+          "Title": "Interaction Designer",
+          "Extra 2": "Paris"
         },
         {
           "ID": "57",
           "ParentID": "8",
           "Name": "Kira Petrova",
-          "Title": "UX Researcher"
+          "Title": "UX Researcher",
+          "Extra 2": "London"
         },
         {
           "ID": "63",
           "ParentID": "9",
           "Name": "Paula Mendes",
-          "Title": "Associate PM"
+          "Title": "Associate PM",
+          "Extra 2": "Paris"
         },
         {
           "ID": "58",
           "ParentID": "8",
           "Name": "Lars Eriksen",
-          "Title": "Visual Designer"
+          "Title": "Visual Designer",
+          "Extra 2": "London"
         },
         {
           "ID": "59",
           "ParentID": "8",
           "Name": "Mei Chen",
-          "Title": "Content Designer"
+          "Title": "Content Designer",
+          "Extra 2": "London"
         },
         {
           "ID": "64",
           "ParentID": "9",
           "Name": "Quentin Moreau",
-          "Title": "Technical PM"
+          "Title": "Technical PM",
+          "Extra 2": "Paris"
         },
         {
           "ID": "60",
           "ParentID": "8",
           "Name": "Nadia Ivanova",
-          "Title": "Motion Designer"
+          "Title": "Motion Designer",
+          "Extra 2": "London"
         },
         {
           "ID": "61",
           "ParentID": "8",
           "Name": "Oscar Lindqvist",
-          "Title": "Design Ops Specialist"
+          "Title": "Design Ops Specialist",
+          "Extra 2": "London"
         },
         {
           "ID": "65",
           "ParentID": "9",
           "Name": "Rosa Jimenez",
-          "Title": "Growth PM"
+          "Title": "Growth PM",
+          "Extra 2": "London"
         },
         {
           "ID": "66",
           "ParentID": "9",
           "Name": "Stefan Kowalski",
-          "Title": "Platform PM"
+          "Title": "Platform PM",
+          "Extra 2": "Paris"
         },
         {
           "ID": "67",
           "ParentID": "9",
           "Name": "Tara Singh",
-          "Title": "Data PM"
+          "Title": "Data PM",
+          "Extra 2": "Paris"
         },
         {
           "ID": "68",
           "ParentID": "10",
           "Name": "Uma Patel",
-          "Title": "Account Executive"
+          "Title": "Account Executive",
+          "Extra 2": "New York"
         },
         {
           "ID": "69",
           "ParentID": "10",
           "Name": "Vince Romero",
-          "Title": "Sales Engineer"
+          "Title": "Sales Engineer",
+          "Extra 2": "New York"
         },
         {
           "ID": "70",
           "ParentID": "10",
           "Name": "Wendy Clarke",
-          "Title": "Account Manager"
+          "Title": "Account Manager",
+          "Extra 2": "New York"
         },
         {
           "ID": "71",
           "ParentID": "10",
           "Name": "Xavier Dupont",
-          "Title": "Partner Manager"
+          "Title": "Partner Manager",
+          "Extra 2": "New York"
         },
         {
           "ID": "72",
@@ -1246,6 +1291,28 @@
       ]
     },
     {
+      "name": "extra_filter_values",
+      "source": "clean_data",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.Extra2_clean !== ''"
+        },
+        {
+          "type": "aggregate",
+          "groupby": [
+            "Extra2_clean"
+          ]
+        },
+        {
+          "type": "collect",
+          "sort": {
+            "field": "Extra2_clean"
+          }
+        }
+      ]
+    },
+    {
       "name": "report_counts",
       "source": "sanitized_data",
       "transform": [
@@ -1449,12 +1516,67 @@
       ]
     },
     {
+      "name": "filter_matches",
+      "source": "data_with_lineage",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "extraFilterValue !== '' && datum.Extra2_clean === extraFilterValue"
+        },
+        {
+          "type": "project",
+          "fields": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "filter_ancestors",
+      "source": "filter_matches",
+      "transform": [
+        {
+          "type": "lookup",
+          "from": "data_with_lineage",
+          "key": "id",
+          "fields": [
+            "id"
+          ],
+          "values": [
+            "ancOnly"
+          ],
+          "as": [
+            "ancOnly"
+          ]
+        },
+        {
+          "type": "flatten",
+          "fields": [
+            "ancOnly"
+          ],
+          "as": [
+            "ancestorId"
+          ]
+        },
+        {
+          "type": "filter",
+          "expr": "isValid(datum.ancestorId) && datum.ancestorId !== ''"
+        },
+        {
+          "type": "aggregate",
+          "groupby": [
+            "ancestorId"
+          ]
+        }
+      ]
+    },
+    {
       "name": "tree_nodes",
       "source": "data_with_lineage",
       "transform": [
         {
           "type": "filter",
-          "expr": "!indata('collapsed_descendants', 'id', datum.id)"
+          "expr": "!indata('collapsed_descendants', 'id', datum.id) && (extraFilterValue === '' || indata('filter_matches', 'id', datum.id) || indata('filter_ancestors', 'ancestorId', datum.id))"
         },
         {
           "type": "lookup",
@@ -2712,6 +2834,86 @@
     },
     {
       "type": "rect",
+      "name": "filterBtn",
+      "encode": {
+        "enter": {
+          "y": {
+            "value": 17
+          },
+          "width": {
+            "value": 112
+          },
+          "height": {
+            "value": 26
+          },
+          "cornerRadius": {
+            "value": 6
+          },
+          "cursor": {
+            "value": "pointer"
+          }
+        },
+        "update": {
+          "fill": [
+            {
+              "test": "hoveredToolbarBtn === 'filter'",
+              "value": "#F1F5F9"
+            },
+            {
+              "value": "transparent"
+            }
+          ],
+          "x": {
+            "signal": "toolbarOriginX + 490"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "filterText",
+      "encode": {
+        "enter": {
+          "y": {
+            "value": 30
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 10.5
+          },
+          "fontWeight": {
+            "value": "600"
+          },
+          "fill": {
+            "value": "#475569"
+          },
+          "cursor": {
+            "value": "pointer"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 546"
+          },
+          "text": {
+            "signal": "'Filter: ' + (extraFilterIdx < 0 ? 'All' : extraFilterValue)"
+          },
+          "limit": {
+            "signal": "100"
+          }
+        }
+      }
+    },
+    {
+      "type": "rect",
       "name": "summaryPillShadow",
       "interactive": false,
       "encode": {
@@ -2734,7 +2936,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 492"
+            "signal": "toolbarOriginX + 610"
           }
         }
       }
@@ -2769,7 +2971,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 492"
+            "signal": "toolbarOriginX + 610"
           }
         }
       }
@@ -2784,7 +2986,7 @@
       "encode": {
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 587"
+            "signal": "toolbarOriginX + 705"
           },
           "y": {
             "value": 30
@@ -2845,7 +3047,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 690"
+            "signal": "toolbarOriginX + 810"
           }
         }
       }
@@ -4020,7 +4222,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.8.3",
+    "version": "1.9.0",
     "releaseDate": "2026-11-24",
     "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
@@ -4052,6 +4254,7 @@
       "Deeper Branch Tints (L1 divisions distinguishable, pastel kept)",
       "Readable Links on Bands (white casing + slate-400 core)",
       "Eyebrow Gesture Caption (ⓘ prefix, centered on toolbar, breathing room)",
+      "Filter by Extra 2 (matches + hierarchy kept, rest hidden)",
       "Click-to-Focus Branch Zoom (Fit = whole tree, double-click = center node)",
       "Persistent Gesture Caption (click / double-click / drag / scroll hints)"
     ]

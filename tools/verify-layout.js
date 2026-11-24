@@ -324,8 +324,7 @@ async function checkAnchor() {
   return issues;
 }
 
-async function checkBranchFit() {
-  // Replicates a card click on a VP with 6 visible reports: zoom must equal the
+async function checkBranchFit() {  // Replicates a card click on a VP with 6 visible reports: zoom must equal the
   // row's branchFitZ (unclamped for this fixture), every card must land in view,
   // and the subtree bbox must be centered (tolerance covers integer rounding).
   const issues = [];
@@ -365,6 +364,47 @@ async function checkBranchFit() {
   return issues;
 }
 
+async function checkExtraFilter() {
+  // Filter fixed on Extra 2: keep-set must be exactly matches + ancestors
+  // (strict: non-matching descendants hide), links must stay real-manager,
+  // clearing restores all.
+  const issues = [];
+  const fail = (m) => issues.push(`[filter] ${m}`);
+  try {
+    const vals = [
+      { ID: '1', ParentID: null, Name: 'CEO', Title: 'c' },
+      { ID: '2', ParentID: '1', Name: 'VP1', Title: 'v', 'Extra 2': 'Paris' },
+      { ID: '3', ParentID: '2', Name: 'A1', Title: 't', 'Extra 2': 'Paris' },
+      { ID: '4', ParentID: '2', Name: 'A2', Title: 't', 'Extra 2': 'Lyon' },
+      { ID: '5', ParentID: '1', Name: 'VP2', Title: 'v', 'Extra 2': 'London' },
+      { ID: '6', ParentID: '5', Name: 'B1', Title: 't', 'Extra 2': 'London' },
+      { ID: '7', ParentID: '5', Name: 'B2', Title: 't', 'Extra 2': 'London' }
+    ];
+    const spec = JSON.parse(JSON.stringify(baseSpec));
+    spec.data.find(d => d.name === 'dataset').values = vals;
+    spec.signals.find(s => s.name === 'defaultCollapseDepth').value = 99;
+    const view = new vega.View(vega.parse(spec), { renderer: 'none' });
+    await view.runAsync();
+    const distinct = view.data('extra_filter_values').map(d => d.Extra2_clean);
+    if (JSON.stringify(distinct) !== JSON.stringify(['London', 'Lyon', 'Paris']))
+      fail(`distinct values ${JSON.stringify(distinct)} != ["London","Lyon","Paris"]`);
+    const ids = () => view.data('tree_nodes').map(n => n.id).sort().join(',');
+    view.signal('extraFilterIdx', distinct.indexOf('Paris'));
+    await view.runAsync();
+    if (ids() !== '1,2,3') fail(`Paris filter visible [${ids()}] != [1,2,3] (A2 is Lyon: hidden in strict mode)`);
+    if (view.signal('extraFilterValue') !== 'Paris') fail(`filter value ${view.signal('extraFilterValue')} != Paris`);
+    const bad = view.data('tree_links').filter(l => (l.source || {}).id !== (l.target || l).parentId);
+    if (bad.length) fail(`${bad.length} links do not point at the real manager`);
+    view.signal('extraFilterIdx', distinct.indexOf('London'));
+    await view.runAsync();
+    if (ids() !== '1,5,6,7') fail(`London filter visible [${ids()}] != [1,5,6,7]`);
+    view.signal('extraFilterIdx', -1);
+    await view.runAsync();
+    if (ids() !== '1,2,3,4,5,6,7') fail(`clearing filter visible [${ids()}] != full tree`);
+  } catch (e) { fail(`threw: ${String(e.message || e).split('\n')[0]}`); }
+  return issues;
+}
+
 (async () => {
   const ext = process.argv[2];
   const values = ext ? loadExternal(ext) : null;
@@ -391,7 +431,7 @@ async function checkBranchFit() {
     const EXTRA_ROWS = [
       { ID: '1', ParentID: null, Name: 'CEO', Title: 'c' },
       { ID: '2', ParentID: '1', Name: 'VP', Title: 'v' },
-      { ID: '3', ParentID: '2', Name: 'A', Title: 't', 'Extra 1': 'Paris', 'Extra 2': 'FR' },
+      { ID: '3', ParentID: '2', Name: 'A', Title: 't', 'Extra 1': 'Paris', 'Extra 2': 'FR', 'Extra 3': 'HQ' },
       { ID: '4', ParentID: '2', Name: 'B', Title: 't', 'Extra 1': 'Lyon' }
     ];
     scenarios.push({ stacking: false, collapseDepth: 99, zoom: 1, hover: true, values: EXTRA_ROWS, tag: 'extra fields' });
@@ -431,6 +471,10 @@ async function checkBranchFit() {
   total += br.length;
   console.log(`${br.length ? '✗' : '✓'} click fits branch in view, centered`);
   br.forEach(i => console.log('    ' + i));
+  const fl = await checkExtraFilter();
+  total += fl.length;
+  console.log(`${fl.length ? '✗' : '✓'} Extra 2 filter keeps matches + hierarchy`);
+  fl.forEach(i => console.log('    ' + i));
   console.log(total ? `\nFAILED: ${total} issue(s)` : '\nAll layout checks passed.');
   process.exit(total ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });

@@ -1,4 +1,4 @@
-ID,ParentID,Name,Title
+ID,ParentID,Name,Title,Extra 2
 1,,Sarah Jenkins,Chief Executive Officer
 2,1,David Chen,VP of Engineering
 3,1,Elena Rostova,VP of Product
@@ -6,9 +6,9 @@ ID,ParentID,Name,Title
 5,2,Alex Rivera,Director of Platform
 6,2,Priya Sharma,Director of QA & Infra
 7,2,Zack Taylor,Director of Core Apps
-8,3,Liam O'Connor,Principal UX Lead
-9,3,Sophia Martinez,Lead Product Manager
-10,4,Chloe Bennett,Regional Sales Director
+8,3,Liam O'Connor,Principal UX Lead,London
+9,3,Sophia Martinez,Lead Product Manager,Paris
+10,4,Chloe Bennett,Regional Sales Director,New York
 11,4,Tariq Al-Mansoor,Head of Growth
 12,5,James Wilson,Staff Cloud Architect
 13,5,Emma Watson,Senior DevOps Lead
@@ -22,10 +22,10 @@ ID,ParentID,Name,Title
 21,7,Ethan Hunt,Senior Backend Lead
 22,7,Hannah Schmidt,Staff Fullstack Engineer
 23,7,Leo Santos,Senior Mobile Engineer
-24,8,Daniel Craig,Senior Design System Lead
-25,9,Mia Davis,Senior Product Manager
-26,10,Jordan Lee,Senior Account Executive
-27,10,Grace Hopper,Enterprise Solutions Rep
+24,8,Daniel Craig,Senior Design System Lead,London
+25,9,Mia Davis,Senior Product Manager,Paris
+26,10,Jordan Lee,Senior Account Executive,New York
+27,10,Grace Hopper,Enterprise Solutions Rep,New York
 28,11,Victor Hugo,Lead Content Strategist
 29,5,Daniel Lee,Senior Infrastructure Eng
 30,5,Rachel Green,Site Reliability Engineer
@@ -45,11 +45,11 @@ ID,ParentID,Name,Title
 48,20,Bruno Costa,Frontend Engineer
 100,6,Felix Wagner,Load Test Engineer
 44,7,Ben Carter,Android Engineer
-55,8,Ines Duarte,Senior UX Designer
+55,8,Ines Duarte,Senior UX Designer,Paris
 49,20,Camille Dubois,UI Engineer
 45,7,Chiara Bianchi,API Platform Engineer
 1000,6,Greta Nilsson,Chaos Engineering Lead
-62,9,Omar Haddad,Product Manager
+62,9,Omar Haddad,Product Manager,London
 46,7,Dmitri Volkov,Release Engineer
 50,20,Diego Ramirez,Accessibility Engineer
 51,21,Elif Yilmaz,Backend Engineer
@@ -59,21 +59,21 @@ ID,ParentID,Name,Title
 53,6,Ingrid Berg,Test Infra Engineer
 102,6,Jonas Becker,SDET
 54,6,Kenji Watanabe,Performance Analyst
-56,8,Jasper Quinn,Interaction Designer
-57,8,Kira Petrova,UX Researcher
-63,9,Paula Mendes,Associate PM
-58,8,Lars Eriksen,Visual Designer
-59,8,Mei Chen,Content Designer
-64,9,Quentin Moreau,Technical PM
-60,8,Nadia Ivanova,Motion Designer
-61,8,Oscar Lindqvist,Design Ops Specialist
-65,9,Rosa Jimenez,Growth PM
-66,9,Stefan Kowalski,Platform PM
-67,9,Tara Singh,Data PM
-68,10,Uma Patel,Account Executive
-69,10,Vince Romero,Sales Engineer
-70,10,Wendy Clarke,Account Manager
-71,10,Xavier Dupont,Partner Manager
+56,8,Jasper Quinn,Interaction Designer,Paris
+57,8,Kira Petrova,UX Researcher,London
+63,9,Paula Mendes,Associate PM,Paris
+58,8,Lars Eriksen,Visual Designer,London
+59,8,Mei Chen,Content Designer,London
+64,9,Quentin Moreau,Technical PM,Paris
+60,8,Nadia Ivanova,Motion Designer,London
+61,8,Oscar Lindqvist,Design Ops Specialist,London
+65,9,Rosa Jimenez,Growth PM,London
+66,9,Stefan Kowalski,Platform PM,Paris
+67,9,Tara Singh,Data PM,Paris
+68,10,Uma Patel,Account Executive,New York
+69,10,Vince Romero,Sales Engineer,New York
+70,10,Wendy Clarke,Account Manager,New York
+71,10,Xavier Dupont,Partner Manager,New York
 72,28,Nina Kowalczyk,Content Program Manager
 73,72,Omar Farouk,Editorial Team Lead
 81,73,Yara Haddad,Copywriter
