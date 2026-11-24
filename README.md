@@ -11,13 +11,13 @@ The goal is to cleanly visualize organizations with 1,000+ employees—with zero
 ## 📸 Preview
 
 ### Executive Overview (12 Direct Reports, Standard Mode)
-![Executive Overview](./images/org-chart-overview.png)
+![Executive overview showing the CEO card, 12 Level-1 direct reports, floating toolbar, and summary pill in Standard mode.](./images/org-chart-overview.png "Executive overview showing the CEO card, 12 Level-1 direct reports, floating toolbar, and summary pill in Standard mode.")
 
 ### Active Reporting-Line Highlighting & 2-Line Title Wrapping
-![Active Reporting Line Highlighting](./images/org-chart-hover-lineage.png)
+![Expanded branch with active reporting-line hover highlighting, enriched tooltip, and 2-line wrapped job titles.](./images/org-chart-hover-lineage.png "Expanded branch with active reporting-line hover highlighting, enriched tooltip, and 2-line wrapped job titles.")
 
 ### Compact 2-Column Stacking (Stacked Mode)
-![Compact 2-Column Stacked Mode](./images/org-chart-stacked-mode.png)
+![Large leaf-only team arranged in 2-column vertical stacking connected to its real manager via a central spine.](./images/org-chart-stacked-mode.png "Large leaf-only team arranged in 2-column vertical stacking connected to its real manager via a central spine.")
 
 ---
 
@@ -70,7 +70,7 @@ Your table must contain columns named **exactly** `ID`, `ParentID`, `Name`, and 
 1. In Power BI Desktop: **Home** → **Transform data** (opens the Power Query editor).
 2. Select your employee table in the left-hand **Queries** list.
 3. Right-click each relevant column header → **Rename**, and type exactly `ID`, `ParentID`, `Name`, `Title` (spelling *and* capitals matter).
-4. Give `ID` and `ParentID` the **same data type**: select both columns (hold `Ctrl`), then **Transform** → **Data Type** → **Text** is the safest choice — it also supports IDs like `"E101"`.
+4. Give `ID` and `ParentID` the **same data type**: select both columns (hold **Ctrl**), then **Transform** → **Data Type** → **Text** is the safest choice — it also supports IDs like `"E101"`.
 5. The CEO's `ParentID` cell must be **empty/`null`**. If it shows `0`, clear it — but note `0` is treated as "no manager" everywhere, so a real employee must also never have `ID` `0`.
 6. Top-left: **Close & Apply** to return to Power BI.
 
@@ -84,20 +84,20 @@ Your table must contain columns named **exactly** `ID`, `ParentID`, `Name`, and 
 
 ### 3. Add Fields to Deneb
 1. Add a **Deneb** visual to your report page.
-2. Drag **`ID`**, **`ParentID`**, **`Name`**, and **`Title`** into Deneb's **Values** bucket (plus `Extra 1`–`Extra 3` if you created them).
-3. For **each** field in the bucket: click its **`∨`** dropdown → set summarization to **Don't summarize**. This is the #1 novice mistake — if Power BI sums or counts your IDs you will get one giant card or nonsense groupings instead of one card per person. Repeat for numeric *and* text fields.
+2. Drag **`ID`**, **`ParentID`**, **`Name`**, and **`Title`** into Deneb's **Values** data role (plus `Extra 1`–`Extra 3` if you created them).
+3. For **each** field in the data role: click its **`∨`** dropdown → set summarization to **Don't summarize**. This is the #1 novice mistake — if Power BI sums or counts your IDs you will get one giant card or nonsense groupings instead of one card per person. Repeat for numeric *and* text fields.
 
 ### 4. Paste the Specification
 1. Click **`...`** in the top-right corner of the Deneb visual → **Edit**.
 2. Choose **Vega** *(not Vega-Lite)*, select **[empty]**, and click **Create**.
 3. Replace the editor contents with [`deneb-org-chart.json`](./deneb-org-chart.json).
-4. Click **Apply** (`Ctrl+Enter`), then **< Back to report**.
+4. Click **Apply** (**Ctrl + Enter**), then **< Back to report**.
 
 ### 5. Change the Default Settings (Optional)
 Settings live in the `signals` block at the top of the pasted spec. Exact steps:
 1. Click **`...`** on the Deneb visual → **Edit** to reopen the spec editor.
-2. Press `Ctrl+F`, type the setting name (e.g. `defaultCollapseDepth`), and change only its `"value"`.
-3. Click **Apply** (`Ctrl+Enter`), then **< Back to report**.
+2. Press **Ctrl + F**, type the setting name (e.g. `defaultCollapseDepth`), and change only its `"value"`.
+3. Click **Apply** (**Ctrl + Enter**), then **< Back to report**.
 
 Common recipes:
 - **Start fully expanded:** `"name": "defaultCollapseDepth", "value": 1` → `"value": 99`.
@@ -109,7 +109,7 @@ Common recipes:
 | Symptom | Most likely cause → fix |
 | :--- | :--- |
 | Blank visual, only the toolbar | No CEO found: some row must have an empty `ParentID` (see Step 2.5). Or a reporting loop alongside a valid root — see [Limitations](#️-limitations--data-prerequisites) rule 4. |
-| One giant card, or nonsense cards | Summarization is on: redo Step 3.3 — **Don't summarize** on *every* field in the bucket. |
+| One giant card, or nonsense cards | Summarization is on: redo Step 3.3 — **Don't summarize** on *every* field in the **Values** data role. |
 | People attached to the wrong boss | Orphan `ParentID` (no matching `ID`) or duplicate `ID`s — the visual re-attaches strays under the root instead of crashing, so fix the data (see Limitations rules 1–3). |
 | "No data to display" message | The visual received zero rows: check the Deneb field mappings and any report-page or RLS filters. |
 
