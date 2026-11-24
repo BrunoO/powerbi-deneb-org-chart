@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.7.5 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.7.6 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.7.5",
+      "value": "v1.7.6",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -101,6 +101,11 @@
       "name": "stackMinDepth",
       "value": 2,
       "description": "Minimum hierarchy level depth where multi-column grid stacking is permitted (default: 2 prevents CEO / Level 1 executive team from stacking vertically)"
+    },
+    {
+      "name": "showIdInTooltip",
+      "value": false,
+      "description": "Show employee ID in the card hover tooltip (default false: IDs can be confidential)"
     },
     {
       "name": "downXY",
@@ -1804,7 +1809,7 @@
             "value": 0
           },
           "y": {
-            "signal": "datum.rawY + topMargin + panY"
+            "signal": "datum.rawY + topMargin + panY - (nodeSpacingY - cardHeight) / 2"
           },
           "width": {
             "signal": "width"
@@ -1827,7 +1832,7 @@
             "value": 11
           },
           "width": {
-            "value": 447
+            "value": 489
           },
           "height": {
             "value": 32
@@ -1855,7 +1860,7 @@
             "value": 10
           },
           "width": {
-            "value": 447
+            "value": 489
           },
           "height": {
             "value": 32
@@ -2859,7 +2864,7 @@
             "value": "pointer"
           },
           "tooltip": {
-            "signal": "{'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'ID': datum.id, 'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth, 'Status': datum.reportCount > 0 ? (datum.isCollapsed ? 'Collapsed' : 'Expanded') : 'Leaf'}"
+            "signal": "merge({'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth, 'Status': datum.reportCount > 0 ? (datum.isCollapsed ? 'Collapsed' : 'Expanded') : 'Leaf'}, showIdInTooltip ? {'ID': datum.id} : {})"
           },
           "opacity": [
             {
@@ -3564,7 +3569,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.7.5",
+    "version": "1.7.6",
     "releaseDate": "2026-11-24",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
@@ -3586,7 +3591,8 @@
       "Empty-Dataset Notice (blank data explains itself instead of rendering silently)",
       "Double-Click Card to Center (background double-click still resets the view)",
       "Zoom-to-Fit Toolbar Button (whole tree in view at any size)",
-      "Subtle Level Banding (alternating row wash, pan-aware, zero re-layout)"
+      "Subtle Level Banding (alternating row wash, pan-aware, zero re-layout)",
+      "Configurable Tooltip ID (hidden by default for confidentiality)"
     ]
   }
 };

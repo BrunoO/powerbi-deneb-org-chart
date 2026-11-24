@@ -238,6 +238,16 @@ function checkPreview() {
     ? [] : ['[preview] preview.html spec differs from deneb-org-chart.json (run: npm run sync-preview)'];
 }
 
+function checkTooltip() {
+  const mark = baseSpec.marks.find(m => m.name === 'cardBody');
+  const expr = mark && mark.encode && mark.encode.update && mark.encode.update.tooltip && mark.encode.update.tooltip.signal;
+  const issues = [];
+  if (!expr || !expr.includes('showIdInTooltip')) issues.push('[tooltip] cardBody tooltip must be gated by the showIdInTooltip signal');
+  if ((baseSpec.signals.find(s => s.name === 'showIdInTooltip') || {}).value !== false)
+    issues.push('[tooltip] showIdInTooltip must default to false (IDs can be confidential)');
+  return issues;
+}
+
 (async () => {
   const ext = process.argv[2];
   const values = ext ? loadExternal(ext) : null;
@@ -276,6 +286,10 @@ function checkPreview() {
     console.log(`${p.length ? '✗' : '✓'} preview.html in sync with deneb-org-chart.json`);
     p.forEach(i => console.log('    ' + i));
   }
+  const t = checkTooltip();
+  total += t.length;
+  console.log(`${t.length ? '✗' : '✓'} tooltip hides ID by default (showIdInTooltip)`);
+  t.forEach(i => console.log('    ' + i));
   console.log(total ? `\nFAILED: ${total} issue(s)` : '\nAll layout checks passed.');
   process.exit(total ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });

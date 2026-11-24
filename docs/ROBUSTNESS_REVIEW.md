@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.7.5`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.7.6`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Remaining open items are low/conditional priority.
 
 ## Summary
 
@@ -53,6 +53,14 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 | New | `deneb-org-chart.json` (`fitZoom`, toolbar) | New Fit button zooms the whole tree into view (scalar `fitZoom` from live extents, clamped to zoom bounds) and centers via `panX = 0` + top-anchored `panY`; min/max Y extents added to the existing `joinaggregate`. |
 | New | `deneb-org-chart.json` (`depth_bands`, `levelBand`) | One full-width band rect per distinct `rawY` (alternating wash, `panY`-aware in encode so no re-layout, `interactive: false` so canvas gestures pass through). |
 | Cleanup | `tools/verify-layout.js` | New `fit` check (`fitZoom` finite and within bounds) and `bands` check (one band per distinct depth) in every scenario. |
+
+## Resolved in `v1.7.6`
+
+| # | Where | Resolution |
+|---|---|---|
+| New | `deneb-org-chart.json` (toolbar) | Fit button moved inside the white toolbar pill (background widened 447 → 489) so it stays visible on any report background. |
+| Cleanup | `deneb-org-chart.json` (`levelBand`) | Bands shifted up by half the row/card slack so cards sit vertically centered in their band. |
+| New | `deneb-org-chart.json` (`showIdInTooltip`, tooltip) | Employee ID removed from the default tooltip (confidential); opt back in with `"showIdInTooltip": true`. Verifier asserts the gate and the `false` default. |
 
 ## Remaining Open Items (Low / Conditional Priority)
 
