@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.7.13`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.8.1`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Remaining open items are low/conditional priority.
 
 ## Summary
 
@@ -103,6 +103,18 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 | # | Where | Resolution |
 |---|---|---|
 | Fix | `deneb-org-chart.json` (`treeLinkCasing`, `treeLinkPath`) | Links were unreadable on level bands (`#CBD5E1` on `#F1F5F9`). Core darkened to `#94A3B8` at 2px with a 4.5px white casing underneath (same dimming logic), so connectors separate from any background. |
+
+## Resolved in `v1.8.0`
+
+| # | Where | Resolution |
+|---|---|---|
+| New | `deneb-org-chart.json` (`subtree_members`, `subtree_boxes`, `card_nodes`, click handlers) | Click-to-focus branch zoom: clicking a card fits its whole visible branch, centered, via per-row `branchFitZ` and ratio-scaled centering. Subtree bounds can't feed back into `tree_nodes` (sources must precede use), so `card_nodes` (source `tree_nodes` + box lookup) exists solely as `cardBody`'s datum; every other mark stays on `tree_nodes`. New `checkBranchFit` verifier test (unclamped fixture, all cards in view, bbox centered). |
+
+## Resolved in `v1.8.1`
+
+| # | Where | Resolution |
+|---|---|---|
+| New | `deneb-org-chart.json` (`gestureHint`) | Persistent eyebrow caption just above the toolbar documenting click / double-click / drag / scroll gestures (non-interactive, paints under cards). New `checkCaption` verifier guard. |
 
 ## Remaining Open Items (Low / Conditional Priority)
 

@@ -241,6 +241,18 @@ function checkPreview() {
     ? [] : ['[preview] preview.html spec differs from deneb-org-chart.json (run: npm run sync-preview)'];
 }
 
+function checkCaption() {
+  const mark = baseSpec.marks.find(m => m.name === 'gestureHint');
+  const issues = [];
+  if (!mark) issues.push('[caption] gestureHint mark is missing');
+  else {
+    if (mark.interactive !== false) issues.push('[caption] gestureHint must be interactive:false so cards paint over it');
+    const enc = (mark.encode && mark.encode.update) || {};
+    if (!enc.x || !enc.y) issues.push('[caption] gestureHint needs canvas-anchored x/y');
+  }
+  return issues;
+}
+
 function checkTooltip() {
   const mark = baseSpec.marks.find(m => m.name === 'cardBody');
   const expr = mark && mark.encode && mark.encode.update && mark.encode.update.tooltip && mark.encode.update.tooltip.signal;
@@ -312,6 +324,47 @@ async function checkAnchor() {
   return issues;
 }
 
+async function checkBranchFit() {
+  // Replicates a card click on a VP with 6 visible reports: zoom must equal the
+  // row's branchFitZ (unclamped for this fixture), every card must land in view,
+  // and the subtree bbox must be centered (tolerance covers integer rounding).
+  const issues = [];
+  const fail = (m) => issues.push(`[branch] ${m}`);
+  const US = String.fromCharCode(31);
+  try {
+    const vals = [
+      { ID: '1', ParentID: null, Name: 'CEO', Title: 'c' },
+      { ID: '2', ParentID: '1', Name: 'VP', Title: 'v' }
+    ];
+    for (let i = 0; i < 6; i++) vals.push({ ID: 'L' + i, ParentID: '2', Name: 'Leaf' + i, Title: 't' });
+    const spec = JSON.parse(JSON.stringify(baseSpec));
+    spec.data.find(d => d.name === 'dataset').values = vals;
+    spec.signals.find(s => s.name === 'defaultCollapseDepth').value = 99;
+    const view = new vega.View(vega.parse(spec), { renderer: 'none' });
+    await view.runAsync();
+    const W = view.signal('width'), H = view.signal('height');
+    const d = view.data('card_nodes').find(n => n.id === '2');
+    if (!d) return ['[branch] fixture missing node 2'];
+    const cw0 = view.signal('cardWidth'), ch0 = view.signal('cardHeight');
+    if (!(d.branchFitZ > 0.4 && d.branchFitZ < 1.6)) fail(`fixture is clamped (fitZoom ${d.branchFitZ}) - resize it`);
+    view.signal('zoomLevel', d.branchFitZ);
+    view.signal('panX', (d.branchFitZ * 165 / Math.max(1, cw0)) * ((d.maxX + d.minX) / 2 - (d.bMinX + d.bMaxX) / 2));
+    view.signal('panY', H / 2 - view.signal('topMargin') - (d.branchFitZ * 165 / Math.max(1, cw0)) * ((d.bMinY + d.bMaxY) / 2 + ch0 / 2));
+    view.signal('anchorId', null);
+    await view.runAsync();
+    const tn = view.data('tree_nodes'), cw = view.signal('cardWidth');
+    const sub = tn.filter(n => n.id === '2' || (n.ancPath && n.ancPath.indexOf(US + '2' + US) >= 0));
+    if (!sub.length) fail('no nodes in VP subtree');
+    const bad = sub.filter(n => n.cardX < -3 || n.cardX + cw > W + 3 || n.cardTop < -3 || n.cardBottom > H + 3);
+    if (bad.length) fail(`${bad.length} cards outside viewport after branch fit`);
+    const xs = sub.flatMap(n => [n.cardX, n.cardX + cw]), ys = sub.flatMap(n => [n.cardTop, n.cardBottom]);
+    const dx = Math.abs((Math.min(...xs) + Math.max(...xs)) / 2 - W / 2);
+    const dy = Math.abs((Math.min(...ys) + Math.max(...ys)) / 2 - H / 2);
+    if (dx > 3 || dy > 3) fail(`branch not centered (dx ${dx.toFixed(1)}, dy ${dy.toFixed(1)})`);
+  } catch (e) { fail(`threw: ${String(e.message || e).split('\n')[0]}`); }
+  return issues;
+}
+
 (async () => {
   const ext = process.argv[2];
   const values = ext ? loadExternal(ext) : null;
@@ -366,10 +419,18 @@ async function checkAnchor() {
   total += dc.length;
   console.log(`${dc.length ? '✗' : '✓'} dblclick-centering scoped to card body only`);
   dc.forEach(i => console.log('    ' + i));
+  const gc = checkCaption();
+  total += gc.length;
+  console.log(`${gc.length ? '✗' : '✓'} gesture hint caption present and non-interactive`);
+  gc.forEach(i => console.log('    ' + i));
   const an = await checkAnchor();
   total += an.length;
   console.log(`${an.length ? '✗' : '✓'} toggled node stays pinned across re-layout`);
   an.forEach(i => console.log('    ' + i));
+  const br = await checkBranchFit();
+  total += br.length;
+  console.log(`${br.length ? '✗' : '✓'} click fits branch in view, centered`);
+  br.forEach(i => console.log('    ' + i));
   console.log(total ? `\nFAILED: ${total} issue(s)` : '\nAll layout checks passed.');
   process.exit(total ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });

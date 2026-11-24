@@ -28,9 +28,9 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 - **2-Line Title Wrapping**: Long job titles wrap cleanly onto a second line at word boundaries instead of being cut off with `...`.
 - **Total Team Headcount (`👥 N`)**: Every manager card displays its total downstream headcount.
 - **Active Reporting-Line Highlighting**: Hover over any employee to highlight their full management chain up to the CEO and all of their direct/indirect reports, while gently dimming unrelated branches.
-- **Interactive Branch Collapse & Expand**: Click **`−`** on any manager card to collapse their team, or **`+N`** to expand it again. The clicked node stays pinned exactly where it is (pan compensates for the re-layout); drag, Fit, reset, center, or Collapse All to release it.
+- **Interactive Branch Collapse & Expand**: Click **`−`** on any manager card to collapse their team, or **`+N`** to expand it again. The clicked node stays pinned exactly where it is (pan compensates for the re-layout); drag, Fit, reset, center, Collapse All, or clicking any card to release it.
 - **Floating Toolbar & Live Summary**:
-  - **`⤢ Expand All`** / **`⤡ Collapse All`** for instant tree-wide control.
+  - **`⤢ Expand All`** / **`⤡ Collapse All`** for instant tree-wide control. Click any card to zoom-to-fit just its branch (double-click a card body to center it instead).
   - **`☵ Standard` / `☷ Stacked`** toggle to switch between a traditional horizontal tree and compact 2-column stacking for large individual-contributor teams (`> 6` direct reports, none of whom manage anyone). Stacked teams hang off a central spine from their **real manager**, so every connector always points to the correct boss.
   - **`[ − | Reset (100%) | + | Fit ]`** zoom controls, plus cursor-anchored mouse-wheel zoom, drag-anywhere panning, double-click background to reset, double-click a card body to center it (not the +/− pill), and touch pinch-to-zoom.
   - **Live Summary Pill** showing total headcount and hierarchy depth (e.g., `👥 85 People · 7 Levels`).
@@ -40,7 +40,7 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 
 ## 📁 Files
 
-- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.7.13`) to paste into Deneb in Power BI.
+- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.8.1`) to paste into Deneb in Power BI.
 - [`sample-org-data.csv`](./sample-org-data.csv): Sample dataset (85 employees across 7 levels) that exercises every layout edge case: a 12-person executive team, leaf-only teams that stack (even and odd sizes, side-by-side, at Level 6), a large *mixed* team of managers and engineers (stays horizontal), a team exactly at the threshold, and IDs that cross digit boundaries (`17` vs `100` vs `1000`) in shuffled input order.
 - [`preview.html`](./preview.html) & [`index.html`](./index.html): Standalone HTML preview for testing in any browser (no Power BI needed; requires internet for the Vega CDN).
 - [`tools/verify-layout.js`](./tools/verify-layout.js): Automated layout checker (see [Development](#-development--layout-verification)).

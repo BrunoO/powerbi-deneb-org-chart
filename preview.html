@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.7.13 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.8.1 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.7.13",
+      "value": "v1.8.1",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -244,6 +244,10 @@
         {
           "events": "@canvasBg:mousedown, @cardBody:mousedown, @toggleBtn:mousedown, touchstart",
           "update": "length(data('tree_nodes')) > 0 && isValid(data('tree_nodes')[0].anchorBaseX) && zoomLevel === anchorZoom ? anchorX - data('tree_nodes')[0].anchorBaseX : panX"
+        },
+        {
+          "events": "@cardBody:click",
+          "update": "didPan ? panX : (datum.branchFitZ * 165 / max(1, cardWidth)) * ((datum.maxX + datum.minX) / 2 - (datum.bMinX + datum.bMaxX) / 2)"
         }
       ]
     },
@@ -283,6 +287,10 @@
         {
           "events": "@canvasBg:mousedown, @cardBody:mousedown, @toggleBtn:mousedown, touchstart",
           "update": "length(data('tree_nodes')) > 0 && isValid(data('tree_nodes')[0].anchorBaseY) && zoomLevel === anchorZoom ? anchorY - data('tree_nodes')[0].anchorBaseY - topMargin : panY"
+        },
+        {
+          "events": "@cardBody:click",
+          "update": "didPan ? panY : height / 2 - topMargin - (datum.branchFitZ * 165 / max(1, cardWidth)) * ((datum.bMinY + datum.bMaxY) / 2 + cardHeight / 2)"
         }
       ]
     },
@@ -316,6 +324,10 @@
             "signal": "pinchDist2"
           },
           "update": "pinchDist1 > 0 && pinchDist2 > 0 ? clamp(pinchStartZoom * (pinchDist2 / pinchDist1), 0.4, 1.6) : zoomLevel"
+        },
+        {
+          "events": "@cardBody:click",
+          "update": "didPan ? zoomLevel : datum.branchFitZ"
         }
       ]
     },
@@ -526,7 +538,7 @@
           "update": "datum.id"
         },
         {
-          "events": "@fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick, @collapseAllBtn:click, @collapseAllText:click",
+          "events": "@fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick, @collapseAllBtn:click, @collapseAllText:click, @cardBody:click",
           "update": "null"
         }
       ]
@@ -1849,6 +1861,106 @@
       ]
     },
     {
+      "name": "subtree_members",
+      "source": "tree_nodes",
+      "transform": [
+        {
+          "type": "flatten",
+          "fields": [
+            "ancOnly"
+          ],
+          "as": [
+            "ancestorId"
+          ]
+        },
+        {
+          "type": "filter",
+          "expr": "isValid(datum.ancestorId) && datum.ancestorId !== ''"
+        }
+      ]
+    },
+    {
+      "name": "subtree_boxes",
+      "source": "subtree_members",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": [
+            "ancestorId"
+          ],
+          "fields": [
+            "rawX",
+            "rawX",
+            "rawY",
+            "rawY"
+          ],
+          "ops": [
+            "min",
+            "max",
+            "min",
+            "max"
+          ],
+          "as": [
+            "sMinX",
+            "sMaxX",
+            "sMinY",
+            "sMaxY"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "card_nodes",
+      "source": "tree_nodes",
+      "transform": [
+        {
+          "type": "lookup",
+          "from": "subtree_boxes",
+          "key": "ancestorId",
+          "fields": [
+            "id"
+          ],
+          "values": [
+            "sMinX",
+            "sMaxX",
+            "sMinY",
+            "sMaxY"
+          ],
+          "as": [
+            "sMinX",
+            "sMaxX",
+            "sMinY",
+            "sMaxY"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "min(datum.rawX, isValid(datum.sMinX) ? datum.sMinX : datum.rawX)",
+          "as": "bMinX"
+        },
+        {
+          "type": "formula",
+          "expr": "max(datum.rawX, isValid(datum.sMaxX) ? datum.sMaxX : datum.rawX)",
+          "as": "bMaxX"
+        },
+        {
+          "type": "formula",
+          "expr": "min(datum.rawY, isValid(datum.sMinY) ? datum.sMinY : datum.rawY)",
+          "as": "bMinY"
+        },
+        {
+          "type": "formula",
+          "expr": "max(datum.rawY, isValid(datum.sMaxY) ? datum.sMaxY : datum.rawY)",
+          "as": "bMaxY"
+        },
+        {
+          "type": "formula",
+          "expr": "clamp((cardWidth / 165) * min((width - 96) / max(1, (datum.bMaxX - datum.bMinX) + cardWidth), (height - topMargin - 64) / max(1, (datum.bMaxY - datum.bMinY) + cardHeight)), 0.4, 1.6)",
+          "as": "branchFitZ"
+        }
+      ]
+    },
+    {
       "name": "tree_links",
       "source": "tree_nodes",
       "transform": [
@@ -1963,6 +2075,41 @@
           },
           "fill": {
             "signal": "datum.bandIdx % 2 === 0 ? '#F1F5F9' : 'rgba(0,0,0,0)'"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "gestureHint",
+      "interactive": false,
+      "encode": {
+        "enter": {
+          "text": {
+            "value": "Click a card to focus its branch · Double-click to center · Drag to pan · Scroll to zoom"
+          },
+          "align": {
+            "value": "left"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 10
+          },
+          "fill": {
+            "value": "#94A3B8"
+          },
+          "font": {
+            "value": "Segoe UI, -apple-system, sans-serif"
+          }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX"
+          },
+          "y": {
+            "value": 6
           }
         }
       }
@@ -2978,7 +3125,7 @@
       "type": "rect",
       "name": "cardBody",
       "from": {
-        "data": "tree_nodes"
+        "data": "card_nodes"
       },
       "encode": {
         "update": {
@@ -3938,7 +4085,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.7.13",
+    "version": "1.8.1",
     "releaseDate": "2026-11-24",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
@@ -3967,7 +4114,9 @@
       "Press-Stable Pinning (anchor folds into pan before clear, no mid-gesture jump)",
       "Stacked Mode by Default (Standard tree one toggle away)",
       "Deeper Branch Tints (L1 divisions distinguishable, pastel kept)",
-      "Readable Links on Bands (white casing + slate-400 core)"
+      "Readable Links on Bands (white casing + slate-400 core)",
+      "Click-to-Focus Branch Zoom (Fit = whole tree, double-click = center node)",
+      "Persistent Gesture Caption (click / double-click / drag / scroll hints)"
     ]
   }
 };
