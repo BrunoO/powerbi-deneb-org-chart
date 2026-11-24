@@ -241,6 +241,32 @@ function checkPreview() {
     ? [] : ['[preview] preview.html spec differs from deneb-org-chart.json (run: npm run sync-preview)'];
 }
 
+function checkVersionMetadata() {
+  const issues = [];
+  const signalVersion = (baseSpec.signals.find(s => s.name === 'versionId') || {}).value;
+  const metaVersion = baseSpec.usermeta && baseSpec.usermeta.version;
+  const releaseDate = baseSpec.usermeta && baseSpec.usermeta.releaseDate;
+  const desc = baseSpec.description || '';
+  const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
+  const norm = v => String(v || '').replace(/^v/, '');
+  if (!signalVersion) issues.push('[version] signals.versionId.value is missing');
+  if (!metaVersion) issues.push('[version] usermeta.version is missing');
+  if (norm(signalVersion) !== norm(metaVersion)) {
+    issues.push(`[version] signals.versionId (${signalVersion}) != usermeta.version (${metaVersion})`);
+  }
+  if (signalVersion && !desc.includes(signalVersion) && !desc.includes(norm(signalVersion))) {
+    issues.push(`[version] description does not include ${signalVersion}`);
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(releaseDate || ''))) {
+    issues.push(`[version] usermeta.releaseDate (${releaseDate}) must be YYYY-MM-DD`);
+  }
+  const versionToken = signalVersion || metaVersion;
+  if (versionToken && !readme.includes(versionToken) && !readme.includes(norm(versionToken))) {
+    issues.push(`[version] README.md does not reference ${versionToken}`);
+  }
+  return issues;
+}
+
 function checkCaption() {
   const mark = baseSpec.marks.find(m => m.name === 'gestureHint');
   const issues = [];
@@ -570,6 +596,10 @@ async function checkFilterPill() {
     console.log(`${p.length ? '✗' : '✓'} preview.html in sync with deneb-org-chart.json`);
     p.forEach(i => console.log('    ' + i));
   }
+  const vm = checkVersionMetadata();
+  total += vm.length;
+  console.log(`${vm.length ? '✗' : '✓'} version metadata consistent across spec and README`);
+  vm.forEach(i => console.log('    ' + i));
   const t = await checkTooltip();
   total += t.length;
   console.log(`${t.length ? '✗' : '✓'} tooltip includes Direct Manager, Extra metadata & gated ID`);
