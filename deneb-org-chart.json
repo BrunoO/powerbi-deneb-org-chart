@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.9.2 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
+  "description": "Interactive Collapsible Org Chart Visual v1.9.3 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.9.2",
+      "value": "v1.9.3",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -177,7 +177,7 @@
           "update": "length(data('tree_nodes')) > 0 && isValid(data('tree_nodes')[0].anchorBaseX) && zoomLevel === anchorZoom ? anchorX - data('tree_nodes')[0].anchorBaseX : panX"
         },
         {
-          "events": "@cardBody:click",
+          "events": "@cardBody:dblclick",
           "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? panX : (datum.branchFitZ * 165 / max(1, cardWidth)) * ((datum.maxX + datum.minX) / 2 - (datum.bMinX + datum.bMaxX) / 2)"
         }
       ]
@@ -216,7 +216,7 @@
           "update": "length(data('tree_nodes')) > 0 && isValid(data('tree_nodes')[0].anchorBaseY) && zoomLevel === anchorZoom ? anchorY - data('tree_nodes')[0].anchorBaseY - topMargin : panY"
         },
         {
-          "events": "@cardBody:click",
+          "events": "@cardBody:dblclick",
           "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? panY : height / 2 - topMargin - (datum.branchFitZ * 165 / max(1, cardWidth)) * ((datum.bMinY + datum.bMaxY) / 2 + cardHeight / 2)"
         }
       ]
@@ -253,7 +253,7 @@
           "update": "pinchDist1 > 0 && pinchDist2 > 0 ? clamp(pinchStartZoom * (pinchDist2 / pinchDist1), 0.4, 1.6) : zoomLevel"
         },
         {
-          "events": "@cardBody:click",
+          "events": "@cardBody:dblclick",
           "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? zoomLevel : datum.branchFitZ"
         }
       ]
@@ -423,7 +423,11 @@
       "on": [
         {
           "events": "@cardBody:click",
-          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? focusedAncPath : (focusedId === datum.id ? '' : datum.ancPath)"
+          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? focusedAncPath : datum.ancPath"
+        },
+        {
+          "events": "@cardBody:dblclick",
+          "update": "datum.ancPath"
         },
         {
           "events": "@canvasBg:click",
@@ -442,7 +446,11 @@
       "on": [
         {
           "events": "@cardBody:click",
-          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? focusedId : (focusedId === datum.id ? null : datum.id)"
+          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? focusedId : datum.id"
+        },
+        {
+          "events": "@cardBody:dblclick",
+          "update": "datum.id"
         },
         {
           "events": "@canvasBg:click",
@@ -534,7 +542,7 @@
           "update": "datum.id"
         },
         {
-          "events": "@fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @collapseAllBtn:click, @collapseAllText:click, @cardBody:click, @filterBtn:click, @filterText:click",
+          "events": "@fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @collapseAllBtn:click, @collapseAllText:click, @cardBody:click, @cardBody:dblclick, @filterBtn:click, @filterText:click",
           "update": "null"
         }
       ]
@@ -2197,7 +2205,7 @@
         },
         "update": {
           "text": {
-            "signal": "focusedId ? '◎ Focused on branch · Click empty space or Reset to exit focus · Drag to pan · Scroll to zoom' : 'ⓘ Click a card to focus its branch · Double-click canvas to reset · Drag to pan · Scroll to zoom'"
+            "signal": "focusedId ? '◎ Focused on branch · Double-click card to center · Click canvas to exit focus · Drag to pan' : 'ⓘ Click card to focus · Double-click card to center branch · Double-click canvas to reset'"
           },
           "fill": [
             {
@@ -4401,7 +4409,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.9.2",
+    "version": "1.9.3",
     "releaseDate": "2026-11-24",
     "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
@@ -4433,8 +4441,8 @@
       "Readable Links on Bands (white casing + slate-400 core)",
       "Eyebrow Gesture Caption (ⓘ prefix, centered on toolbar, breathing room)",
       "Filter by Extra 2 (matches + hierarchy kept, rest hidden)",
-      "Click-to-Focus Branch Zoom (click card to fit & center branch)",
-      "Persistent Branch Focus Mode with Hover Hijack Prevention",
+      "Branch Focus Mode (single-click card locks active lineage without shifting view)",
+      "Double-Click Card to Fit & Center Branch (smooth branch zoom)",
       "Solid Extra 2 Filter Pill & Unmapped Visibility Guard",
       "Robust Click Slop (4px movement threshold distinguishes clicks from drag-pans)",
       "Double-Click Canvas to Reset View"

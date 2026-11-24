@@ -264,16 +264,17 @@ function checkTooltip() {
 }
 
 function checkDblclick() {
-  // Double-clicking elements that shift on click (cards on branch-fit, toggles on re-layout)
-  // causes the second click / dblclick to strike empty space or canvasBg.
-  // Viewport centering must not listen to toggle or card marks on dblclick.
+  // Single-click on card selects/focuses the branch without shifting geometry.
+  // Double-clicking card fits and centers the branch (@cardBody:dblclick).
+  // Double-clicking canvas resets the view (@canvasBg:dblclick).
+  // Toggle buttons must never listen to dblclick.
   const issues = [];
   for (const s of baseSpec.signals) {
     if (s.name !== 'panX' && s.name !== 'panY') continue;
     for (const h of s.on || []) {
       const ev = String(h.events || '');
-      if (ev.includes('dblclick') && !ev.includes('@canvasBg:dblclick'))
-        issues.push(`[dblclick] ${s.name} listens to dblclick on mark (${ev}): clicks shift geometry and mistarget`);
+      if (ev.includes('dblclick') && !ev.includes('@canvasBg:dblclick') && !ev.includes('@cardBody:dblclick'))
+        issues.push(`[dblclick] ${s.name} listens to invalid dblclick mark (${ev})`);
     }
   }
   return issues;
@@ -553,7 +554,7 @@ async function checkFilterPill() {
   t.forEach(i => console.log('    ' + i));
   const dc = checkDblclick();
   total += dc.length;
-  console.log(`${dc.length ? '✗' : '✓'} double-click scoped to canvas background only (no card/toggle displacement)`);
+  console.log(`${dc.length ? '✗' : '✓'} double-click scoped cleanly (card centers branch, canvas resets view)`);
   dc.forEach(i => console.log('    ' + i));
   const gc = checkCaption();
   total += gc.length;
@@ -565,7 +566,7 @@ async function checkFilterPill() {
   an.forEach(i => console.log('    ' + i));
   const br = await checkBranchFit();
   total += br.length;
-  console.log(`${br.length ? '✗' : '✓'} click fits branch in view, centered`);
+  console.log(`${br.length ? '✗' : '✓'} double-click fits branch in view, centered`);
   br.forEach(i => console.log('    ' + i));
   const fl = await checkExtraFilter();
   total += fl.length;

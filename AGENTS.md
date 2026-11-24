@@ -18,9 +18,10 @@ Guidance for coding agents working in this repository.
 - **Leaf-only stacking & deterministic ordering**:
   - Only stack teams where `siblingManagerCount === 0`, `parentReportCount > gridThreshold`, and `rawDepth >= stackMinDepth`. Mixed teams (managers + individual contributors) must stay on a horizontal bus so peers never share a row with a colleague's reports.
   - Sort by numeric-aware `sortKey` (`pad(datum.id, 15, '0', 'left')` for numeric IDs) in both the `window` transform (`groupby: ["parentId", "isStacked"]`) and a `collect` transform before `stratify`.
-- **Click-to-focus branch zoom & persistent lineage lock**:
-  - `@cardBody:click` (guarded by drag-slop: `didPan` with >= 4px movement) fits the clicked subtree via per-row `branchFitZ` and ratio-scaled centering. Subtree bounds can't feed back into `tree_nodes` (Vega requires sources defined before use), so `card_nodes` (source `tree_nodes` + box lookup) exists solely as `cardBody`'s datum; every other mark stays on `tree_nodes`.
-  - Sets `focusedId` and `focusedAncPath` (`activeHighlightId`), locking the active lineage highlight onto the clicked branch and preventing the node that slides beneath the stationary cursor from firing `mouseover` and hijacking focus. Empty canvas clicks, double-click canvas, or toolbar resets clear focus.
+- **Decoupled branch focus and branch-fit zoom**:
+  - Single-click `@cardBody:click` sets `focusedId` and `focusedAncPath` (`activeHighlightId`), locking the active lineage highlight onto the branch with a 3px focus ring without shifting the view.
+  - Double-click `@cardBody:dblclick` (guarded by 4px drag-slop) fits the clicked subtree via per-row `branchFitZ` and ratio-scaled centering. Because single-click does not move the card, the second click of a double-click lands on the exact same card rather than striking empty canvas and misfiring a canvas reset.
+  - Empty canvas clicks (`@canvasBg:click`) clear focus; double-clicking canvas (`@canvasBg:dblclick`) resets zoom to 100% and pan to 0.
 - **Filter button & anchor clearance**:
   - `filterBtn` has a solid floating background pill (`filterPillShadow`, `filterPillBg`) and hides with `opacity: 0` when `length(data('extra_filter_values')) === 0`.
   - Clicking `filterBtn` / `filterText` clears `anchorId` to prevent old toggle pinning offsets from shifting filtered layouts.
