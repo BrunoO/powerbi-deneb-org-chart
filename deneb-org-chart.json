@@ -43,6 +43,26 @@
       "description": "Show employee ID in the card hover tooltip (default false: IDs can be confidential)"
     },
     {
+      "name": "activeColor",
+      "value": "#2563EB",
+      "description": "Accent color for active/focused highlights and interactive controls"
+    },
+    {
+      "name": "dimOpacity",
+      "value": 0.35,
+      "description": "Opacity for non-highlighted nodes when an active branch focus/hover is present"
+    },
+    {
+      "name": "fontUi",
+      "value": "Segoe UI, -apple-system, sans-serif",
+      "description": "Default UI font family"
+    },
+    {
+      "name": "fontEmoji",
+      "value": "Segoe UI Emoji, Segoe UI, -apple-system, sans-serif",
+      "description": "Font family for emoji-capable labels"
+    },
+    {
       "name": "downXY",
       "value": null,
       "description": "Pointer position at mousedown/touchstart to distinguish clicks from drag-pans",
@@ -2215,7 +2235,7 @@
             "value": 10
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         },
         "update": {
@@ -2225,7 +2245,7 @@
           "fill": [
             {
               "test": "focusedId",
-              "value": "#2563EB"
+              "signal": "activeColor"
             },
             {
               "value": "#64748B"
@@ -2378,7 +2398,7 @@
             "value": "pointer"
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         },
         "update": {
@@ -2455,7 +2475,7 @@
             "value": "pointer"
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         },
         "update": {
@@ -2565,13 +2585,13 @@
             "value": "600"
           },
           "fill": {
-            "signal": "enableStacking ? '#2563EB' : '#475569'"
+            "signal": "enableStacking ? activeColor : '#475569'"
           },
           "cursor": {
             "value": "pointer"
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         }
       }
@@ -2671,7 +2691,7 @@
             "value": "pointer"
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         },
         "update": {
@@ -2751,7 +2771,7 @@
             "value": "pointer"
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         }
       }
@@ -2823,7 +2843,7 @@
             "value": "pointer"
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         },
         "update": {
@@ -2900,7 +2920,7 @@
             "value": "pointer"
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         },
         "update": {
@@ -3068,7 +3088,7 @@
             "value": "#475569"
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         },
         "update": {
@@ -3200,7 +3220,7 @@
             "value": "#475569"
           },
           "font": {
-            "value": "Segoe UI Emoji, Segoe UI, -apple-system, sans-serif"
+            "signal": "fontEmoji"
           }
         }
       }
@@ -3232,7 +3252,7 @@
             "value": "#94A3B8"
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         },
         "update": {
@@ -3273,7 +3293,7 @@
             "value": "#94A3B8"
           },
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           },
           "opacity": {
             "signal": "length(data('tree_nodes')) === 0 ? 1 : 0"
@@ -3331,7 +3351,7 @@
           "stroke": [
             {
               "test": "activeHighlightId && ((datum.source.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0) && (datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0))",
-              "value": "#2563EB"
+              "signal": "activeColor"
             },
             {
               "value": "#94A3B8"
@@ -3445,7 +3465,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -3491,7 +3511,7 @@
             },
             {
               "test": "datum.id === activeHighlightId",
-              "value": "#2563EB"
+              "signal": "activeColor"
             },
             {
               "test": "activeHighlightId && (indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0)",
@@ -3538,7 +3558,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -3570,7 +3590,7 @@
           "fill": [
             {
               "test": "datum.rawDepth === 0",
-              "value": "#2563EB"
+              "signal": "activeColor"
             },
             {
               "scale": "branchColor",
@@ -3583,7 +3603,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -3646,7 +3666,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -3699,7 +3719,7 @@
             }
           ],
           "font": {
-            "value": "Segoe UI Emoji, Segoe UI, -apple-system, sans-serif"
+            "signal": "fontEmoji"
           },
           "opacity": [
             {
@@ -3707,7 +3727,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -3768,7 +3788,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -3823,11 +3843,11 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ],
           "font": {
-            "value": "Segoe UI Emoji, Segoe UI, -apple-system, sans-serif"
+            "signal": "fontEmoji"
           }
         }
       },
@@ -3877,7 +3897,7 @@
             }
           ],
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           },
           "opacity": [
             {
@@ -3885,7 +3905,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -3937,7 +3957,7 @@
             }
           ],
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           },
           "opacity": [
             {
@@ -3945,7 +3965,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -3996,7 +4016,7 @@
             }
           ],
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           },
           "opacity": [
             {
@@ -4008,7 +4028,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -4059,7 +4079,7 @@
             }
           ],
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           },
           "opacity": [
             {
@@ -4071,7 +4091,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -4122,7 +4142,7 @@
             }
           ],
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           },
           "opacity": [
             {
@@ -4134,7 +4154,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -4185,7 +4205,7 @@
             }
           ],
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           },
           "opacity": [
             {
@@ -4197,7 +4217,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -4254,7 +4274,7 @@
           "stroke": [
             {
               "test": "datum.id === hoveredToggleId",
-              "value": "#2563EB"
+              "signal": "activeColor"
             },
             {
               "test": "datum.rawDepth === 0",
@@ -4262,7 +4282,7 @@
             },
             {
               "test": "datum.isCollapsed",
-              "value": "#2563EB"
+              "signal": "activeColor"
             },
             {
               "value": "#94A3B8"
@@ -4290,7 +4310,7 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ]
         }
@@ -4355,11 +4375,11 @@
               "value": 1
             },
             {
-              "value": 0.35
+              "signal": "dimOpacity"
             }
           ],
           "font": {
-            "value": "Segoe UI, -apple-system, sans-serif"
+            "signal": "fontUi"
           }
         }
       }
@@ -4394,7 +4414,7 @@
           "fill": [
             {
               "test": "activeHighlightId && (datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0)",
-              "value": "#2563EB"
+              "signal": "activeColor"
             },
             {
               "value": "#94A3B8"
