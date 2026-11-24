@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.7.6`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.7.7`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Remaining open items are low/conditional priority.
 
 ## Summary
 
@@ -61,6 +61,12 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 | New | `deneb-org-chart.json` (toolbar) | Fit button moved inside the white toolbar pill (background widened 447 → 489) so it stays visible on any report background. |
 | Cleanup | `deneb-org-chart.json` (`levelBand`) | Bands shifted up by half the row/card slack so cards sit vertically centered in their band. |
 | New | `deneb-org-chart.json` (`showIdInTooltip`, tooltip) | Employee ID removed from the default tooltip (confidential); opt back in with `"showIdInTooltip": true`. Verifier asserts the gate and the `false` default. |
+
+## Resolved in `v1.7.7`
+
+| # | Where | Resolution |
+|---|---|---|
+| New | `deneb-org-chart.json` (`Extra 1-3`, `extra_stats`, `maxExtraLines`) | Optional extra card lines from columns literally named `Extra 1/2/3` (blank when unmapped). Global uniform height (`58`, or `67+12·maxExtra`) via `cardHeight`; `nodeSpacingY` tracks it so pitch never overlaps. Text Y switched to absolute scaled offsets (identical output when unused). Verifier gains an extras scenario plus a `cardHeight` regression guard. |
 
 ## Remaining Open Items (Low / Conditional Priority)
 

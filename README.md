@@ -40,7 +40,7 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 
 ## 📁 Files
 
-- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.7.6`) to paste into Deneb in Power BI.
+- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.7.7`) to paste into Deneb in Power BI.
 - [`sample-org-data.csv`](./sample-org-data.csv): Sample dataset (85 employees across 7 levels) that exercises every layout edge case: a 12-person executive team, leaf-only teams that stack (even and odd sizes, side-by-side, at Level 6), a large *mixed* team of managers and engineers (stays horizontal), a team exactly at the threshold, and IDs that cross digit boundaries (`17` vs `100` vs `1000`) in shuffled input order.
 - [`preview.html`](./preview.html) & [`index.html`](./index.html): Standalone HTML preview for testing in any browser (no Power BI needed; requires internet for the Vega CDN).
 - [`tools/verify-layout.js`](./tools/verify-layout.js): Automated layout checker (see [Development](#-development--layout-verification)).
@@ -55,14 +55,24 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 3. Search for **Deneb, Declarative Visualization in Power BI** (Microsoft-certified) and click **Add**.
 
 ### 2. Prepare Your Data Table
-Your table needs four columns (or map your own column names to these):
+Your table must contain columns named **exactly** `ID`, `ParentID`, `Name`, and `Title` — Deneb passes columns by name, so these names are not optional:
 
 | Column | Type | Description | Example |
 | :--- | :--- | :--- | :--- |
 | **`ID`** | Text or Whole Number | Unique identifier for each employee | `1`, `"E101"` |
-| **`ParentID`** | Text or Whole Number | Direct manager's ID (**must be `BLANK()` / `null` for the CEO**) | `null`, `1` |
+| **`ParentID`** | Text or Whole Number | Direct manager's ID (**must be empty/`null` for the CEO**) | `null`, `1` |
 | **`Name`** | Text | Employee's full name | `Sarah Jenkins` |
 | **`Title`** | Text | Employee's job title | `Chief Executive Officer` |
+
+**Rename your columns in Power Query** (exact clicks — do this even if your data already looks right):
+1. In Power BI Desktop: **Home** → **Transform data** (opens the Power Query editor).
+2. Select your employee table in the left-hand **Queries** list.
+3. Right-click each relevant column header → **Rename**, and type exactly `ID`, `ParentID`, `Name`, `Title` (spelling *and* capitals matter).
+4. Give `ID` and `ParentID` the **same data type**: select both columns (hold `Ctrl`), then **Transform** → **Data Type** → **Text** is the safest choice — it also supports IDs like `"E101"`.
+5. The CEO's `ParentID` cell must be **empty/`null`**. If it shows `0`, clear it — but note `0` is treated as "no manager" everywhere, so a real employee must also never have `ID` `0`.
+6. Top-left: **Close & Apply** to return to Power BI.
+
+**Optional extra card lines:** to show up to 3 extra lines on every card (e.g. location, department), add columns named exactly **`Extra 1`**, **`Extra 2`**, **`Extra 3`** — in Power Query via **Add Column** → **Custom Column**, or by renaming existing columns as above. Values must be short single-line text (longer values are truncated with `…`). All cards adopt the height of the fullest card — see [Limitations](#️-limitations--data-prerequisites).
 
 > [!IMPORTANT]
 > **Hierarchy Requirements:**
@@ -72,14 +82,34 @@ Your table needs four columns (or map your own column names to these):
 
 ### 3. Add Fields to Deneb
 1. Add a **Deneb** visual to your report page.
-2. Drag **`ID`**, **`ParentID`**, **`Name`**, and **`Title`** into Deneb's **Values** bucket.
-3. Make sure summarization is set to **Don't summarize** (especially for numeric IDs).
+2. Drag **`ID`**, **`ParentID`**, **`Name`**, and **`Title`** into Deneb's **Values** bucket (plus `Extra 1`–`Extra 3` if you created them).
+3. For **each** field in the bucket: click its **`∨`** dropdown → set summarization to **Don't summarize**. This is the #1 novice mistake — if Power BI sums or counts your IDs you will get one giant card or nonsense groupings instead of one card per person. Repeat for numeric *and* text fields.
 
 ### 4. Paste the Specification
 1. Click **`...`** in the top-right corner of the Deneb visual → **Edit**.
 2. Choose **Vega** *(not Vega-Lite)*, select **[empty]**, and click **Create**.
 3. Replace the editor contents with [`deneb-org-chart.json`](./deneb-org-chart.json).
 4. Click **Apply** (`Ctrl+Enter`), then **< Back to report**.
+
+### 5. Change the Default Settings (Optional)
+Settings live in the `signals` block at the top of the pasted spec. Exact steps:
+1. Click **`...`** on the Deneb visual → **Edit** to reopen the spec editor.
+2. Press `Ctrl+F`, type the setting name (e.g. `defaultCollapseDepth`), and change only its `"value"`.
+3. Click **Apply** (`Ctrl+Enter`), then **< Back to report**.
+
+Common recipes:
+- **Start fully expanded:** `"name": "defaultCollapseDepth", "value": 1` → `"value": 99`.
+- **Start in stacked mode** (compact 2-column teams): `"name": "enableStacking", "value": false` → `"value": true`.
+- **Show employee IDs in tooltips:** `"name": "showIdInTooltip", "value": false` → `"value": true` (keep `false`: IDs can be confidential).
+- **Stack smaller teams too:** `"name": "gridThreshold", "value": 6` → `"value": 4`, for example.
+
+### 6. If Something Looks Wrong
+| Symptom | Most likely cause → fix |
+| :--- | :--- |
+| Blank visual, only the toolbar | No CEO found: some row must have an empty `ParentID` (see Step 2.5). Or a reporting loop alongside a valid root — see [Limitations](#️-limitations--data-prerequisites) rule 4. |
+| One giant card, or nonsense cards | Summarization is on: redo Step 3.3 — **Don't summarize** on *every* field in the bucket. |
+| People attached to the wrong boss | Orphan `ParentID` (no matching `ID`) or duplicate `ID`s — the visual re-attaches strays under the root instead of crashing, so fix the data (see Limitations rules 1–3). |
+| "No data to display" message | The visual received zero rows: check the Deneb field mappings and any report-page or RLS filters. |
 
 ---
 
@@ -111,6 +141,7 @@ Check these before publishing — the visual sanitizes sloppy inputs where it ca
 | 5 | **Exotic ID formats only affect sibling order.** | Numeric IDs over 15 digits, negatives, or scientific notation (e.g. `1e3`) still draw a correct hierarchy; only the left-to-right order of siblings may differ from numeric order — deterministically (same data, same layout). Comma-containing text IDs are fully supported. |
 | 6 | **Touch devices get no reporting-line highlight.** | Hover highlighting is mouse-driven; tapping a card toggles collapse instead. Touch pan/pinch/zoom gestures are provided on a best-effort, provisional basis and have **not been tested by the author** — please report anything that misbehaves. |
 | 7 | **Toolbar background ignores pan/zoom gestures (by design).** | Dragging, wheeling, or double-clicking on the toolbar background does nothing — start those gestures on the canvas or a card. This keeps the toolbar click-stable so a missed button click can't accidentally pan or zoom the chart. |
+| 8 | **Extra card lines need exact column names and stay short.** | Add columns named exactly `Extra 1`, `Extra 2`, `Extra 3` (rename in Power Query if needed); values must be short single-line text — longer values are truncated with `…`. All cards adopt the height of the fullest card (max 3 lines); cards with fewer lines show whitespace instead. |
 
 ---
 

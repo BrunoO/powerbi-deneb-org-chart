@@ -123,6 +123,9 @@ async function runScenario(sc, values) {
   if (roots.length !== 1) fail('sanity', `expected exactly 1 root card, got ${roots.length}`);
   const fz = view.signal('fitZoom');
   if (!isFinite(fz) || fz < 0.4 || fz > 1.6) fail('fit', `fitZoom ${fz} out of [0.4, 1.6]`);
+  const maxExtra = view.data('extra_stats').length ? view.data('extra_stats')[0].maxExtra : 0;
+  const expectedH = Math.round((maxExtra === 0 ? 58 : 67 + 12 * maxExtra) * view.signal('zoomLevel'));
+  if (view.signal('cardHeight') !== expectedH) fail('extras', `cardHeight ${view.signal('cardHeight')} != expected ${expectedH} for maxExtra ${maxExtra}`);
   const bands = view.data('depth_bands');
   const depths = new Set(nodes.map(n => n.rawY));
   if (bands.length !== depths.size) fail('bands', `expected ${depths.size} level bands, got ${bands.length}`);
@@ -270,6 +273,14 @@ function checkTooltip() {
     for (const [tag, rows] of [['pure 2-cycle', CYCLE_TWO], ['pure 3-cycle', CYCLE_THREE]]) {
       scenarios.push({ stacking: false, collapseDepth: 99, zoom: 1, hover: true, values: rows, tag });
     }
+    // Extra info lines (Extra 1/2): card height grows uniformly, geometry must still hold.
+    const EXTRA_ROWS = [
+      { ID: '1', ParentID: null, Name: 'CEO', Title: 'c' },
+      { ID: '2', ParentID: '1', Name: 'VP', Title: 'v' },
+      { ID: '3', ParentID: '2', Name: 'A', Title: 't', 'Extra 1': 'Paris', 'Extra 2': 'FR' },
+      { ID: '4', ParentID: '2', Name: 'B', Title: 't', 'Extra 1': 'Lyon' }
+    ];
+    scenarios.push({ stacking: false, collapseDepth: 99, zoom: 1, hover: true, values: EXTRA_ROWS, tag: 'extra fields' });
   }
   let total = 0;
   for (const sc of scenarios) {
