@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.7.8 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.7.9 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.7.8",
+      "value": "v1.7.9",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -170,7 +170,7 @@
         },
         {
           "events": "@cardBody:dblclick",
-          "update": "panX + (width / 2) - datum.centerX"
+          "update": "(width - cardWidth) / 2 - datum.rawX - datum.originX"
         },
         {
           "events": "@fitBtn:click, @fitText:click",
@@ -205,7 +205,7 @@
         },
         {
           "events": "@cardBody:dblclick",
-          "update": "panY + (height / 2) - datum.cardY - (cardHeight / 2)"
+          "update": "(height - cardHeight) / 2 - datum.rawY - topMargin"
         },
         {
           "events": "@fitBtn:click, @fitText:click",
@@ -436,6 +436,58 @@
         {
           "events": "@toggleBtn:mouseout, @toggleText:mouseout",
           "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "anchorId",
+      "value": null,
+      "description": "ID of the last toggled node, pinned in place across re-layout (cleared on manual pan, fit, reset, center, or collapse-all)",
+      "on": [
+        {
+          "events": "mousedown, touchstart",
+          "update": "null"
+        },
+        {
+          "events": "@toggleBtn:click, @toggleText:click",
+          "update": "datum.id"
+        },
+        {
+          "events": "@fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @cardBody:dblclick, @collapseAllBtn:click, @collapseAllText:click",
+          "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "anchorZoom",
+      "value": 1,
+      "description": "Zoom level at the time the anchor was set; the pin only holds while zoom is unchanged",
+      "on": [
+        {
+          "events": "@toggleBtn:click, @toggleText:click",
+          "update": "zoomLevel"
+        }
+      ]
+    },
+    {
+      "name": "anchorX",
+      "value": 0,
+      "description": "Screen x of the anchor node at toggle time",
+      "on": [
+        {
+          "events": "@toggleBtn:click, @toggleText:click",
+          "update": "datum.cardX"
+        }
+      ]
+    },
+    {
+      "name": "anchorY",
+      "value": 0,
+      "description": "Screen y of the anchor node at toggle time",
+      "on": [
+        {
+          "events": "@toggleBtn:click, @toggleText:click",
+          "update": "datum.cardY"
         }
       ]
     }
@@ -1518,12 +1570,37 @@
         },
         {
           "type": "formula",
-          "expr": "datum.rawX + datum.originX + panX",
+          "expr": "datum.id === anchorId ? datum.rawX + datum.originX : null",
+          "as": "anchorLayoutX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.id === anchorId ? datum.rawY : null",
+          "as": "anchorLayoutY"
+        },
+        {
+          "type": "joinaggregate",
+          "fields": [
+            "anchorLayoutX",
+            "anchorLayoutY"
+          ],
+          "ops": [
+            "max",
+            "max"
+          ],
+          "as": [
+            "anchorBaseX",
+            "anchorBaseY"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "datum.rawX + datum.originX + panX + (isValid(datum.anchorBaseX) && zoomLevel === anchorZoom ? anchorX - datum.anchorBaseX - panX : 0)",
           "as": "cardX"
         },
         {
           "type": "formula",
-          "expr": "datum.rawY + topMargin + panY",
+          "expr": "datum.rawY + topMargin + panY + (isValid(datum.anchorBaseY) && zoomLevel === anchorZoom ? anchorY - datum.anchorBaseY - topMargin - panY : 0)",
           "as": "cardY"
         },
         {
@@ -3752,7 +3829,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.7.8",
+    "version": "1.7.9",
     "releaseDate": "2026-11-24",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
@@ -3776,7 +3853,8 @@
       "Zoom-to-Fit Toolbar Button (whole tree in view at any size)",
       "Subtle Level Banding (alternating row wash, pan-aware, zero re-layout)",
       "Configurable Tooltip ID (hidden by default for confidentiality)",
-      "Optional Extra 1-3 Card Lines (uniform auto-height, documented prerequisites)"
+      "Optional Extra 1-3 Card Lines (uniform auto-height, documented prerequisites)",
+      "Focus Pinning on Toggle (clicked node stays put across re-layout)"
     ]
   }
 }

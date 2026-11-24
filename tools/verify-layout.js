@@ -252,16 +252,53 @@ function checkTooltip() {
 }
 
 function checkDblclick() {
-  // Centering reads datum.centerX/cardY: only cardBody may trigger it. Toggle
-  // re-layouts between a double-click's two clicks (measured ~1000px shifts),
-  // so a toggle dblclick would mistarget its second click and dblclick.
+  // Centering reads datum layout fields into the viewport signals. Only cardBody
+  // may trigger it: toggle re-layouts between a double-click's two clicks
+  // (measured ~1000px shifts), so a toggle dblclick would mistarget its second
+  // click and dblclick. (anchorX/anchorY legitimately record datum.cardX/cardY
+  // on toggle clicks — they store position, they don't center — so only panX/panY
+  // updates are checked here.)
   const issues = [];
-  for (const s of baseSpec.signals) for (const h of s.on || []) {
-    const ev = String(h.events || '');
-    const up = String(h.update || '');
-    if ((up.includes('datum.centerX') || up.includes('datum.cardY')) && (ev.includes('@toggleBtn') || ev.includes('@toggleText')))
-      issues.push(`[dblclick] ${s.name} centers on datum but listens to toggle marks (${ev}): toggle re-layout mistargets the second click`);
+  for (const s of baseSpec.signals) {
+    if (s.name !== 'panX' && s.name !== 'panY') continue;
+    for (const h of s.on || []) {
+      const ev = String(h.events || '');
+      const up = String(h.update || '');
+      if ((up.includes('datum.centerX') || up.includes('datum.cardY') || up.includes('datum.rawX') || up.includes('datum.rawY')) && (ev.includes('@toggleBtn') || ev.includes('@toggleText')))
+        issues.push(`[dblclick] ${s.name} centers on datum but listens to toggle marks (${ev}): toggle re-layout mistargets the second click`);
+    }
   }
+  return issues;
+}
+
+async function checkAnchor() {
+  // Simulates exactly what a toggle click does (state flip + anchor capture) and
+  // requires the toggled node to stay pixel-identical across the re-layout.
+  const issues = [];
+  const fail = (m) => issues.push(`[anchor] ${m}`);
+  try {
+    const US = String.fromCharCode(31);
+    const spec = JSON.parse(JSON.stringify(baseSpec));
+    const view = new vega.View(vega.parse(spec), { renderer: 'none' });
+    await view.runAsync();
+    const pos = (id) => view.data('tree_nodes').find(n => n.id === id);
+    if (!pos('2')) return ['[anchor] sample data missing node 2'];
+    const snap = () => { const n = pos('2'); return { x: n.cardX, y: n.cardY }; };
+    const arm = (p) => {
+      view.signal('anchorId', '2'); view.signal('anchorX', p.x); view.signal('anchorY', p.y);
+      view.signal('anchorZoom', view.signal('zoomLevel'));
+    };
+    const before = snap();
+    view.signal('expandedIds', US + '2' + US); arm(before);
+    await view.runAsync();
+    let d = { x: Math.abs(pos('2').cardX - before.x), y: Math.abs(pos('2').cardY - before.y) };
+    if (d.x > 1 || d.y > 1) fail(`expanding node 2 moved it by ${d.x.toFixed(1)},${d.y.toFixed(1)}px`);
+    const mid = snap();
+    view.signal('expandedIds', US); arm(mid);
+    await view.runAsync();
+    d = { x: Math.abs(pos('2').cardX - mid.x), y: Math.abs(pos('2').cardY - mid.y) };
+    if (d.x > 1 || d.y > 1) fail(`re-collapsing node 2 moved it by ${d.x.toFixed(1)},${d.y.toFixed(1)}px`);
+  } catch (e) { fail(`threw: ${String(e.message || e).split('\n')[0]}`); }
   return issues;
 }
 
@@ -319,6 +356,10 @@ function checkDblclick() {
   total += dc.length;
   console.log(`${dc.length ? '✗' : '✓'} dblclick-centering scoped to card body only`);
   dc.forEach(i => console.log('    ' + i));
+  const an = await checkAnchor();
+  total += an.length;
+  console.log(`${an.length ? '✗' : '✓'} toggled node stays pinned across re-layout`);
+  an.forEach(i => console.log('    ' + i));
   console.log(total ? `\nFAILED: ${total} issue(s)` : '\nAll layout checks passed.');
   process.exit(total ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });
