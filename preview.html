@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.8.2 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
+  "description": "Interactive Collapsible Org Chart Visual v1.8.3 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.8.2",
+      "value": "v1.8.3",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -2086,10 +2086,10 @@
       "encode": {
         "enter": {
           "text": {
-            "value": "Click a card to focus its branch · Double-click to center · Drag to pan · Scroll to zoom"
+            "value": "ⓘ Click a card to focus its branch · Double-click to center · Drag to pan · Scroll to zoom"
           },
           "align": {
-            "value": "left"
+            "value": "center"
           },
           "baseline": {
             "value": "middle"
@@ -2098,7 +2098,7 @@
             "value": 10
           },
           "fill": {
-            "value": "#94A3B8"
+            "value": "#64748B"
           },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
@@ -2106,7 +2106,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX"
+            "signal": "toolbarOriginX + 244"
           },
           "y": {
             "value": 6
@@ -2120,7 +2120,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 11
+            "value": 15
           },
           "width": {
             "value": 489
@@ -2148,7 +2148,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 10
+            "value": 14
           },
           "width": {
             "value": 489
@@ -2182,7 +2182,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 13
+            "value": 17
           },
           "width": {
             "value": 86
@@ -2219,7 +2219,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 26
+            "value": 30
           },
           "text": {
             "value": "⤢ Expand All"
@@ -2259,7 +2259,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 13
+            "value": 17
           },
           "width": {
             "value": 88
@@ -2296,7 +2296,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 26
+            "value": 30
           },
           "text": {
             "value": "⤡ Collapse All"
@@ -2336,10 +2336,10 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 16
+            "value": 20
           },
           "y2": {
-            "value": 36
+            "value": 40
           },
           "stroke": {
             "value": "#E2E8F0"
@@ -2364,7 +2364,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 13
+            "value": 17
           },
           "width": {
             "value": 92
@@ -2412,7 +2412,7 @@
             "signal": "toolbarOriginX + 240"
           },
           "y": {
-            "value": 26
+            "value": 30
           },
           "text": {
             "signal": "enableStacking ? '☷ Stacked' : '☵ Standard'"
@@ -2447,10 +2447,10 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 16
+            "value": 20
           },
           "y2": {
-            "value": 36
+            "value": 40
           },
           "stroke": {
             "value": "#E2E8F0"
@@ -2475,7 +2475,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 13
+            "value": 17
           },
           "width": {
             "value": 26
@@ -2512,7 +2512,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 26
+            "value": 30
           },
           "text": {
             "value": "−"
@@ -2552,7 +2552,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 13
+            "value": 17
           },
           "width": {
             "value": 84
@@ -2592,7 +2592,7 @@
             "signal": "toolbarOriginX + 370"
           },
           "y": {
-            "value": 26
+            "value": 30
           },
           "text": {
             "signal": "'Reset (' + round(zoomLevel * 100) + '%)'"
@@ -2627,7 +2627,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 13
+            "value": 17
           },
           "width": {
             "value": 26
@@ -2664,7 +2664,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 26
+            "value": 30
           },
           "text": {
             "value": "+"
@@ -2704,7 +2704,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 13
+            "value": 17
           },
           "width": {
             "value": 36
@@ -2741,7 +2741,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 26
+            "value": 30
           },
           "text": {
             "value": "Fit"
@@ -2782,7 +2782,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 11
+            "value": 15
           },
           "width": {
             "value": 190
@@ -2811,7 +2811,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 10
+            "value": 14
           },
           "width": {
             "value": 190
@@ -2852,7 +2852,7 @@
             "signal": "toolbarOriginX + 587"
           },
           "y": {
-            "value": 26
+            "value": 30
           },
           "text": {
             "field": "summaryLabel"
@@ -2884,7 +2884,7 @@
       "encode": {
         "enter": {
           "y": {
-            "value": 26
+            "value": 30
           },
           "text": {
             "signal": "versionId"
@@ -4085,7 +4085,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.8.2",
+    "version": "1.8.3",
     "releaseDate": "2026-11-24",
     "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
@@ -4116,6 +4116,7 @@
       "Stacked Mode by Default (Standard tree one toggle away)",
       "Deeper Branch Tints (L1 divisions distinguishable, pastel kept)",
       "Readable Links on Bands (white casing + slate-400 core)",
+      "Eyebrow Gesture Caption (ⓘ prefix, centered on toolbar, breathing room)",
       "Click-to-Focus Branch Zoom (Fit = whole tree, double-click = center node)",
       "Persistent Gesture Caption (click / double-click / drag / scroll hints)"
     ]
