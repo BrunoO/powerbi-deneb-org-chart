@@ -401,6 +401,106 @@ async function checkExtraFilter() {
   return issues;
 }
 
+async function checkBranchFocus() {
+  // Focus mode: when focusedId is set, activeHighlightId and lineage lock to
+  // the focused node, even if another node triggers hoveredId.
+  const issues = [];
+  const fail = (m) => issues.push(`[focus] ${m}`);
+  try {
+    const spec = JSON.parse(JSON.stringify(baseSpec));
+    const view = new vega.View(vega.parse(spec), { renderer: 'none' });
+    await view.runAsync();
+    const nodes = view.data('tree_nodes');
+    const nodeA = nodes.find(n => n.id === '2');
+    const nodeB = nodes.find(n => n.id === '3');
+    if (!nodeA || !nodeB) fail('fixture missing test nodes');
+
+    // Focus node A
+    view.signal('focusedId', nodeA.id).signal('focusedAncPath', nodeA.ancPath);
+    await view.runAsync();
+
+    if (view.signal('activeHighlightId') !== nodeA.id)
+      fail(`activeHighlightId ${view.signal('activeHighlightId')} != ${nodeA.id}`);
+
+    // Simulate resting cursor over node B
+    view.signal('hoveredId', nodeB.id).signal('hoveredAncPath', nodeB.ancPath);
+    await view.runAsync();
+
+    // activeHighlightId MUST stay locked to node A, ignoring hover on node B
+    if (view.signal('activeHighlightId') !== nodeA.id)
+      fail(`hover on node B hijacked activeHighlightId: got ${view.signal('activeHighlightId')}, expected ${nodeA.id}`);
+    if (view.signal('activeHighlightAncPath') !== nodeA.ancPath)
+      fail(`hover on node B hijacked activeHighlightAncPath`);
+
+    // Verify gesture hint reflects active focus mode
+    const hintMark = findMark(view.scenegraph().root, 'gestureHint');
+    if (!hintMark || !hintMark.items.length || !hintMark.items[0].text.startsWith('◎ Focused on branch'))
+      fail('gesture hint text did not update to indicate active focus mode');
+
+    // Clear focus -> activeHighlightId must now revert to hoveredId (node B)
+    view.signal('focusedId', null).signal('focusedAncPath', '');
+    await view.runAsync();
+    if (view.signal('activeHighlightId') !== nodeB.id)
+      fail(`clearing focus did not revert activeHighlightId to hoveredId`);
+  } catch (e) { fail(`threw: ${String(e.message || e).split('\n')[0]}`); }
+  return issues;
+}
+
+async function checkFilterPill() {
+  // Filter pill background, visibility guard, and anchor reset
+  const issues = [];
+  const fail = (m) => issues.push(`[filterPill] ${m}`);
+  try {
+    // 1. Dataset without Extra 2: filter pill marks must have opacity 0
+    const noExtraVals = [
+      { ID: '1', ParentID: null, Name: 'CEO', Title: 'c' },
+      { ID: '2', ParentID: '1', Name: 'VP', Title: 'v' }
+    ];
+    const specNoExtra = JSON.parse(JSON.stringify(baseSpec));
+    specNoExtra.data.find(d => d.name === 'dataset').values = noExtraVals;
+    const viewNoExtra = new vega.View(vega.parse(specNoExtra), { renderer: 'none' });
+    await viewNoExtra.runAsync();
+
+    const pillBgNoExtra = findMark(viewNoExtra.scenegraph().root, 'filterPillBg');
+    const pillShadowNoExtra = findMark(viewNoExtra.scenegraph().root, 'filterPillShadow');
+    const filterBtnNoExtra = findMark(viewNoExtra.scenegraph().root, 'filterBtn');
+    const filterTextNoExtra = findMark(viewNoExtra.scenegraph().root, 'filterText');
+
+    if (!pillBgNoExtra || !pillBgNoExtra.items.length || pillBgNoExtra.items[0].opacity !== 0)
+      fail('filterPillBg should have opacity 0 when Extra 2 is unmapped');
+    if (!pillShadowNoExtra || !pillShadowNoExtra.items.length || pillShadowNoExtra.items[0].opacity !== 0)
+      fail('filterPillShadow should have opacity 0 when Extra 2 is unmapped');
+    if (!filterBtnNoExtra || !filterBtnNoExtra.items.length || filterBtnNoExtra.items[0].opacity !== 0)
+      fail('filterBtn should have opacity 0 when Extra 2 is unmapped');
+    if (!filterTextNoExtra || !filterTextNoExtra.items.length || filterTextNoExtra.items[0].opacity !== 0)
+      fail('filterText should have opacity 0 when Extra 2 is unmapped');
+
+    // 2. Dataset with Extra 2: filter pill marks must have opacity 1 and solid fill
+    const withExtraVals = [
+      { ID: '1', ParentID: null, Name: 'CEO', Title: 'c' },
+      { ID: '2', ParentID: '1', Name: 'VP', Title: 'v', 'Extra 2': 'Dept A' }
+    ];
+    const specWithExtra = JSON.parse(JSON.stringify(baseSpec));
+    specWithExtra.data.find(d => d.name === 'dataset').values = withExtraVals;
+    const viewWithExtra = new vega.View(vega.parse(specWithExtra), { renderer: 'none' });
+    await viewWithExtra.runAsync();
+
+    const pillBgWithExtra = findMark(viewWithExtra.scenegraph().root, 'filterPillBg');
+    if (!pillBgWithExtra || !pillBgWithExtra.items.length || pillBgWithExtra.items[0].opacity !== 1)
+      fail('filterPillBg should have opacity 1 when Extra 2 is mapped');
+    if (pillBgWithExtra.items[0].fill !== '#FFFFFF')
+      fail(`filterPillBg fill ${pillBgWithExtra.items[0].fill} != #FFFFFF`);
+
+    // 3. Anchor reset on filter click event
+    const anchorSignal = baseSpec.signals.find(s => s.name === 'anchorId');
+    const hasFilterClear = anchorSignal && anchorSignal.on && anchorSignal.on.some(
+      h => h.events && h.events.includes('@filterBtn:click') && h.update === 'null'
+    );
+    if (!hasFilterClear) fail('anchorId signal missing @filterBtn:click clear event');
+  } catch (e) { fail(`threw: ${String(e.message || e).split('\n')[0]}`); }
+  return issues;
+}
+
 (async () => {
   const ext = process.argv[2];
   const values = ext ? loadExternal(ext) : null;
@@ -471,6 +571,14 @@ async function checkExtraFilter() {
   total += fl.length;
   console.log(`${fl.length ? '✗' : '✓'} Extra 2 filter keeps matches + hierarchy`);
   fl.forEach(i => console.log('    ' + i));
+  const bf = await checkBranchFocus();
+  total += bf.length;
+  console.log(`${bf.length ? '✗' : '✓'} branch focus locks active lineage against resting hover`);
+  bf.forEach(i => console.log('    ' + i));
+  const fp = await checkFilterPill();
+  total += fp.length;
+  console.log(`${fp.length ? '✗' : '✓'} filter pill solid background, unmapped guard & anchor reset`);
+  fp.forEach(i => console.log('    ' + i));
   console.log(total ? `\nFAILED: ${total} issue(s)` : '\nAll layout checks passed.');
   process.exit(total ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });

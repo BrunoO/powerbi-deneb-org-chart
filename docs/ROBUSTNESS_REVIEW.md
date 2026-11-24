@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.9.1`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Branch-fit zoom and gesture caption landed in `v1.8.x`. Extra 2 branch filtering landed in `v1.9.0`. Single/double-click reconciliation and 4px click-slop landed in `v1.9.1`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.9.2`.** All critical and high-priority items resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Branch-fit zoom and gesture caption landed in `v1.8.x`. Extra 2 branch filtering landed in `v1.9.0`. Single/double-click reconciliation and 4px click-slop landed in `v1.9.1`. Persistent branch focus mode with hover hijacking prevention, solid filter button background pill, unmapped visibility guard, and filter anchor reset landed in `v1.9.2`. Remaining open items are low/conditional priority.
 
 ## Summary
 
@@ -103,6 +103,14 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 | # | Where | Resolution |
 |---|---|---|
 | Fix | `deneb-org-chart.json` (`treeLinkCasing`, `treeLinkPath`) | Links were unreadable on level bands (`#CBD5E1` on `#F1F5F9`). Core darkened to `#94A3B8` at 2px with a 4.5px white casing underneath (same dimming logic), so connectors separate from any background. |
+
+## Resolved in `v1.9.2`
+
+| # | Where | Resolution |
+|---|---|---|
+| Fix | `deneb-org-chart.json` (focus mode signals & marks) | Fixed hover hijacking when clicking a card to focus branch: previously, the clicked card centered under the viewport while the cursor stayed stationary, causing whichever node slid beneath the resting cursor to fire `mouseover` and steal the highlight. Introduced `focusedId` and `focusedAncPath`, plus unified `activeHighlightId` and `activeHighlightAncPath`, locking the highlight onto the clicked branch. Added dedicated 3px royal blue focus ring and 35% shadow glow for the focused card. Exited via empty canvas click, double-click, or toolbar reset. Gesture hint dynamically reflects active focus mode. |
+| Fix | `deneb-org-chart.json` (`filterPillShadow`, `filterPillBg`, `filterBtn`, `filterText`) | Added a solid floating background pill (`#FFFFFF` with `#E2E8F0` border and drop shadow) for the Extra 2 Filter button, preventing cards and links from sliding behind transparent text. Added unmapped visibility guard (`length(data('extra_filter_values')) > 0`) so the pill and button cleanly hide with `opacity: 0` when `Extra 2` is not provided in the dataset. |
+| Fix | `deneb-org-chart.json` (`anchorId`) | Added `@filterBtn:click, @filterText:click` to `anchorId` clear events so previous expand/collapse toggle pinning offsets do not displace filtered tree layouts. |
 
 ## Resolved in `v1.9.1`
 

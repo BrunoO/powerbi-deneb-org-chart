@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.9.1 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
+  "description": "Interactive Collapsible Org Chart Visual v1.9.2 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.9.1",
+      "value": "v1.9.2",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -277,7 +277,7 @@
       "on": [
         {
           "events": "@filterBtn:click, @filterText:click",
-          "update": "(extraFilterIdx + 2) % (length(data('extra_filter_values')) + 1) - 1"
+          "update": "length(data('extra_filter_values')) > 0 ? ((extraFilterIdx + 2) % (length(data('extra_filter_values')) + 1) - 1) : -1"
         }
       ]
     },
@@ -417,6 +417,54 @@
       ]
     },
     {
+      "name": "focusedAncPath",
+      "value": "",
+      "description": "Ancestor path of the focused employee card (set on branch focus click, cleared on reset/canvas click)",
+      "on": [
+        {
+          "events": "@cardBody:click",
+          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? focusedAncPath : (focusedId === datum.id ? '' : datum.ancPath)"
+        },
+        {
+          "events": "@canvasBg:click",
+          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? focusedAncPath : ''"
+        },
+        {
+          "events": "@canvasBg:dblclick, @fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @collapseAllBtn:click, @collapseAllText:click, @expandAllBtn:click, @expandAllText:click, @filterBtn:click, @filterText:click",
+          "update": "''"
+        }
+      ]
+    },
+    {
+      "name": "focusedId",
+      "value": null,
+      "description": "ID of the currently focused employee card (set on branch focus click, cleared on reset/canvas click)",
+      "on": [
+        {
+          "events": "@cardBody:click",
+          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? focusedId : (focusedId === datum.id ? null : datum.id)"
+        },
+        {
+          "events": "@canvasBg:click",
+          "update": "(didPan && downXY && (abs(xy()[0] - downXY[0]) >= 4 || abs(xy()[1] - downXY[1]) >= 4)) ? focusedId : null"
+        },
+        {
+          "events": "@canvasBg:dblclick, @fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @collapseAllBtn:click, @collapseAllText:click, @expandAllBtn:click, @expandAllText:click, @filterBtn:click, @filterText:click",
+          "update": "null"
+        }
+      ]
+    },
+    {
+      "name": "activeHighlightId",
+      "description": "Effective ID for lineage highlighting: focused node takes precedence over transient hover",
+      "update": "focusedId ? focusedId : hoveredId"
+    },
+    {
+      "name": "activeHighlightAncPath",
+      "description": "Effective ancestor path for lineage highlighting: focused node takes precedence over transient hover",
+      "update": "focusedId ? focusedAncPath : hoveredAncPath"
+    },
+    {
       "name": "hoveredToolbarBtn",
       "value": null,
       "on": [
@@ -486,7 +534,7 @@
           "update": "datum.id"
         },
         {
-          "events": "@fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @collapseAllBtn:click, @collapseAllText:click, @cardBody:click",
+          "events": "@fitBtn:click, @fitText:click, @zoomResetBtn:click, @zoomResetText:click, @canvasBg:dblclick, @collapseAllBtn:click, @collapseAllText:click, @cardBody:click, @filterBtn:click, @filterText:click",
           "update": "null"
         }
       ]
@@ -2134,9 +2182,6 @@
       "interactive": false,
       "encode": {
         "enter": {
-          "text": {
-            "value": "ⓘ Click a card to focus its branch · Double-click canvas to reset · Drag to pan · Scroll to zoom"
-          },
           "align": {
             "value": "center"
           },
@@ -2146,14 +2191,32 @@
           "fontSize": {
             "value": 10
           },
-          "fill": {
-            "value": "#64748B"
-          },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
           }
         },
         "update": {
+          "text": {
+            "signal": "focusedId ? '◎ Focused on branch · Click empty space or Reset to exit focus · Drag to pan · Scroll to zoom' : 'ⓘ Click a card to focus its branch · Double-click canvas to reset · Drag to pan · Scroll to zoom'"
+          },
+          "fill": [
+            {
+              "test": "focusedId",
+              "value": "#2563EB"
+            },
+            {
+              "value": "#64748B"
+            }
+          ],
+          "fontWeight": [
+            {
+              "test": "focusedId",
+              "value": "600"
+            },
+            {
+              "value": "normal"
+            }
+          ],
           "x": {
             "signal": "toolbarOriginX + 244"
           },
@@ -2826,6 +2889,88 @@
     },
     {
       "type": "rect",
+      "name": "filterPillShadow",
+      "interactive": false,
+      "encode": {
+        "enter": {
+          "y": {
+            "value": 15
+          },
+          "width": {
+            "value": 112
+          },
+          "height": {
+            "value": 32
+          },
+          "cornerRadius": {
+            "value": 16
+          },
+          "fill": {
+            "value": "rgba(15, 23, 42, 0.06)"
+          }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 490"
+          },
+          "opacity": [
+            {
+              "test": "length(data('extra_filter_values')) > 0",
+              "value": 1
+            },
+            {
+              "value": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "name": "filterPillBg",
+      "interactive": false,
+      "encode": {
+        "enter": {
+          "y": {
+            "value": 14
+          },
+          "width": {
+            "value": 112
+          },
+          "height": {
+            "value": 32
+          },
+          "cornerRadius": {
+            "value": 16
+          },
+          "fill": {
+            "value": "#FFFFFF"
+          },
+          "stroke": {
+            "value": "#E2E8F0"
+          },
+          "strokeWidth": {
+            "value": 1
+          }
+        },
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 490"
+          },
+          "opacity": [
+            {
+              "test": "length(data('extra_filter_values')) > 0",
+              "value": 1
+            },
+            {
+              "value": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "rect",
       "name": "filterBtn",
       "encode": {
         "enter": {
@@ -2833,31 +2978,46 @@
             "value": 17
           },
           "width": {
-            "value": 112
+            "value": 104
           },
           "height": {
             "value": 26
           },
           "cornerRadius": {
-            "value": 6
-          },
-          "cursor": {
-            "value": "pointer"
+            "value": 13
           }
         },
         "update": {
+          "x": {
+            "signal": "toolbarOriginX + 494"
+          },
+          "cursor": [
+            {
+              "test": "length(data('extra_filter_values')) > 0",
+              "value": "pointer"
+            },
+            {
+              "value": "default"
+            }
+          ],
           "fill": [
             {
-              "test": "hoveredToolbarBtn === 'filter'",
+              "test": "length(data('extra_filter_values')) > 0 && hoveredToolbarBtn === 'filter'",
               "value": "#F1F5F9"
             },
             {
               "value": "transparent"
             }
           ],
-          "x": {
-            "signal": "toolbarOriginX + 490"
-          }
+          "opacity": [
+            {
+              "test": "length(data('extra_filter_values')) > 0",
+              "value": 1
+            },
+            {
+              "value": 0
+            }
+          ]
         }
       }
     },
@@ -2884,9 +3044,6 @@
           "fill": {
             "value": "#475569"
           },
-          "cursor": {
-            "value": "pointer"
-          },
           "font": {
             "value": "Segoe UI, -apple-system, sans-serif"
           }
@@ -2895,12 +3052,30 @@
           "x": {
             "signal": "toolbarOriginX + 546"
           },
+          "cursor": [
+            {
+              "test": "length(data('extra_filter_values')) > 0",
+              "value": "pointer"
+            },
+            {
+              "value": "default"
+            }
+          ],
           "text": {
             "signal": "'Filter: ' + (extraFilterIdx < 0 ? 'All' : extraFilterValue)"
           },
           "limit": {
-            "signal": "100"
-          }
+            "signal": "96"
+          },
+          "opacity": [
+            {
+              "test": "length(data('extra_filter_values')) > 0",
+              "value": 1
+            },
+            {
+              "value": 0
+            }
+          ]
         }
       }
     },
@@ -3109,7 +3284,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || ((datum.source.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + hoveredId + '\u001F') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0))",
+              "test": "!activeHighlightId || ((datum.source.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0) && (datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0))",
               "value": 1
             },
             {
@@ -3132,7 +3307,7 @@
           },
           "stroke": [
             {
-              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + hoveredId + '\u001F') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0))",
+              "test": "activeHighlightId && ((datum.source.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0) && (datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0))",
               "value": "#2563EB"
             },
             {
@@ -3141,7 +3316,7 @@
           ],
           "strokeWidth": [
             {
-              "test": "hoveredId && ((datum.source.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + hoveredId + '\u001F') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0))",
+              "test": "activeHighlightId && ((datum.source.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0) && (datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0))",
               "value": 2.5
             },
             {
@@ -3156,7 +3331,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || ((datum.source.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + hoveredId + '\u001F') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0))",
+              "test": "!activeHighlightId || ((datum.source.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0) && (datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0))",
               "value": 1
             },
             {
@@ -3177,7 +3352,7 @@
         "update": {
           "x": [
             {
-              "test": "datum.id === hoveredId",
+              "test": "datum.id === activeHighlightId",
               "signal": "datum.cardX - 1.5"
             },
             {
@@ -3186,7 +3361,7 @@
           ],
           "y": [
             {
-              "test": "datum.id === hoveredId",
+              "test": "datum.id === activeHighlightId",
               "signal": "datum.cardY + 5"
             },
             {
@@ -3195,7 +3370,7 @@
           ],
           "width": [
             {
-              "test": "datum.id === hoveredId",
+              "test": "datum.id === activeHighlightId",
               "signal": "cardWidth + 3"
             },
             {
@@ -3204,7 +3379,7 @@
           ],
           "height": [
             {
-              "test": "datum.id === hoveredId",
+              "test": "datum.id === activeHighlightId",
               "signal": "cardHeight + 2"
             },
             {
@@ -3213,7 +3388,7 @@
           ],
           "cornerRadius": [
             {
-              "test": "datum.id === hoveredId",
+              "test": "datum.id === activeHighlightId",
               "value": 9
             },
             {
@@ -3222,11 +3397,15 @@
           ],
           "fill": [
             {
-              "test": "datum.id === hoveredId",
+              "test": "datum.id === focusedId",
+              "value": "rgba(29, 78, 216, 0.35)"
+            },
+            {
+              "test": "datum.id === activeHighlightId",
               "value": "rgba(37, 99, 235, 0.22)"
             },
             {
-              "test": "hoveredId && (indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0)",
+              "test": "activeHighlightId && (indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0)",
               "value": "rgba(59, 130, 246, 0.12)"
             },
             {
@@ -3239,7 +3418,7 @@
           ],
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3284,11 +3463,15 @@
           ],
           "stroke": [
             {
-              "test": "datum.id === hoveredId",
+              "test": "datum.id === focusedId",
+              "value": "#1D4ED8"
+            },
+            {
+              "test": "datum.id === activeHighlightId",
               "value": "#2563EB"
             },
             {
-              "test": "hoveredId && (indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0)",
+              "test": "activeHighlightId && (indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0)",
               "value": "#3B82F6"
             },
             {
@@ -3301,11 +3484,15 @@
           ],
           "strokeWidth": [
             {
-              "test": "datum.id === hoveredId",
+              "test": "datum.id === focusedId",
+              "value": 3
+            },
+            {
+              "test": "datum.id === activeHighlightId",
               "value": 2.5
             },
             {
-              "test": "hoveredId && (indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0)",
+              "test": "activeHighlightId && (indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0)",
               "value": 2
             },
             {
@@ -3324,7 +3511,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3369,7 +3556,7 @@
           ],
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3432,7 +3619,7 @@
           ],
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3493,7 +3680,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3554,7 +3741,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3609,7 +3796,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3671,7 +3858,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3731,7 +3918,7 @@
           },
           "opacity": [
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3794,7 +3981,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3857,7 +4044,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3920,7 +4107,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -3983,7 +4170,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -4076,7 +4263,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -4141,7 +4328,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -4174,7 +4361,7 @@
           },
           "size": [
             {
-              "test": "hoveredId && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0)",
+              "test": "activeHighlightId && (datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0)",
               "signal": "max(12, round(24 * zoomLevel))"
             },
             {
@@ -4183,7 +4370,7 @@
           ],
           "fill": [
             {
-              "test": "hoveredId && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0)",
+              "test": "activeHighlightId && (datum.id === activeHighlightId || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0)",
               "value": "#2563EB"
             },
             {
@@ -4202,7 +4389,7 @@
               "value": 0
             },
             {
-              "test": "!hoveredId || datum.id === hoveredId || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0 || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0",
+              "test": "!activeHighlightId || datum.id === activeHighlightId || indexof(datum.ancPath, '\u001F' + activeHighlightId + '\u001F') >= 0 || indexof(activeHighlightAncPath, '\u001F' + datum.id + '\u001F') >= 0",
               "value": 1
             },
             {
@@ -4214,7 +4401,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.9.1",
+    "version": "1.9.2",
     "releaseDate": "2026-11-24",
     "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
@@ -4247,6 +4434,8 @@
       "Eyebrow Gesture Caption (ⓘ prefix, centered on toolbar, breathing room)",
       "Filter by Extra 2 (matches + hierarchy kept, rest hidden)",
       "Click-to-Focus Branch Zoom (click card to fit & center branch)",
+      "Persistent Branch Focus Mode with Hover Hijack Prevention",
+      "Solid Extra 2 Filter Pill & Unmapped Visibility Guard",
       "Robust Click Slop (4px movement threshold distinguishes clicks from drag-pans)",
       "Double-Click Canvas to Reset View"
     ]
