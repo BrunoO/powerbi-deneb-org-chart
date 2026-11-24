@@ -253,13 +253,29 @@ function checkCaption() {
   return issues;
 }
 
-function checkTooltip() {
+async function checkTooltip() {
   const mark = baseSpec.marks.find(m => m.name === 'cardBody');
   const expr = mark && mark.encode && mark.encode.update && mark.encode.update.tooltip && mark.encode.update.tooltip.signal;
   const issues = [];
   if (!expr || !expr.includes('showIdInTooltip')) issues.push('[tooltip] cardBody tooltip must be gated by the showIdInTooltip signal');
   if ((baseSpec.signals.find(s => s.name === 'showIdInTooltip') || {}).value !== false)
     issues.push('[tooltip] showIdInTooltip must default to false (IDs can be confidential)');
+  if (!expr || !expr.includes('Direct Manager') || !expr.includes('managerName'))
+    issues.push('[tooltip] cardBody tooltip must include Direct Manager via managerName lookup');
+
+  try {
+    const spec = JSON.parse(JSON.stringify(baseSpec));
+    const view = new vega.View(vega.parse(spec), { renderer: 'none' });
+    await view.runAsync();
+    const cardMark = view.scenegraph().root.items[0].items.find(m => m.name === 'cardBody');
+    const ceoItem = cardMark && cardMark.items.find(it => it.datum.rawDepth === 0);
+    const vpItem = cardMark && cardMark.items.find(it => it.datum.id === '2');
+
+    if (ceoItem && ceoItem.tooltip['Direct Manager'])
+      issues.push('[tooltip] CEO must not have a Direct Manager in tooltip');
+    if (vpItem && vpItem.tooltip['Direct Manager'] !== 'Sarah Jenkins')
+      issues.push(`[tooltip] VP Direct Manager [${vpItem ? vpItem.tooltip['Direct Manager'] : 'none'}] != 'Sarah Jenkins'`);
+  } catch (e) { issues.push(`[tooltip] threw: ${String(e.message || e).split('\n')[0]}`); }
   return issues;
 }
 
@@ -548,9 +564,9 @@ async function checkFilterPill() {
     console.log(`${p.length ? '✗' : '✓'} preview.html in sync with deneb-org-chart.json`);
     p.forEach(i => console.log('    ' + i));
   }
-  const t = checkTooltip();
+  const t = await checkTooltip();
   total += t.length;
-  console.log(`${t.length ? '✗' : '✓'} tooltip hides ID by default (showIdInTooltip)`);
+  console.log(`${t.length ? '✗' : '✓'} tooltip includes Direct Manager, Extra metadata & gated ID`);
   t.forEach(i => console.log('    ' + i));
   const dc = checkDblclick();
   total += dc.length;

@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.9.3 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
+  "description": "Interactive Collapsible Org Chart Visual v1.9.4 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.9.3",
+      "value": "v1.9.4",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -1579,6 +1579,21 @@
             "totalDescendants"
           ],
           "default": 0
+        },
+        {
+          "type": "lookup",
+          "from": "clean_data",
+          "key": "id",
+          "fields": [
+            "parentId"
+          ],
+          "values": [
+            "Name_clean"
+          ],
+          "as": [
+            "managerName"
+          ],
+          "default": null
         },
         {
           "type": "formula",
@@ -3580,7 +3595,7 @@
             "value": "pointer"
           },
           "tooltip": {
-            "signal": "merge({'Employee': datum.Name_clean, 'Title': datum.Title_clean, 'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth, 'Status': datum.reportCount > 0 ? (datum.isCollapsed ? 'Collapsed' : 'Expanded') : 'Leaf'}, showIdInTooltip ? {'ID': datum.id} : {})"
+            "signal": "merge({'Employee': datum.Name_clean, 'Title': datum.Title_clean}, isValid(datum.managerName) ? {'Direct Manager': datum.managerName} : {}, datum.Extra1_clean !== '' ? {'Extra 1': datum.Extra1_clean} : {}, datum.Extra2_clean !== '' ? {'Extra 2': datum.Extra2_clean} : {}, datum.Extra3_clean !== '' ? {'Extra 3': datum.Extra3_clean} : {}, {'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth, 'Status': datum.reportCount > 0 ? (datum.isCollapsed ? 'Collapsed' : 'Expanded') : 'Leaf'}, showIdInTooltip ? {'ID': datum.id} : {})"
           },
           "opacity": [
             {
@@ -4474,7 +4489,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.9.3",
+    "version": "1.9.4",
     "releaseDate": "2026-11-24",
     "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
@@ -4508,6 +4523,7 @@
       "Filter by Extra 2 (matches + hierarchy kept, rest hidden)",
       "Branch Focus Mode (single-click card locks active lineage without shifting view)",
       "Double-Click Card to Fit & Center Branch (smooth branch zoom)",
+      "Enriched Tooltip with Direct Manager & Extra 1/2/3 Metadata",
       "Solid Extra 2 Filter Pill & Unmapped Visibility Guard",
       "Robust Click Slop (4px movement threshold distinguishes clicks from drag-pans)",
       "Double-Click Canvas to Reset View"

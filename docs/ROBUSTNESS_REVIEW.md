@@ -2,19 +2,13 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.9.3`.** All critical and high-priority items resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Branch-fit zoom and gesture caption landed in `v1.8.x`. Extra 2 branch filtering landed in `v1.9.0`. Single/double-click reconciliation and 4px click-slop landed in `v1.9.1`. Persistent branch focus mode with hover hijacking prevention, solid filter button background pill, unmapped visibility guard, and filter anchor reset landed in `v1.9.2`. Decoupled single-click branch focus from double-click branch fit in `v1.9.3`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.9.4`.** All critical and high-priority items resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Branch-fit zoom and gesture caption landed in `v1.8.x`. Extra 2 branch filtering landed in `v1.9.0`. Single/double-click reconciliation and 4px click-slop landed in `v1.9.1`. Persistent branch focus mode with hover hijacking prevention, solid filter button background pill, unmapped visibility guard, and filter anchor reset landed in `v1.9.2`. Decoupled single-click branch focus from double-click branch fit in `v1.9.3`. Enriched tooltip with Direct Manager and Extra 1/2/3 metadata landed in `v1.9.4`. Remaining open items are low/conditional priority.
 
 ## Summary
 
 The initial review identified gaps around dirty Power BI inputs (`stratify` aborts on orphans, duplicates, and multiple roots), touch pan/pinch signals, invisible leaf toggle hit-testing, and vacuous verifier passes. In `v1.7.1`, the high-relevance and touch fixes were implemented and verified; the remaining items below are lower-priority or intentional trade-offs.
 
-## Resolved in `v1.9.3`
-
-| # | Where | Resolution |
-|---|---|---|
-| Fix | `deneb-org-chart.json` (signals & marks) + `tools/verify-layout.js` | Decoupled card gestures cleanly: single-click (`@cardBody:click`) locks Branch Focus Mode (lineage highlight + 3px focus ring) without shifting the view. Double-click (`@cardBody:dblclick`) fits and centers the branch. Because single-click no longer moves the card, the second click of a double-click lands squarely on the card rather than hitting empty background and firing an unintended canvas reset. Double-click on canvas (`@canvasBg:dblclick`) continues to reset zoom to 100% and pan to 0. |
-
-## Resolved in `v1.9.2`
+## Resolved in `v1.7.1` (`0eff0b3`)
 
 | # | Original Issue | Resolution |
 |---|---|---|
@@ -109,6 +103,18 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 | # | Where | Resolution |
 |---|---|---|
 | Fix | `deneb-org-chart.json` (`treeLinkCasing`, `treeLinkPath`) | Links were unreadable on level bands (`#CBD5E1` on `#F1F5F9`). Core darkened to `#94A3B8` at 2px with a 4.5px white casing underneath (same dimming logic), so connectors separate from any background. |
+
+## Resolved in `v1.9.4`
+
+| # | Where | Resolution |
+|---|---|---|
+| New | `deneb-org-chart.json` (`data_with_lineage`, `cardBody.tooltip`) | Enriched hover tooltip with `Direct Manager` and `Extra 1 / 2 / 3` metadata: looked up `managerName` from `clean_data` matching `parentId` to `id`, conditionally including `Direct Manager` when valid (cleanly omitted for the CEO/root). Dynamically included `Extra 1`, `Extra 2`, and `Extra 3` when non-empty (`datum.ExtraX_clean !== ''`), allowing full un-truncated visibility on hover while keeping card layouts clean. Updated verifier in `tools/verify-layout.js` to assert manager inclusion and CEO omission. |
+
+## Resolved in `v1.9.3`
+
+| # | Where | Resolution |
+|---|---|---|
+| Fix | `deneb-org-chart.json` (signals & marks) + `tools/verify-layout.js` | Decoupled card gestures cleanly: single-click (`@cardBody:click`) locks Branch Focus Mode (lineage highlight + 3px focus ring) without shifting the view or moving cards. Double-click (`@cardBody:dblclick`) fits and centers the branch via `branchFitZ` and ratio-scaled centering. Because single-click no longer moves the card, the second click of a double-click lands squarely on the card rather than hitting empty background and misfiring an unintended canvas reset. Double-click on canvas (`@canvasBg:dblclick`) resets zoom to 100% and pan to 0; single-click on canvas (`@canvasBg:click`) clears focus. |
 
 ## Resolved in `v1.9.2`
 

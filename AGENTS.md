@@ -22,6 +22,9 @@ Guidance for coding agents working in this repository.
   - Single-click `@cardBody:click` sets `focusedId` and `focusedAncPath` (`activeHighlightId`), locking the active lineage highlight onto the branch with a 3px focus ring without shifting the view.
   - Double-click `@cardBody:dblclick` (guarded by 4px drag-slop) fits the clicked subtree via per-row `branchFitZ` and ratio-scaled centering. Because single-click does not move the card, the second click of a double-click lands on the exact same card rather than striking empty canvas and misfiring a canvas reset.
   - Empty canvas clicks (`@canvasBg:click`) clear focus; double-clicking canvas (`@canvasBg:dblclick`) resets zoom to 100% and pan to 0.
+- **Tooltip enrichment & confidential ID gating**:
+  - `cardBody.tooltip` looks up `managerName` from `clean_data` by `parentId` (omitted for the CEO/root) and includes non-empty `Extra 1 / 2 / 3` metadata, providing full un-truncated details on hover while keeping card layouts clean.
+  - Employee `ID` in tooltip remains strictly gated behind the `showIdInTooltip` signal (default `false`) for confidentiality.
 - **Filter button & anchor clearance**:
   - `filterBtn` has a solid floating background pill (`filterPillShadow`, `filterPillBg`) and hides with `opacity: 0` when `length(data('extra_filter_values')) === 0`.
   - Clicking `filterBtn` / `filterText` clears `anchorId` to prevent old toggle pinning offsets from shifting filtered layouts.
