@@ -26,7 +26,7 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 - **Clean Executive Design & Division Color Coding**: Rounded cards on a subtle dot-grid canvas with alternating level bands, smooth curved branch connectors, an approachable **`★ CEO`** badge, and automatic per-division HSL color tinting based on each employee's Level-1 leader.
 - **Unlimited Hierarchy Depth**: Uses Vega's `treeAncestors()` to compute depths, headcounts, and lineage across organizations of any depth.
 - **2-Line Title Wrapping**: Long job titles wrap cleanly onto a second line at word boundaries instead of being cut off with `...`.
-- **Rich Hover Tooltips with Direct Manager & Extra Metadata**: Hovering any card reveals full employee details including job title, **Direct Manager** (dynamically looked up, omitted for the CEO), any mapped **Extra 1 / 2 / 3** metadata (full untruncated text), direct report headcount, organization level, and expansion status (plus optional employee ID).
+- **Rich Hover Tooltips with Direct Manager & Extra Metadata**: Hovering any card reveals full employee details including job title, **Direct Manager** (dynamically looked up, omitted for the CEO), any mapped **Extra 1 / 2 / 3** metadata (full untruncated text), direct report headcount, and organization level (plus optional employee ID).
 - **Total Team Headcount (`👥 N`)**: Every manager card displays its total downstream headcount.
 - **Active Reporting-Line Highlighting & Branch Focus Mode**: Hover over any employee to highlight their full management chain up to the CEO and all reports. Single-click any card to lock **Branch Focus Mode** (highlights lineage and adds a 3px focus ring without moving the view). Double-click any card to **Fit & Center** its branch. Click empty canvas or Reset to exit focus.
 - **Interactive Branch Collapse & Expand**: Click **`−`** on any manager card to collapse their team, or **`+N`** to expand it again. The clicked node stays pinned exactly where it is (pan compensates for the re-layout); drag, Fit, reset, Collapse All, or clicking any card to release it.
@@ -42,7 +42,7 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 
 ## 📁 Files
 
-- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.9.4`) to paste into Deneb in Power BI.
+- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.9.5`) to paste into Deneb in Power BI.
 - [`sample-org-data.csv`](./sample-org-data.csv): Sample dataset (85 employees across 7 levels) that exercises every layout edge case: a 12-person executive team, leaf-only teams that stack (even and odd sizes, side-by-side, at Level 6), a large *mixed* team of managers and engineers (stays horizontal), a team exactly at the threshold, IDs that cross digit boundaries (`17` vs `100` vs `1000`) in shuffled input order, and `Extra 2` office cohorts (`Paris`/`London`/`New York`) scattered across teams to exercise filtering.
 - [`preview.html`](./preview.html) & [`index.html`](./index.html): Standalone HTML preview for testing in any browser (no Power BI needed; requires internet for the Vega CDN).
 - [`tools/verify-layout.js`](./tools/verify-layout.js): Automated layout checker (see [Development](#-development--layout-verification)).

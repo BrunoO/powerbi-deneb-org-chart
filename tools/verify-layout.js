@@ -262,6 +262,8 @@ async function checkTooltip() {
     issues.push('[tooltip] showIdInTooltip must default to false (IDs can be confidential)');
   if (!expr || !expr.includes('Direct Manager') || !expr.includes('managerName'))
     issues.push('[tooltip] cardBody tooltip must include Direct Manager via managerName lookup');
+  if (expr && expr.includes("'Status':"))
+    issues.push('[tooltip] Redundant UI "Status" field should be removed from tooltip');
 
   try {
     const spec = JSON.parse(JSON.stringify(baseSpec));
@@ -273,8 +275,12 @@ async function checkTooltip() {
 
     if (ceoItem && ceoItem.tooltip['Direct Manager'])
       issues.push('[tooltip] CEO must not have a Direct Manager in tooltip');
+    if (ceoItem && ceoItem.tooltip['Status'])
+      issues.push('[tooltip] CEO tooltip must not contain "Status"');
     if (vpItem && vpItem.tooltip['Direct Manager'] !== 'Sarah Jenkins')
       issues.push(`[tooltip] VP Direct Manager [${vpItem ? vpItem.tooltip['Direct Manager'] : 'none'}] != 'Sarah Jenkins'`);
+    if (vpItem && vpItem.tooltip['Status'])
+      issues.push('[tooltip] VP tooltip must not contain "Status"');
   } catch (e) { issues.push(`[tooltip] threw: ${String(e.message || e).split('\n')[0]}`); }
   return issues;
 }

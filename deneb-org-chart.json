@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.9.4 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
+  "description": "Interactive Collapsible Org Chart Visual v1.9.5 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.9.4",
+      "value": "v1.9.5",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -3530,7 +3530,7 @@
             "value": "pointer"
           },
           "tooltip": {
-            "signal": "merge({'Employee': datum.Name_clean, 'Title': datum.Title_clean}, isValid(datum.managerName) ? {'Direct Manager': datum.managerName} : {}, datum.Extra1_clean !== '' ? {'Extra 1': datum.Extra1_clean} : {}, datum.Extra2_clean !== '' ? {'Extra 2': datum.Extra2_clean} : {}, datum.Extra3_clean !== '' ? {'Extra 3': datum.Extra3_clean} : {}, {'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth, 'Status': datum.reportCount > 0 ? (datum.isCollapsed ? 'Collapsed' : 'Expanded') : 'Leaf'}, showIdInTooltip ? {'ID': datum.id} : {})"
+            "signal": "merge({'Employee': datum.Name_clean, 'Title': datum.Title_clean}, isValid(datum.managerName) ? {'Direct Manager': datum.managerName} : {}, datum.Extra1_clean !== '' ? {'Extra 1': datum.Extra1_clean} : {}, datum.Extra2_clean !== '' ? {'Extra 2': datum.Extra2_clean} : {}, datum.Extra3_clean !== '' ? {'Extra 3': datum.Extra3_clean} : {}, {'Direct Reports': datum.reportCount, 'Org Level': datum.rawDepth}, showIdInTooltip ? {'ID': datum.id} : {})"
           },
           "opacity": [
             {
@@ -4424,7 +4424,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.9.4",
+    "version": "1.9.5",
     "releaseDate": "2026-11-24",
     "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
