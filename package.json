@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node tools/verify-layout.js",
     "verify": "node tools/verify-layout.js",
-    "sync-preview": "node tools/sync-preview.js"
+    "sync-preview": "node tools/sync-preview.js",
+    "screenshots": "node tools/generate-screenshots.js --apply"
   },
   "devDependencies": {
     "vega": "^5.30.0"
