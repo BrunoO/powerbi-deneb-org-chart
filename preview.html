@@ -65,7 +65,7 @@
   <script>
     const spec = {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.7.12 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.7.13 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -73,7 +73,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.7.12",
+      "value": "v1.7.13",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -2809,6 +2809,42 @@
     },
     {
       "type": "path",
+      "name": "treeLinkCasing",
+      "interactive": false,
+      "from": {
+        "data": "tree_links"
+      },
+      "encode": {
+        "update": {
+          "path": {
+            "field": "path"
+          },
+          "stroke": {
+            "value": "#FFFFFF"
+          },
+          "strokeWidth": {
+            "value": 4.5
+          },
+          "strokeCap": {
+            "value": "round"
+          },
+          "strokeJoin": {
+            "value": "round"
+          },
+          "opacity": [
+            {
+              "test": "!hoveredId || ((datum.source.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.source.id + '\u001F') >= 0 || indexof(datum.source.ancPath, '\u001F' + hoveredId + '\u001F') >= 0) && (datum.id === hoveredId || indexof(hoveredAncPath, '\u001F' + datum.id + '\u001F') >= 0 || indexof(datum.ancPath, '\u001F' + hoveredId + '\u001F') >= 0))",
+              "value": 1
+            },
+            {
+              "value": 0.2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "path",
       "name": "treeLinkPath",
       "from": {
         "data": "tree_links"
@@ -2824,7 +2860,7 @@
               "value": "#2563EB"
             },
             {
-              "value": "#CBD5E1"
+              "value": "#94A3B8"
             }
           ],
           "strokeWidth": [
@@ -2833,7 +2869,7 @@
               "value": 2.5
             },
             {
-              "value": 1.75
+              "value": 2
             }
           ],
           "strokeCap": {
@@ -3902,7 +3938,7 @@
     }
   ],
   "usermeta": {
-    "version": "1.7.12",
+    "version": "1.7.13",
     "releaseDate": "2026-11-24",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
@@ -3930,7 +3966,8 @@
       "Focus Pinning on Toggle (clicked node stays put across re-layout)",
       "Press-Stable Pinning (anchor folds into pan before clear, no mid-gesture jump)",
       "Stacked Mode by Default (Standard tree one toggle away)",
-      "Deeper Branch Tints (L1 divisions distinguishable, pastel kept)"
+      "Deeper Branch Tints (L1 divisions distinguishable, pastel kept)",
+      "Readable Links on Bands (white casing + slate-400 core)"
     ]
   }
 };
