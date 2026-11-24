@@ -40,7 +40,7 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 
 ## 📁 Files
 
-- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.7.10`) to paste into Deneb in Power BI.
+- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.7.12`) to paste into Deneb in Power BI.
 - [`sample-org-data.csv`](./sample-org-data.csv): Sample dataset (85 employees across 7 levels) that exercises every layout edge case: a 12-person executive team, leaf-only teams that stack (even and odd sizes, side-by-side, at Level 6), a large *mixed* team of managers and engineers (stays horizontal), a team exactly at the threshold, and IDs that cross digit boundaries (`17` vs `100` vs `1000`) in shuffled input order.
 - [`preview.html`](./preview.html) & [`index.html`](./index.html): Standalone HTML preview for testing in any browser (no Power BI needed; requires internet for the Vega CDN).
 - [`tools/verify-layout.js`](./tools/verify-layout.js): Automated layout checker (see [Development](#-development--layout-verification)).
@@ -99,7 +99,7 @@ Settings live in the `signals` block at the top of the pasted spec. Exact steps:
 
 Common recipes:
 - **Start fully expanded:** `"name": "defaultCollapseDepth", "value": 1` → `"value": 99`.
-- **Start in stacked mode** (compact 2-column teams): `"name": "enableStacking", "value": false` → `"value": true`.
+- **Start in the standard horizontal tree:** `"name": "enableStacking", "value": true` → `"value": false` (stacked 2-column mode is now the default).
 - **Show employee IDs in tooltips:** `"name": "showIdInTooltip", "value": false` → `"value": true` (keep `false`: IDs can be confidential).
 - **Stack smaller teams too:** `"name": "gridThreshold", "value": 6` → `"value": 4`, for example.
 
@@ -120,7 +120,7 @@ You can adjust default behavior by editing the `signals` block at the top of [`d
 | Setting | Default | What It Controls |
 | :--- | :---: | :--- |
 | **`defaultCollapseDepth`** | `1` | Levels shown on initial load (`1` = CEO + Level-1 VPs; `2` = down to Directors; `99` = expand all). |
-| **`enableStacking`** | `false` | Set to `true` to start in 2-column stacked mode for large teams. Users can also toggle this live in the toolbar. |
+| **`enableStacking`** | `true` | Set to `false` to start in the standard horizontal tree. Users can also toggle live in the toolbar (`☵ Standard` / `☷ Stacked`). |
 | **`gridThreshold`** | `6` | A team stacks into 2 columns when it has more direct reports than this **and none of them are managers** (mixed teams stay horizontal so peers never share a row with a colleague's reports). |
 | **`stackMinDepth`** | `2` | Keeps top executives (Level 1) horizontal even when stacking is enabled. |
 | **`zoomLevel`** | `1.0` | Starting zoom level (`0.4` to `1.6`). |

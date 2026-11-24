@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23  
 **Original Scope:** `deneb-org-chart.json`, `tools/verify-layout.js`, `tools/sync-preview.js`, docs, and sample data.  
-**Status:** **Updated after `v1.7.10`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Remaining open items are low/conditional priority.
+**Status:** **Updated after `v1.7.12`.** All 5 critical items, `#6`, `#8`, `#9`, and several cleanup items are resolved and verified via `npm test`. Items `#7`, badge/toggle zoom scaling, and the `isCollapsed` duplication were fixed in `v1.7.2`; the no-root cycle fallback was fixed in `v1.7.3`. The branch palette, empty-dataset notice, and touch-mode documentation were addressed in `v1.7.4`. Double-click-to-center, zoom-to-fit, and level banding landed in `v1.7.5`. The Fit pill background fix, band centering, and the opt-in tooltip ID landed in `v1.7.6`. Optional `Extra 1-3` card lines with uniform auto-height landed in `v1.7.7`. Double-click centering was scoped to card body in `v1.7.8`. Toggle focus pinning landed in `v1.7.9`. Remaining open items are low/conditional priority.
 
 ## Summary
 
@@ -85,6 +85,18 @@ The initial review identified gaps around dirty Power BI inputs (`stratify` abor
 | # | Where | Resolution |
 |---|---|---|
 | Fix | `deneb-org-chart.json` (press handlers) + `tools/verify-layout.js` | Clearing the anchor on `mousedown` jumped the view mid-gesture because the shift vanished a pulse before the click re-armed it (visible on collapse-after-expand). Presses now fold the shift into `panX/panY` atomically before clearing, so the press itself is pixel-identical; `checkAnchor` covers the full press-then-toggle sequence. |
+
+## Resolved in `v1.7.11`
+
+| # | Where | Resolution |
+|---|---|---|
+| Change | `deneb-org-chart.json` (`enableStacking`) | Stacked mode is now the default (`true`); Standard tree is one toolbar toggle away. InitialCollapsed view is unchanged (CEO + L1 never stack), stacking appears as branches expand. README settings table and Step 5 recipe updated. |
+
+## Resolved in `v1.7.12`
+
+| # | Where | Resolution |
+|---|---|---|
+| Fix | `deneb-org-chart.json` (card/body/badge tints) | L1 divisions were indistinguishable: card wash `0.97` / badge `0.93` are near-white for any hue. Deepened to card `0.93`, badge `0.88`, stroke `0.82` → `0.78` — pastel kept, divisions tellable apart. |
 
 ## Remaining Open Items (Low / Conditional Priority)
 
