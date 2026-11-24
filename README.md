@@ -1,8 +1,8 @@
 # Power BI Interactive Collapsible Org Chart (Deneb & Vega)
 
-A clean, interactive **Collapsible Organizational Chart** for Power BI built with the **Deneb** custom visual (Vega 5).
+An interactive **Collapsible Organizational Chart** for Power BI built with the **Deneb** custom visual (Vega 5).
 
-Designed for everything from executive overviews to large 1,000+ employee organizations—with zero overlapping cards, smooth pan & zoom, and one-click branch collapsing.
+The goal is to cleanly visualize organizations with 1,000+ employees—with zero overlapping cards, smooth pan & zoom, and one-click branch collapsing.
 
 > **[🚀 Open Live Interactive Demo](https://brunoo.github.io/powerbi-deneb-org-chart/)** *(powered by GitHub Pages — click to expand, collapse, hover, pan, and zoom live in your browser)*
 
@@ -16,16 +16,16 @@ Designed for everything from executive overviews to large 1,000+ employee organi
 ### Active Reporting-Line Highlighting & 2-Line Title Wrapping
 ![Active Reporting Line Highlighting](./images/org-chart-hover-lineage.png)
 
-### Compact 2-Column Stacking (`Stacked` Mode)
+### Compact 2-Column Stacking (Stacked Mode)
 ![Compact 2-Column Stacked Mode](./images/org-chart-stacked-mode.png)
 
 ---
 
-## ✨ Key Features
+## ✨ Features
 
-- **Clean Executive Design & Division Color Coding**: Rounded cards on a subtle dot-grid canvas with alternating level bands, smooth curved branch connectors, an approachable **`★ CEO`** badge, and automatic per-division HSL color tinting based on each employee's Level-1 leader.
+- **Clean Executive Design & Division Color Coding**: Rounded cards on a subtle dot-grid canvas with alternating level bands, smooth curved branch connectors, and automatic per-division HSL color tinting based on each employee's Level-1 leader.
 - **Unlimited Hierarchy Depth**: Uses Vega's `treeAncestors()` to compute depths, headcounts, and lineage across organizations of any depth.
-- **2-Line Title Wrapping**: Long job titles wrap cleanly onto a second line at word boundaries instead of being cut off with `...`.
+- **2-Line Title Wrapping**: Long job titles wrap onto a second line at word boundaries instead of being cut off with `...`.
 - **Rich Hover Tooltips with Direct Manager & Extra Metadata**: Hovering any card reveals full employee details including job title, **Direct Manager** (dynamically looked up, omitted for the CEO), any mapped **Extra 1 / 2 / 3** metadata (full untruncated text), direct report headcount, and organization level (plus optional employee ID).
 - **Total Team Headcount (`👥 N`)**: Every manager card displays its total downstream headcount.
 - **Active Reporting-Line Highlighting & Branch Focus Mode**: Hover over any employee to highlight their full management chain up to the CEO and all reports. Single-click any card to lock **Branch Focus Mode** (highlights lineage and adds a 3px focus ring without moving the view). Double-click any card to **Fit & Center** its branch. Click empty canvas or Reset to exit focus.
