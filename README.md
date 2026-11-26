@@ -16,8 +16,8 @@ The goal is to cleanly visualize organizations with 1,000+ employees—with zero
 ### Active Reporting-Line Highlighting & 2-Line Title Wrapping
 ![Expanded branch with active reporting-line hover highlighting, enriched tooltip, and 2-line wrapped job titles.](./images/org-chart-hover-lineage.png "Expanded branch with active reporting-line hover highlighting, enriched tooltip, and 2-line wrapped job titles.")
 
-### Compact 2-Column Stacking (Stacked Mode)
-![Large leaf-only team arranged in 2-column vertical stacking connected to its real manager via a central spine.](./images/org-chart-stacked-mode.png "Large leaf-only team arranged in 2-column vertical stacking connected to its real manager via a central spine.")
+### Compact Mode (Multi-Column & Alternating Sub-Rows)
+![Large leaf-only team arranged in Compact mode connected to its real manager via a central spine.](./images/org-chart-stacked-mode.png "Large leaf-only team arranged in Compact mode connected to its real manager via a central spine.")
 
 ---
 
@@ -158,7 +158,8 @@ The repository ships a headless checker that renders the spec with Vega in Stand
 
 - every connector must go from an employee's **real manager** to the employee (no peer-to-peer chains), and every visible reporting line must be drawn exactly once;
 - no connector may pass through an unrelated card, no two managers' connector segments may overlap, and no cards may overlap;
-- stacked teams must be leaf-only, above the threshold, and laid out in 2 aligned columns in numeric-aware ID order;
+- stacked leaf-only teams must be above the threshold and laid out in 2/4/6/8 aligned columns in numeric-aware ID order, while wide horizontal bands in Compact mode pair visible-leaf siblings onto 2 alternating sub-rows;
+- Accordion mode collapses sibling branches when expanding a new one (while keeping ancestor chains open and preserving deep expansions on shallow uncollapse);
 - hovering any card must highlight exactly its reporting chain (and its own reports);
 - `preview.html` must embed the same spec as `deneb-org-chart.json`.
 

@@ -22,7 +22,7 @@ Quick reference for navigating and safely changing `deneb-org-chart.json` (Vega 
 ## Signals (key groups)
 
 ### Config / metadata
-- `versionId`, `defaultCollapseDepth`, `enableStacking`, `gridThreshold`, `stackMinDepth`, `showIdInTooltip`, `showReportingLineInTooltip`.
+- `versionId`, `defaultCollapseDepth`, `layoutMode` (`'standard'` / `'compact'`), `accordionMode`, `isHorizontal`, `gridThreshold`, `stackMinDepth`, `showIdInTooltip`, `showReportingLineInTooltip`.
 - Style constants: `activeColor`, `dimOpacity`, `fontUi`, `fontEmoji`.
 
 ### Pointer / gesture state
@@ -30,7 +30,7 @@ Quick reference for navigating and safely changing `deneb-org-chart.json` (Vega 
 - `panX`, `panY`, `zoomLevel`, `fitZoom`.
 
 ### Layout / sizing
-- `cardWidth`, `cardHeight`, `nodeSpacingX`, `nodeSpacingY`, `topMargin`, `minCanvasWidth`, `minCanvasHeight`, `width`, `height`, `toolbarOriginX`.
+- `cardWidth`, `cardHeight`, `nodeSpacingX`, `nodeSpacingY`, `breadthStep`, `depthStep`, `topMargin`, `minCanvasWidth`, `minCanvasHeight`, `width`, `height`, `toolbarOriginX`.
 
 ### Filtering / expand-collapse / focus
 - `extraFilterIdx`, `extraFilterValue`.
@@ -52,8 +52,9 @@ Quick reference for navigating and safely changing `deneb-org-chart.json` (Vega 
 | `descendant_counts` / `org_summary` / `data_with_lineage` | Totals and lineage-enriched rows. | Summary pill uses org totals. |
 | `collapsed_nodes` / `collapsed_descendants` | Collapse state expansion. | Uses unit separator (`\u001F`) for comma-safe IDs. |
 | `filter_matches` / `filter_ancestors` | Extra 2 filter visibility set. | Keeps matches + management chain. |
-| `tree_nodes` | Main visible layout/model dataset. | Computes layout, card coords, badges, labels, toggle, and highlight booleans. |
-| `depth_bands` | Alternating row bands. | Pan-aware, non-interactive. |
+| `stack_keys` | Pre-stratify `parentId\u001FstackIdx` lookup table. | Enables dynamic 2/4/6/8-column grids in `Compact` mode. |
+| `tree_nodes` | Main visible layout/model dataset. | Computes `treeBreadth`/`treeDepth`, `rawX`/`rawY`, `inPortX/Y`, `outPortX/Y`, `bandCoord`, `isSubRowLower`/`isShiftedSubRow`, badges, labels, toggle, and highlight booleans. |
+| `depth_bands` | Alternating level bands. | Groups by `bandCoord`; pan-aware, non-interactive. |
 | `subtree_members` / `subtree_boxes` | Subtree bounds for branch-fit zoom. | Used by `card_nodes`. |
 | `card_nodes` | `tree_nodes` + subtree box lookup. | **Exists only for card click branch-fit**; avoids feedback cycle with `tree_nodes`. |
 | `tree_links` | Real manager -> report connectors. | **Must not use `treelinks`**; looks up real manager by `parentId` to avoid false peer chains. |
@@ -61,7 +62,7 @@ Quick reference for navigating and safely changing `deneb-org-chart.json` (Vega 
 ## Layout / interaction invariants
 
 - **Real-manager links:** `tree_links` follows `parentId`, not `layoutParentId`.
-- **Leaf-only stacking:** stack only when `siblingManagerCount === 0`, `parentReportCount > gridThreshold`, `rawDepth >= stackMinDepth`, and stacking enabled.
+- **Leaf-only stacking & Compact bands:** stack leaf-only teams (`2/4/6/8` even columns) when `siblingManagerCount === 0`, `parentReportCount > gridThreshold`, `rawDepth >= stackMinDepth`, and `layoutMode === 'compact'`; wide non-stacked bands in `compact` mode pair consecutive visible-leaf siblings onto 2 alternating sub-rows (`isSubRowLower`, shifted left by `breadthStep / 2` when `leafRunId === 0`).
 - **Deterministic order:** numeric-aware `sortKey`; used in window/collect before stratify.
 - **Branch focus vs. branch fit:**
   - Single click (`@cardBody:click`): sets focus/active lineage, no pan/zoom shift.
