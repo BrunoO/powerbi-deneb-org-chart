@@ -403,7 +403,7 @@ async function checkAnchor() {
     if (t0.length && t0[0].anchorBaseX != null && view.signal('zoomLevel') === view.signal('anchorZoom'))
       view.signal('panX', view.signal('anchorX') - t0[0].anchorBaseX);
     if (t0.length && t0[0].anchorBaseY != null && view.signal('zoomLevel') === view.signal('anchorZoom'))
-      view.signal('panY', view.signal('anchorY') - t0[0].anchorBaseY - view.signal('topMargin'));
+      view.signal('panY', view.signal('anchorY') - t0[0].anchorBaseY);
     view.signal('anchorId', null);
     await view.runAsync();
     d = { x: Math.abs(pos('2').cardX - before.x), y: Math.abs(pos('2').cardY - before.y) };
@@ -598,6 +598,19 @@ async function checkFilterPill() {
   return issues;
 }
 
+function checkAccordion() {
+  const issues = [];
+  const accSig = baseSpec.signals.find(s => s.name === 'accordionMode');
+  if (!accSig || accSig.value !== true) issues.push('accordionMode signal missing or default != true');
+  const btn = baseSpec.marks.find(m => m.name === 'accordionBtn');
+  const txt = baseSpec.marks.find(m => m.name === 'accordionText');
+  if (!btn || !txt) issues.push('accordionBtn or accordionText toolbar mark missing');
+  const expSig = baseSpec.signals.find(s => s.name === 'expandedIds');
+  const hasAcc = expSig && expSig.on && expSig.on.some(h => h.update && h.update.includes('accordionMode') && h.update.includes('ancList'));
+  if (!hasAcc) issues.push('expandedIds toggle handler missing accordionMode sibling collapse');
+  return issues;
+}
+
 (async () => {
   const ext = process.argv[2];
   const values = ext ? loadExternal(ext) : null;
@@ -693,6 +706,10 @@ async function checkFilterPill() {
   total += fp.length;
   console.log(`${fp.length ? '✗' : '✓'} filter pill solid background, unmapped guard & anchor reset`);
   fp.forEach(i => console.log('    ' + i));
+  const ac = checkAccordion();
+  total += ac.length;
+  console.log(`${ac.length ? '✗' : '✓'} accordion mode pill present (default on) & wired to sibling collapse`);
+  ac.forEach(i => console.log('    ' + i));
   console.log(total ? `\nFAILED: ${total} issue(s)` : '\nAll layout checks passed.');
   process.exit(total ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });

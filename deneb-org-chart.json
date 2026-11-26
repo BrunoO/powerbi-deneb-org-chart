@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.10.0 for Power BI using Deneb & Vega",
+  "description": "Interactive Collapsible Org Chart Visual v1.11.0 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.10.0",
+      "value": "v1.11.0",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -26,6 +26,22 @@
           "update": "layoutMode === 'standard' ? 'compact' : 'standard'"
         }
       ]
+    },
+    {
+      "name": "accordionMode",
+      "value": true,
+      "description": "Accordion mode: when true, expanding a branch automatically collapses sibling branches while keeping the clicked node's ancestor chain open.",
+      "on": [
+        {
+          "events": "@accordionBtn:click, @accordionText:click",
+          "update": "!accordionMode"
+        }
+      ]
+    },
+    {
+      "name": "isHorizontal",
+      "value": false,
+      "description": "Orientation flag (false = Top-Down, true = Left-to-Right). Preliminary centralized port/axis switch."
     },
     {
       "name": "gridThreshold",
@@ -116,7 +132,7 @@
       "on": [
         {
           "events": "@canvasBg:mousedown, @cardBody:mousedown, @toggleBtn:mousedown, touchstart",
-          "update": "length(data('tree_nodes')) > 0 && isValid(data('tree_nodes')[0].anchorBaseY) && zoomLevel === anchorZoom ? anchorY - data('tree_nodes')[0].anchorBaseY - topMargin : panY"
+          "update": "length(data('tree_nodes')) > 0 && isValid(data('tree_nodes')[0].anchorBaseY) && zoomLevel === anchorZoom ? anchorY - data('tree_nodes')[0].anchorBaseY : panY"
         }
       ]
     },
@@ -238,7 +254,7 @@
         },
         {
           "events": "@canvasBg:mousedown, @cardBody:mousedown, @toggleBtn:mousedown, touchstart",
-          "update": "length(data('tree_nodes')) > 0 && isValid(data('tree_nodes')[0].anchorBaseY) && zoomLevel === anchorZoom ? anchorY - data('tree_nodes')[0].anchorBaseY - topMargin : panY"
+          "update": "length(data('tree_nodes')) > 0 && isValid(data('tree_nodes')[0].anchorBaseY) && zoomLevel === anchorZoom ? anchorY - data('tree_nodes')[0].anchorBaseY : panY"
         },
         {
           "events": "@cardBody:dblclick",
@@ -333,6 +349,16 @@
       "description": "Vertical distance between hierarchy level centers (spacious corridor for clean branch routing)"
     },
     {
+      "name": "breadthStep",
+      "update": "isHorizontal ? nodeSpacingY : nodeSpacingX",
+      "description": "Node spacing along the sibling-breadth axis"
+    },
+    {
+      "name": "depthStep",
+      "update": "isHorizontal ? nodeSpacingX : nodeSpacingY",
+      "description": "Node spacing along the hierarchy-depth axis"
+    },
+    {
       "name": "topMargin",
       "value": 52,
       "description": "Top margin offset reserving space for the top control bar"
@@ -357,7 +383,7 @@
     },
     {
       "name": "toolbarOriginX",
-      "update": "max(16, round(width / 2 - 422))",
+      "update": "max(16, round(width / 2 - 463))",
       "description": "Horizontal origin of the floating toolbar so it stays centered above the CEO / tree"
     },
     {
@@ -382,7 +408,7 @@
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(datum.reportCount > 0 && (!didPan || !downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, '\u001f' + datum.id + '\u001f') >= 0 ? replace(expandedIds, '\u001f' + datum.id + '\u001f', '\u001f') : expandedIds + datum.id + '\u001f') : expandedIds) : expandedIds"
+          "update": "(datum.reportCount > 0 && (!didPan || !downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride ? (datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, '\\u001F' + datum.id + '\\u001F') >= 0 ? replace(expandedIds, '\\u001F' + datum.id + '\\u001F', '\\u001F') : (accordionMode ? ('\\u001F' + join(datum.ancList, '\\u001F') + '\\u001F') : (expandedIds + datum.id + '\\u001F'))) : (accordionMode && datum.isCollapsed ? '\\u001F' : expandedIds)) : expandedIds) : expandedIds"
         },
         {
           "events": "@collapseAllBtn:click, @collapseAllText:click",
@@ -514,6 +540,10 @@
           "update": "'stackMode'"
         },
         {
+          "events": "@accordionBtn:mouseover, @accordionText:mouseover",
+          "update": "'accordion'"
+        },
+        {
           "events": "@zoomOutBtn:mouseover, @zoomOutText:mouseover",
           "update": "'zoomOut'"
         },
@@ -534,7 +564,7 @@
           "update": "'filter'"
         },
         {
-          "events": "@expandAllBtn:mouseout, @expandAllText:mouseout, @collapseAllBtn:mouseout, @collapseAllText:mouseout, @stackModeBtn:mouseout, @stackModeText:mouseout, @zoomOutBtn:mouseout, @zoomOutText:mouseout, @zoomResetBtn:mouseout, @zoomResetText:mouseout, @zoomInBtn:mouseout, @zoomInText:mouseout, @fitBtn:mouseout, @fitText:mouseout, @filterBtn:mouseout, @filterText:mouseout",
+          "events": "@expandAllBtn:mouseout, @expandAllText:mouseout, @collapseAllBtn:mouseout, @collapseAllText:mouseout, @stackModeBtn:mouseout, @stackModeText:mouseout, @accordionBtn:mouseout, @accordionText:mouseout, @zoomOutBtn:mouseout, @zoomOutText:mouseout, @zoomResetBtn:mouseout, @zoomResetText:mouseout, @zoomInBtn:mouseout, @zoomInText:mouseout, @fitBtn:mouseout, @fitText:mouseout, @filterBtn:mouseout, @filterText:mouseout",
           "update": "null"
         }
       ]
@@ -1956,16 +1986,16 @@
           "method": "tidy",
           "nodeSize": [
             {
-              "signal": "nodeSpacingX"
+              "signal": "breadthStep"
             },
             {
-              "signal": "nodeSpacingY"
+              "signal": "depthStep"
             }
           ],
           "separation": false,
           "as": [
-            "rawX",
-            "rawY",
+            "treeBreadth",
+            "treeDepth",
             "depth",
             "children"
           ]
@@ -1977,8 +2007,23 @@
         },
         {
           "type": "formula",
-          "expr": "datum.isShiftedSubRow ? (datum.rawX - (nodeSpacingX / 2)) : datum.rawX",
+          "expr": "datum.isShiftedSubRow ? (datum.treeBreadth - (breadthStep / 2)) : datum.treeBreadth",
+          "as": "treeBreadth"
+        },
+        {
+          "type": "formula",
+          "expr": "isHorizontal ? datum.treeDepth : datum.treeBreadth",
           "as": "rawX"
+        },
+        {
+          "type": "formula",
+          "expr": "isHorizontal ? datum.treeBreadth : datum.treeDepth",
+          "as": "rawY"
+        },
+        {
+          "type": "formula",
+          "expr": "isHorizontal ? datum.rawX : datum.rawY",
+          "as": "bandCoord"
         },
         {
           "type": "joinaggregate",
@@ -2003,8 +2048,13 @@
         },
         {
           "type": "formula",
-          "expr": "((width - (datum.maxX - datum.minX + cardWidth)) / 2) - datum.minX",
+          "expr": "isHorizontal ? (40 - datum.minX) : (((width - (datum.maxX - datum.minX + cardWidth)) / 2) - datum.minX)",
           "as": "originX"
+        },
+        {
+          "type": "formula",
+          "expr": "isHorizontal ? (((height - topMargin - (datum.maxY - datum.minY + cardHeight)) / 2) + topMargin - datum.minY) : topMargin",
+          "as": "originY"
         },
         {
           "type": "formula",
@@ -2013,7 +2063,7 @@
         },
         {
           "type": "formula",
-          "expr": "datum.id === anchorId ? datum.rawY : null",
+          "expr": "datum.id === anchorId ? datum.rawY + datum.originY : null",
           "as": "anchorLayoutY"
         },
         {
@@ -2038,7 +2088,7 @@
         },
         {
           "type": "formula",
-          "expr": "datum.rawY + topMargin + panY + (isValid(datum.anchorBaseY) && zoomLevel === anchorZoom ? anchorY - datum.anchorBaseY - topMargin - panY : 0)",
+          "expr": "datum.rawY + datum.originY + panY + (isValid(datum.anchorBaseY) && zoomLevel === anchorZoom ? anchorY - datum.anchorBaseY - panY : 0)",
           "as": "cardY"
         },
         {
@@ -2055,6 +2105,26 @@
           "type": "formula",
           "expr": "datum.cardY + cardHeight",
           "as": "cardBottom"
+        },
+        {
+          "type": "formula",
+          "expr": "isHorizontal ? datum.cardX : datum.centerX",
+          "as": "inPortX"
+        },
+        {
+          "type": "formula",
+          "expr": "isHorizontal ? (datum.cardY + (cardHeight / 2)) : datum.cardTop",
+          "as": "inPortY"
+        },
+        {
+          "type": "formula",
+          "expr": "isHorizontal ? (datum.cardX + cardWidth) : datum.centerX",
+          "as": "outPortX"
+        },
+        {
+          "type": "formula",
+          "expr": "isHorizontal ? (datum.cardY + (cardHeight / 2)) : datum.cardBottom",
+          "as": "outPortY"
         },
         {
           "type": "formula",
@@ -2158,17 +2228,22 @@
         },
         {
           "type": "formula",
-          "expr": "datum.centerX - (max(20, round(28 * zoomLevel)) / 2)",
+          "expr": "datum.outPortX - (max(20, round(28 * zoomLevel)) / 2)",
           "as": "toggleBtnX"
         },
         {
           "type": "formula",
-          "expr": "datum.cardBottom - (max(10, round(14 * zoomLevel)) / 2)",
+          "expr": "datum.outPortY - (max(10, round(14 * zoomLevel)) / 2)",
           "as": "toggleBtnY"
         },
         {
           "type": "formula",
-          "expr": "datum.cardBottom + 0.5",
+          "expr": "datum.outPortX",
+          "as": "toggleTextX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.outPortY + 0.5",
           "as": "toggleTextY"
         },
         {
@@ -2210,19 +2285,25 @@
         {
           "type": "aggregate",
           "groupby": [
-            "rawY"
+            "bandCoord"
+          ],
+          "fields": [
+            "cardX",
+            "cardY"
           ],
           "ops": [
-            "count"
+            "min",
+            "min"
           ],
           "as": [
-            "bandSize"
+            "bandScreenX",
+            "bandScreenY"
           ]
         },
         {
           "type": "window",
           "sort": {
-            "field": "rawY"
+            "field": "bandCoord"
           },
           "ops": [
             "row_number"
@@ -2358,17 +2439,17 @@
         },
         {
           "type": "formula",
-          "expr": "datum.isShiftedSubRow ? round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)) : round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))",
-          "as": "busY"
+          "expr": "isHorizontal ? round(datum.inPortX - ((nodeSpacingX - cardWidth) / 2)) : (datum.isShiftedSubRow ? round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)) : round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2)))",
+          "as": "busCoord"
         },
         {
           "type": "formula",
-          "expr": "min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)",
+          "expr": "isHorizontal ? min(round(6 * zoomLevel), abs(datum.inPortY - datum.source.outPortY) / 2) : min(round(6 * zoomLevel), abs(datum.inPortX - datum.source.outPortX) / 2)",
           "as": "rElbow"
         },
         {
           "type": "formula",
-          "expr": "(datum.isSubRowLower && !datum.isShiftedSubRow) ? ((abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + ((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.source.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + 'H' + (datum.centerX - min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + ',' + datum.centerX + ',' + ((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'V' + datum.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + ((round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2))) - min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.source.centerX + ',' + (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2))) + ',' + ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) > datum.source.centerX ? (datum.source.centerX + min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) : (datum.source.centerX - min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2))) + ',' + (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2))) + 'H' + ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) > datum.source.centerX ? ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) : ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2))) + 'Q' + (datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + ',' + (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2))) + ',' + (datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + ',' + ((round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2))) + min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'V' + ((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + (datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + ',' + ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + 'H' + (datum.centerX - min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + ',' + datum.centerX + ',' + ((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'V' + datum.cardTop))) : (abs(datum.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.cardTop) : (datum.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (datum.busY - datum.rElbow) + 'Q' + datum.source.centerX + ',' + datum.busY + ',' + (datum.source.centerX + datum.rElbow) + ',' + datum.busY + 'H' + (datum.centerX - datum.rElbow) + 'Q' + datum.centerX + ',' + datum.busY + ',' + datum.centerX + ',' + (datum.busY + datum.rElbow) + 'V' + datum.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (datum.busY - datum.rElbow) + 'Q' + datum.source.centerX + ',' + datum.busY + ',' + (datum.source.centerX - datum.rElbow) + ',' + datum.busY + 'H' + (datum.centerX + datum.rElbow) + 'Q' + datum.centerX + ',' + datum.busY + ',' + datum.centerX + ',' + (datum.busY + datum.rElbow) + 'V' + datum.cardTop)))",
+          "expr": "isHorizontal ? (abs(datum.inPortY - datum.source.outPortY) < 1 ? ('M' + datum.source.outPortX + ',' + datum.source.outPortY + 'H' + datum.inPortX) : (datum.inPortY > datum.source.outPortY ? ('M' + datum.source.outPortX + ',' + datum.source.outPortY + 'H' + (datum.busCoord - datum.rElbow) + 'Q' + datum.busCoord + ',' + datum.source.outPortY + ',' + datum.busCoord + ',' + (datum.source.outPortY + datum.rElbow) + 'V' + (datum.inPortY - datum.rElbow) + 'Q' + datum.busCoord + ',' + datum.inPortY + ',' + (datum.busCoord + datum.rElbow) + ',' + datum.inPortY + 'H' + datum.inPortX) : ('M' + datum.source.outPortX + ',' + datum.source.outPortY + 'H' + (datum.busCoord - datum.rElbow) + 'Q' + datum.busCoord + ',' + datum.source.outPortY + ',' + datum.busCoord + ',' + (datum.source.outPortY - datum.rElbow) + 'V' + (datum.inPortY + datum.rElbow) + 'Q' + datum.busCoord + ',' + datum.inPortY + ',' + (datum.busCoord + datum.rElbow) + ',' + datum.inPortY + 'H' + datum.inPortX))) : ((datum.isSubRowLower && !datum.isShiftedSubRow) ? ((abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.outPortX) < 1 ? ('M' + datum.source.outPortX + ',' + datum.source.outPortY + 'V' + ((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - min(round(6 * zoomLevel), abs(datum.inPortX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.source.outPortX + ',' + (round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) + ',' + (datum.source.outPortX + min(round(6 * zoomLevel), abs(datum.inPortX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + ',' + (round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) + 'H' + (datum.inPortX - min(round(6 * zoomLevel), abs(datum.inPortX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.inPortX + ',' + (round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) + ',' + datum.inPortX + ',' + ((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) + min(round(6 * zoomLevel), abs(datum.inPortX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'V' + datum.inPortY) : ('M' + datum.source.outPortX + ',' + datum.source.outPortY + 'V' + ((round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2))) - min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.outPortX) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.source.outPortX + ',' + (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2))) + ',' + ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) > datum.source.outPortX ? (datum.source.outPortX + min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.outPortX) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) : (datum.source.outPortX - min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.outPortX) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2))) + ',' + (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2))) + 'H' + ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) > datum.source.outPortX ? ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.outPortX) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) : ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.outPortX) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2))) + 'Q' + (datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + ',' + (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2))) + ',' + (datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + ',' + ((round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2))) + min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.outPortX) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'V' + ((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - min(round(6 * zoomLevel), abs(datum.inPortX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + (datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + ',' + (round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) + ',' + ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + min(round(6 * zoomLevel), abs(datum.inPortX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + ',' + (round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) + 'H' + (datum.inPortX - min(round(6 * zoomLevel), abs(datum.inPortX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.inPortX + ',' + (round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) + ',' + datum.inPortX + ',' + ((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) + min(round(6 * zoomLevel), abs(datum.inPortX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.inPortY - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.outPortY + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'V' + datum.inPortY))) : (abs(datum.inPortX - datum.source.outPortX) < 1 ? ('M' + datum.source.outPortX + ',' + datum.source.outPortY + 'V' + datum.inPortY) : (datum.inPortX > datum.source.outPortX ? ('M' + datum.source.outPortX + ',' + datum.source.outPortY + 'V' + (datum.busCoord - datum.rElbow) + 'Q' + datum.source.outPortX + ',' + datum.busCoord + ',' + (datum.source.outPortX + datum.rElbow) + ',' + datum.busCoord + 'H' + (datum.inPortX - datum.rElbow) + 'Q' + datum.inPortX + ',' + datum.busCoord + ',' + datum.inPortX + ',' + (datum.busCoord + datum.rElbow) + 'V' + datum.inPortY) : ('M' + datum.source.outPortX + ',' + datum.source.outPortY + 'V' + (datum.busCoord - datum.rElbow) + 'Q' + datum.source.outPortX + ',' + datum.busCoord + ',' + (datum.source.outPortX - datum.rElbow) + ',' + datum.busCoord + 'H' + (datum.inPortX + datum.rElbow) + 'Q' + datum.inPortX + ',' + datum.busCoord + ',' + datum.inPortX + ',' + (datum.busCoord + datum.rElbow) + 'V' + datum.inPortY))))",
           "as": "path"
         }
       ]
@@ -2445,16 +2526,16 @@
       "encode": {
         "update": {
           "x": {
-            "value": 0
+            "signal": "isHorizontal ? (datum.bandScreenX - (nodeSpacingX - cardWidth) / 2) : 0"
           },
           "y": {
-            "signal": "datum.rawY + topMargin + panY - (nodeSpacingY - cardHeight) / 2"
+            "signal": "isHorizontal ? topMargin : (datum.bandScreenY - (nodeSpacingY - cardHeight) / 2)"
           },
           "width": {
-            "signal": "width"
+            "signal": "isHorizontal ? nodeSpacingX : width"
           },
           "height": {
-            "signal": "nodeSpacingY"
+            "signal": "isHorizontal ? (height - topMargin) : nodeSpacingY"
           },
           "fill": {
             "signal": "datum.bandIdx % 2 === 0 ? '#F1F5F9' : 'rgba(0,0,0,0)'"
@@ -2504,7 +2585,7 @@
             }
           ],
           "x": {
-            "signal": "toolbarOriginX + 244"
+            "signal": "toolbarOriginX + 285"
           },
           "y": {
             "value": 6
@@ -2521,7 +2602,7 @@
             "value": 15
           },
           "width": {
-            "value": 489
+            "value": 571
           },
           "height": {
             "value": 32
@@ -2549,7 +2630,7 @@
             "value": 14
           },
           "width": {
-            "value": 489
+            "value": 571
           },
           "height": {
             "value": 32
@@ -2849,6 +2930,98 @@
       }
     },
     {
+      "type": "rect",
+      "name": "accordionBtn",
+      "encode": {
+        "enter": {
+          "y": {
+            "value": 17
+          },
+          "width": {
+            "value": 78
+          },
+          "height": {
+            "value": 26
+          },
+          "cornerRadius": {
+            "value": 13
+          },
+          "cursor": {
+            "value": "pointer"
+          }
+        },
+        "update": {
+          "fill": [
+            {
+              "test": "hoveredToolbarBtn === 'accordion' && accordionMode",
+              "value": "#DBEAFE"
+            },
+            {
+              "test": "hoveredToolbarBtn === 'accordion'",
+              "value": "#F1F5F9"
+            },
+            {
+              "test": "accordionMode",
+              "value": "#EFF6FF"
+            },
+            {
+              "value": "transparent"
+            }
+          ],
+          "x": {
+            "signal": "toolbarOriginX + 290"
+          },
+          "stroke": [
+            {
+              "test": "accordionMode",
+              "value": "#BFDBFE"
+            },
+            {
+              "value": "transparent"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "accordionText",
+      "encode": {
+        "update": {
+          "x": {
+            "signal": "toolbarOriginX + 329"
+          },
+          "y": {
+            "value": 30
+          },
+          "text": {
+            "value": "⇅ Accordion"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontSize": {
+            "value": 10.5
+          },
+          "fontWeight": {
+            "value": "600"
+          },
+          "fill": {
+            "signal": "accordionMode ? '#2563EB' : '#475569'"
+          },
+          "cursor": {
+            "value": "pointer"
+          },
+          "font": {
+            "signal": "fontUi"
+          }
+        }
+      }
+    },
+    {
       "type": "rule",
       "name": "toolbarDivider2",
       "encode": {
@@ -2868,10 +3041,10 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 292"
+            "signal": "toolbarOriginX + 374"
           },
           "x2": {
-            "signal": "toolbarOriginX + 292"
+            "signal": "toolbarOriginX + 374"
           }
         }
       }
@@ -2908,7 +3081,7 @@
             }
           ],
           "x": {
-            "signal": "toolbarOriginX + 298"
+            "signal": "toolbarOriginX + 380"
           }
         }
       }
@@ -2948,7 +3121,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 311"
+            "signal": "toolbarOriginX + 393"
           }
         }
       }
@@ -2985,7 +3158,7 @@
             }
           ],
           "x": {
-            "signal": "toolbarOriginX + 328"
+            "signal": "toolbarOriginX + 410"
           }
         }
       }
@@ -2996,7 +3169,7 @@
       "encode": {
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 370"
+            "signal": "toolbarOriginX + 452"
           },
           "y": {
             "value": 30
@@ -3060,7 +3233,7 @@
             }
           ],
           "x": {
-            "signal": "toolbarOriginX + 416"
+            "signal": "toolbarOriginX + 498"
           }
         }
       }
@@ -3100,7 +3273,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 429"
+            "signal": "toolbarOriginX + 511"
           }
         }
       }
@@ -3137,7 +3310,7 @@
             }
           ],
           "x": {
-            "signal": "toolbarOriginX + 448"
+            "signal": "toolbarOriginX + 530"
           }
         }
       }
@@ -3177,7 +3350,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 466"
+            "signal": "toolbarOriginX + 548"
           }
         }
       }
@@ -3206,7 +3379,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 490"
+            "signal": "toolbarOriginX + 572"
           },
           "opacity": [
             {
@@ -3250,7 +3423,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 490"
+            "signal": "toolbarOriginX + 572"
           },
           "opacity": [
             {
@@ -3284,7 +3457,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 494"
+            "signal": "toolbarOriginX + 576"
           },
           "cursor": [
             {
@@ -3345,7 +3518,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 546"
+            "signal": "toolbarOriginX + 628"
           },
           "cursor": [
             {
@@ -3398,7 +3571,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 610"
+            "signal": "toolbarOriginX + 692"
           }
         }
       }
@@ -3433,7 +3606,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 610"
+            "signal": "toolbarOriginX + 692"
           }
         }
       }
@@ -3448,7 +3621,7 @@
       "encode": {
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 705"
+            "signal": "toolbarOriginX + 787"
           },
           "y": {
             "value": 30
@@ -3509,7 +3682,7 @@
         },
         "update": {
           "x": {
-            "signal": "toolbarOriginX + 810"
+            "signal": "toolbarOriginX + 892"
           }
         }
       }
@@ -4577,7 +4750,7 @@
       "encode": {
         "update": {
           "x": {
-            "field": "centerX"
+            "field": "toggleTextX"
           },
           "y": {
             "field": "toggleTextY"
@@ -4646,10 +4819,10 @@
       "encode": {
         "update": {
           "x": {
-            "field": "centerX"
+            "field": "inPortX"
           },
           "y": {
-            "field": "cardTop"
+            "field": "inPortY"
           },
           "shape": {
             "value": "circle"
@@ -4696,11 +4869,12 @@
     }
   ],
   "usermeta": {
-    "version": "1.10.0",
+    "version": "1.11.0",
     "releaseDate": "2026-11-26",
     "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
+      "Accordion Mode Toolbar Pill (Auto-Collapse Sibling Branches, Default On)",
       "Unlimited Hierarchy Depth via Vega treeAncestors()",
       "Branch / Division Color Coding with HSL Tinting",
       "Configurable Layout Mode (Standard Tree vs Compact Mode)",
