@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "description": "Interactive Collapsible Org Chart Visual v1.9.6 for Power BI using Deneb & Vega (source: https://github.com/BrunoO/powerbi-deneb-org-chart)",
+  "description": "Interactive Collapsible Org Chart Visual v1.10.0 for Power BI using Deneb & Vega",
   "width": 1400,
   "height": 550,
   "padding": 15,
@@ -8,7 +8,7 @@
   "signals": [
     {
       "name": "versionId",
-      "value": "v1.9.6",
+      "value": "v1.10.0",
       "description": "Specification version identifier for tracking in Power BI projects"
     },
     {
@@ -17,13 +17,13 @@
       "description": "Initial collapse level: 1 collapses managers at Level 1 and below (shows Level 0 and 1 on load). Set to 2 to show through Level 2, or 99 to expand all."
     },
     {
-      "name": "enableStacking",
-      "value": true,
-      "description": "Layout mode: true stacks large individual-contributor teams (> gridThreshold reports, no managers among them) into 2 vertical columns connected to their manager by a central spine; false renders the standard tree with all direct reports on one horizontal bus line.",
+      "name": "layoutMode",
+      "value": "compact",
+      "description": "Layout mode: 'compact' (auto 2/4/6/8-column grid for large leaf teams + 2 alternating sub-rows for wide horizontal bands) or 'standard' (single-row horizontal tree).",
       "on": [
         {
           "events": "@stackModeBtn:click, @stackModeText:click",
-          "update": "!enableStacking"
+          "update": "layoutMode === 'standard' ? 'compact' : 'standard'"
         }
       ]
     },
@@ -377,39 +377,39 @@
     },
     {
       "name": "expandedIds",
-      "value": "\u001F",
+      "value": "\u001f",
       "description": "Unit-separator-delimited string of node IDs that were collapsed by default and explicitly expanded",
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(datum.reportCount > 0 && (!didPan || !downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, '\u001F' + datum.id + '\u001F') >= 0 ? replace(expandedIds, '\u001F' + datum.id + '\u001F', '\u001F') : expandedIds + datum.id + '\u001F') : expandedIds) : expandedIds"
+          "update": "(datum.reportCount > 0 && (!didPan || !downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, '\u001f' + datum.id + '\u001f') >= 0 ? replace(expandedIds, '\u001f' + datum.id + '\u001f', '\u001f') : expandedIds + datum.id + '\u001f') : expandedIds) : expandedIds"
         },
         {
           "events": "@collapseAllBtn:click, @collapseAllText:click",
-          "update": "'\u001F'"
+          "update": "'\u001f'"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
-          "update": "'\u001F'"
+          "update": "'\u001f'"
         }
       ]
     },
     {
       "name": "collapsedIds",
-      "value": "\u001F",
+      "value": "\u001f",
       "description": "Unit-separator-delimited string of node IDs that were expanded by default (or via Expand All) and explicitly collapsed",
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(datum.reportCount > 0 && (!didPan || !downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? ((expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, '\u001F' + datum.id + '\u001F') >= 0 ? replace(collapsedIds, '\u001F' + datum.id + '\u001F', '\u001F') : collapsedIds + datum.id + '\u001F') : collapsedIds) : collapsedIds"
+          "update": "(datum.reportCount > 0 && (!didPan || !downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? ((expandAllOverride || datum.rawDepth < defaultCollapseDepth) ? (indexof(collapsedIds, '\u001f' + datum.id + '\u001f') >= 0 ? replace(collapsedIds, '\u001f' + datum.id + '\u001f', '\u001f') : collapsedIds + datum.id + '\u001f') : collapsedIds) : collapsedIds"
         },
         {
           "events": "@expandAllBtn:click, @expandAllText:click",
-          "update": "'\u001F'"
+          "update": "'\u001f'"
         },
         {
           "events": "@collapseAllBtn:click, @collapseAllText:click",
-          "update": "'\u001F'"
+          "update": "'\u001f'"
         }
       ]
     },
@@ -1449,7 +1449,7 @@
         },
         {
           "type": "formula",
-          "expr": "length(datum.ancOnly) > 0 ? ('\u001F' + join(datum.ancOnly, '\u001F') + '\u001F') : ''",
+          "expr": "length(datum.ancOnly) > 0 ? ('\u001f' + join(datum.ancOnly, '\u001f') + '\u001f') : ''",
           "as": "ancPath"
         },
         {
@@ -1567,7 +1567,7 @@
         },
         {
           "type": "formula",
-          "expr": "expandAllOverride ? indexof(collapsedIds, '\u001F' + datum.id + '\u001F') >= 0 : (datum.rawDepth >= defaultCollapseDepth ? indexof(expandedIds, '\u001F' + datum.id + '\u001F') < 0 : indexof(collapsedIds, '\u001F' + datum.id + '\u001F') >= 0)",
+          "expr": "expandAllOverride ? indexof(collapsedIds, '\u001f' + datum.id + '\u001f') >= 0 : (datum.rawDepth >= defaultCollapseDepth ? indexof(expandedIds, '\u001f' + datum.id + '\u001f') < 0 : indexof(collapsedIds, '\u001f' + datum.id + '\u001f') >= 0)",
           "as": "isSelfCollapsed"
         }
       ]
@@ -1669,6 +1669,99 @@
       ]
     },
     {
+      "name": "stack_keys",
+      "source": "data_with_lineage",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "!indata('collapsed_descendants', 'id', datum.id) && (extraFilterValue === '' || indata('filter_matches', 'id', datum.id) || indata('filter_ancestors', 'ancestorId', datum.id))"
+        },
+        {
+          "type": "lookup",
+          "from": "report_counts",
+          "key": "parentId",
+          "fields": [
+            "parentId"
+          ],
+          "values": [
+            "reportCount"
+          ],
+          "as": [
+            "parentReportCount"
+          ],
+          "default": 0
+        },
+        {
+          "type": "formula",
+          "expr": "isFinite(toNumber(datum.id)) ? ('0' + pad(datum.id, 15, '0', 'left')) : ('1' + datum.id)",
+          "as": "sortKey"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.reportCount > 0 ? 1 : 0",
+          "as": "isManagerFlag"
+        },
+        {
+          "type": "joinaggregate",
+          "groupby": [
+            "parentId"
+          ],
+          "fields": [
+            "isManagerFlag"
+          ],
+          "ops": [
+            "sum"
+          ],
+          "as": [
+            "siblingManagerCount"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "layoutMode !== 'standard' && isValid(datum.parentId) && datum.rawDepth >= stackMinDepth && datum.parentReportCount > gridThreshold && datum.siblingManagerCount === 0",
+          "as": "isStacked"
+        },
+        {
+          "type": "window",
+          "groupby": [
+            "parentId",
+            "isStacked"
+          ],
+          "sort": {
+            "field": "sortKey"
+          },
+          "ops": [
+            "row_number"
+          ],
+          "fields": [
+            null
+          ],
+          "params": [
+            null
+          ],
+          "as": [
+            "stackIdx"
+          ]
+        },
+        {
+          "type": "filter",
+          "expr": "datum.isStacked"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.parentId + '\\u001F' + datum.stackIdx",
+          "as": "stackKey"
+        },
+        {
+          "type": "project",
+          "fields": [
+            "stackKey",
+            "id"
+          ]
+        }
+      ]
+    },
+    {
       "name": "tree_nodes",
       "source": "data_with_lineage",
       "transform": [
@@ -1718,14 +1811,58 @@
         },
         {
           "type": "formula",
-          "expr": "enableStacking && isValid(datum.parentId) && datum.rawDepth >= stackMinDepth && datum.parentReportCount > gridThreshold && datum.siblingManagerCount === 0",
+          "expr": "layoutMode !== 'standard' && isValid(datum.parentId) && datum.rawDepth >= stackMinDepth && datum.parentReportCount > gridThreshold && datum.siblingManagerCount === 0",
           "as": "isStacked"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.isStacked ? (datum.parentReportCount <= 10 ? 2 : (datum.parentReportCount <= 24 ? 4 : (datum.parentReportCount <= 48 ? 6 : 8))) : 1",
+          "as": "stackCols"
+        },
+        {
+          "type": "formula",
+          "expr": "expandAllOverride ? indexof(collapsedIds, '\\u001F' + datum.id + '\\u001F') >= 0 : (datum.rawDepth >= defaultCollapseDepth ? indexof(expandedIds, '\\u001F' + datum.id + '\\u001F') < 0 : indexof(collapsedIds, '\\u001F' + datum.id + '\\u001F') >= 0)",
+          "as": "isCollapsed"
+        },
+        {
+          "type": "formula",
+          "expr": "(datum.isCollapsed || datum.reportCount === 0) ? 1 : 0",
+          "as": "isVisibleLeaf"
+        },
+        {
+          "type": "formula",
+          "expr": "1 - datum.isVisibleLeaf",
+          "as": "isNonLeafFlag"
+        },
+        {
+          "type": "window",
+          "groupby": [
+            "parentId"
+          ],
+          "sort": {
+            "field": "sortKey"
+          },
+          "ops": [
+            "sum"
+          ],
+          "fields": [
+            "isNonLeafFlag"
+          ],
+          "as": [
+            "leafRunId"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "layoutMode === 'compact' && !datum.isStacked && isValid(datum.parentId) && datum.parentReportCount > gridThreshold && datum.isVisibleLeaf === 1",
+          "as": "isCompactPairEligible"
         },
         {
           "type": "window",
           "groupby": [
             "parentId",
-            "isStacked"
+            "leafRunId",
+            "isCompactPairEligible"
           ],
           "sort": {
             "field": "sortKey"
@@ -1740,16 +1877,67 @@
           ],
           "params": [
             null,
-            2
+            1
           ],
           "as": [
-            "stackIdx",
-            "lag2Id"
+            "pairIdx",
+            "prevLeafId"
           ]
         },
         {
           "type": "formula",
-          "expr": "(datum.isStacked && datum.stackIdx > 2 && isValid(datum.lag2Id)) ? datum.lag2Id : datum.parentId",
+          "expr": "datum.isCompactPairEligible && (datum.pairIdx % 2 === 0) && isValid(datum.prevLeafId)",
+          "as": "isSubRowLower"
+        },
+        {
+          "type": "window",
+          "groupby": [
+            "parentId",
+            "isStacked"
+          ],
+          "sort": {
+            "field": "sortKey"
+          },
+          "ops": [
+            "row_number"
+          ],
+          "fields": [
+            null
+          ],
+          "params": [
+            null
+          ],
+          "as": [
+            "stackIdx"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "datum.isStacked ? (datum.parentId + '\\u001F' + datum.stackIdx) : null",
+          "as": "stackKey"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.isStacked && datum.stackIdx > datum.stackCols ? (datum.parentId + '\\u001F' + (datum.stackIdx - datum.stackCols)) : null",
+          "as": "prevRowStackKey"
+        },
+        {
+          "type": "lookup",
+          "from": "stack_keys",
+          "key": "stackKey",
+          "fields": [
+            "prevRowStackKey"
+          ],
+          "values": [
+            "id"
+          ],
+          "as": [
+            "prevRowId"
+          ]
+        },
+        {
+          "type": "formula",
+          "expr": "datum.isStacked && isValid(datum.prevRowId) ? datum.prevRowId : (datum.isSubRowLower ? datum.prevLeafId : datum.parentId)",
           "as": "layoutParentId"
         },
         {
@@ -1781,6 +1969,16 @@
             "depth",
             "children"
           ]
+        },
+        {
+          "type": "formula",
+          "expr": "datum.isSubRowLower && datum.leafRunId === 0",
+          "as": "isShiftedSubRow"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.isShiftedSubRow ? (datum.rawX - (nodeSpacingX / 2)) : datum.rawX",
+          "as": "rawX"
         },
         {
           "type": "joinaggregate",
@@ -2160,7 +2358,17 @@
         },
         {
           "type": "formula",
-          "expr": "abs(datum.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.cardTop) : (datum.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.source.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + (datum.source.centerX - min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + 'H' + (datum.centerX + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'Q' + datum.centerX + ',' + round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + ',' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)) + 'V' + datum.cardTop))",
+          "expr": "datum.isShiftedSubRow ? round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)) : round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))",
+          "as": "busY"
+        },
+        {
+          "type": "formula",
+          "expr": "min(round(6 * zoomLevel), abs(datum.centerX - datum.source.centerX) / 2)",
+          "as": "rElbow"
+        },
+        {
+          "type": "formula",
+          "expr": "(datum.isSubRowLower && !datum.isShiftedSubRow) ? ((abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + ((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.source.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + ',' + (datum.source.centerX + min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + 'H' + (datum.centerX - min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + ',' + datum.centerX + ',' + ((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'V' + datum.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + ((round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2))) - min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.source.centerX + ',' + (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2))) + ',' + ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) > datum.source.centerX ? (datum.source.centerX + min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) : (datum.source.centerX - min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2))) + ',' + (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2))) + 'H' + ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) > datum.source.centerX ? ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) : ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2))) + 'Q' + (datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + ',' + (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2))) + ',' + (datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + ',' + ((round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2))) + min(round(6 * zoomLevel), abs((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) - datum.source.centerX) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'V' + ((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + (datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + ',' + ((datum.cardX - ((nodeSpacingX - cardWidth) / 2)) + min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + 'H' + (datum.centerX - min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'Q' + datum.centerX + ',' + (round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + ',' + datum.centerX + ',' + ((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) + min(round(6 * zoomLevel), abs(datum.centerX - (datum.cardX - ((nodeSpacingX - cardWidth) / 2))) / 2, abs((round(datum.cardTop - ((nodeSpacingY - cardHeight) / 2))) - (round(datum.source.cardBottom + ((nodeSpacingY - cardHeight) / 2)))) / 2)) + 'V' + datum.cardTop))) : (abs(datum.centerX - datum.source.centerX) < 1 ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + datum.cardTop) : (datum.centerX > datum.source.centerX ? ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (datum.busY - datum.rElbow) + 'Q' + datum.source.centerX + ',' + datum.busY + ',' + (datum.source.centerX + datum.rElbow) + ',' + datum.busY + 'H' + (datum.centerX - datum.rElbow) + 'Q' + datum.centerX + ',' + datum.busY + ',' + datum.centerX + ',' + (datum.busY + datum.rElbow) + 'V' + datum.cardTop) : ('M' + datum.source.centerX + ',' + datum.source.cardBottom + 'V' + (datum.busY - datum.rElbow) + 'Q' + datum.source.centerX + ',' + datum.busY + ',' + (datum.source.centerX - datum.rElbow) + ',' + datum.busY + 'H' + (datum.centerX + datum.rElbow) + 'Q' + datum.centerX + ',' + datum.busY + ',' + datum.centerX + ',' + (datum.busY + datum.rElbow) + 'V' + datum.cardTop)))",
           "as": "path"
         }
       ]
@@ -2572,7 +2780,7 @@
         "update": {
           "fill": [
             {
-              "test": "hoveredToolbarBtn === 'stackMode' && enableStacking",
+              "test": "hoveredToolbarBtn === 'stackMode' && layoutMode !== 'standard'",
               "value": "#DBEAFE"
             },
             {
@@ -2580,7 +2788,7 @@
               "value": "#F1F5F9"
             },
             {
-              "test": "enableStacking",
+              "test": "layoutMode !== 'standard'",
               "value": "#EFF6FF"
             },
             {
@@ -2589,7 +2797,16 @@
           ],
           "x": {
             "signal": "toolbarOriginX + 194"
-          }
+          },
+          "stroke": [
+            {
+              "test": "layoutMode !== 'standard'",
+              "value": "#BFDBFE"
+            },
+            {
+              "value": "transparent"
+            }
+          ]
         }
       }
     },
@@ -2605,7 +2822,7 @@
             "value": 30
           },
           "text": {
-            "signal": "enableStacking ? '☷ Stacked' : '☵ Standard'"
+            "signal": "layoutMode === 'compact' ? '⊞ Compact' : '☵ Standard'"
           },
           "align": {
             "value": "center"
@@ -2620,7 +2837,7 @@
             "value": "600"
           },
           "fill": {
-            "signal": "enableStacking ? activeColor : '#475569'"
+            "signal": "layoutMode !== 'standard' ? '#2563EB' : '#475569'"
           },
           "cursor": {
             "value": "pointer"
@@ -4479,14 +4696,14 @@
     }
   ],
   "usermeta": {
-    "version": "1.9.6",
-    "releaseDate": "2026-11-24",
+    "version": "1.10.0",
+    "releaseDate": "2026-11-26",
     "repository": "https://github.com/BrunoO/powerbi-deneb-org-chart",
     "features": [
       "Cursor-Anchored Wheel Zoom, Drag-Anywhere Pan & Double-Click Reset",
       "Unlimited Hierarchy Depth via Vega treeAncestors()",
       "Branch / Division Color Coding with HSL Tinting",
-      "Configurable Stacking Mode (Standard Tree vs 2-Column Stacking)",
+      "Configurable Layout Mode (Standard Tree vs Compact Mode)",
       "True Reporting-Line Links in Stacked Mode (No Peer-to-Peer Chains)",
       "Leaf-Only Team Stacking with Numeric-Aware Deterministic Ordering",
       "Rounded Orthogonal Connector Elbows (6px Bézier) & Anchor Dots",

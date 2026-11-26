@@ -92,9 +92,10 @@ async function runScenario(sc, values) {
   const spec = JSON.parse(JSON.stringify(baseSpec));
   spec.width = 4000;
   spec.height = 2400;
+  const mode = sc.mode || (sc.stacking ? 'stacked' : 'standard');
   for (const s of spec.signals) {
     if (s.name === 'defaultCollapseDepth') s.value = sc.collapseDepth;
-    if (s.name === 'enableStacking') s.value = sc.stacking;
+    if (s.name === 'layoutMode') s.value = mode;
     if (s.name === 'zoomLevel') s.value = sc.zoom;
   }
   const rows = sc.values !== undefined ? sc.values : values;
@@ -187,19 +188,32 @@ async function runScenario(sc, values) {
   for (const [pid, team] of teams) {
     const mgr = byId.get(pid);
     const leafOnly = team.every(n => !n.reportCount);
-    const shouldStack = sc.stacking && team.length > threshold && leafOnly && team[0].rawDepth >= minDepth;
+    const shouldStack = mode !== 'standard' && team.length > threshold && leafOnly && team[0].rawDepth >= minDepth;
     const stacked = team.filter(n => n.isStacked).length;
     if (shouldStack && stacked !== team.length) fail('stacking', `team of ${name(mgr)} should be stacked (${stacked}/${team.length})`);
     if (!shouldStack && stacked) fail('stacking', `team of ${name(mgr)} must not be stacked (${stacked}/${team.length})`);
     if (shouldStack) {
       const ordered = [...team].sort(numericAware);
-      const colX = [ordered[0].cardX, ordered[1].cardX];
+      const cols = ordered[0].stackCols || 2;
+      const colX = Array.from({ length: Math.min(cols, ordered.length) }, (_, c) => ordered[c].cardX);
       ordered.forEach((n, i) => {
-        const row = Math.floor(i / 2), col = i % 2;
+        const row = Math.floor(i / cols), col = i % cols;
         if (Math.abs(n.cardX - colX[col]) > 0.5 || Math.abs(n.cardTop - (ordered[0].cardTop + row * spacingY)) > 0.5)
-          fail('stacking', `${name(n)} is not at row ${row}, column ${col} of ${name(mgr)}'s stack`);
+          fail('stacking', `${name(n)} is not at row ${row}, column ${col} of ${name(mgr)}'s ${cols}-column stack`);
       });
-      if (!(colX[0] < colX[1])) fail('stacking', `${name(mgr)}'s stack columns are not ordered left -> right`);
+      for (let c = 1; c < colX.length; c++) {
+        if (!(colX[c - 1] < colX[c])) fail('stacking', `${name(mgr)}'s stack columns are not ordered left -> right`);
+      }
+    } else if (mode === 'compact' && team.some(n => n.isSubRowLower)) {
+      const spacingX = view.signal('nodeSpacingX');
+      const upperYs = new Set(team.filter(n => !n.isSubRowLower).map(n => n.cardTop));
+      if (upperYs.size !== 1) fail('stacking', `compact upper sub-row of ${name(mgr)} spans ${upperYs.size} rows`);
+      for (const n of team.filter(n => n.isSubRowLower)) {
+        const prev = byId.get(n.prevLeafId);
+        const expectedX = prev ? prev.cardX - (n.isShiftedSubRow ? spacingX / 2 : 0) : NaN;
+        if (!prev || Math.abs(n.cardX - expectedX) > 0.5 || Math.abs(n.cardTop - (prev.cardTop + spacingY)) > 0.5)
+          fail('stacking', `lower sub-row ${name(n)} is not aligned beneath ${prev ? name(prev) : n.prevLeafId}`);
+      }
     } else {
       const ys = new Set(team.map(n => n.cardTop));
       if (ys.size !== 1) fail('stacking', `non-stacked team of ${name(mgr)} spans ${ys.size} rows`);
@@ -225,7 +239,7 @@ async function runScenario(sc, values) {
     view.signal('hoveredId', null).signal('hoveredAncPath', '');
   }
   const stackedTeams = [...teams.values()].filter(t => t[0].isStacked).length;
-  if (!values && sc.stacking && sc.collapseDepth === 99 && stackedTeams === 0) {
+  if (!values && (sc.mode || (sc.stacking ? 'stacked' : 'standard')) !== 'standard' && sc.collapseDepth === 99 && stackedTeams === 0) {
     fail('sanity', 'expected at least 1 stacked team in expanded Stacked mode on sample data');
   }
   return { nodes: nodes.length, links: links.length, stackedTeams, issues };
@@ -588,11 +602,23 @@ async function checkFilterPill() {
   const ext = process.argv[2];
   const values = ext ? loadExternal(ext) : null;
   const scenarios = [];
-  for (const stacking of [false, true]) {
-    scenarios.push({ stacking, collapseDepth: 1, zoom: 1, hover: false });
-    for (const zoom of [1, 0.4, 1.6]) scenarios.push({ stacking, collapseDepth: 99, zoom, hover: zoom === 1 });
+  for (const mode of ['standard', 'compact']) {
+    scenarios.push({ mode, collapseDepth: 1, zoom: 1, hover: false });
+    for (const zoom of [1, 0.4, 1.6]) scenarios.push({ mode, collapseDepth: 99, zoom, hover: zoom === 1 });
   }
   if (!ext) {
+    const fiftyDirectors = [
+      { ID: '1', ParentID: null, Name: 'CEO', Title: 'CEO' },
+      { ID: '2', ParentID: '1', Name: 'VP', Title: 'VP' }
+    ];
+    for (let i = 3; i <= 52; i++) {
+      fiftyDirectors.push({ ID: String(i), ParentID: '2', Name: 'Dir ' + i, Title: 'Director' });
+      fiftyDirectors.push({ ID: String(100 + i), ParentID: String(i), Name: 'Rep ' + i, Title: 'Eng' });
+    }
+    scenarios.push({ mode: 'compact', collapseDepth: 2, zoom: 1, hover: false, values: fiftyDirectors, tag: '50 collapsed dirs' });
+    const fiftyLeaves = [{ ID: '1', ParentID: null, Name: 'CEO', Title: 'CEO' }, { ID: '2', ParentID: '1', Name: 'Dir', Title: 'Dir' }];
+    for (let i = 3; i <= 52; i++) fiftyLeaves.push({ ID: String(i), ParentID: '2', Name: 'IC ' + i, Title: 'Eng' });
+    scenarios.push({ mode: 'compact', collapseDepth: 99, zoom: 1, hover: false, values: fiftyLeaves, tag: '50 leaf reports' });
     // Pure-cycle datasets (no blank ParentID): fallback_root elects a root so the chart renders.
     const CYCLE_TWO = [
       { ID: 'A', ParentID: 'B', Name: 'A', Title: 't' },
@@ -617,7 +643,8 @@ async function checkFilterPill() {
   }
   let total = 0;
   for (const sc of scenarios) {
-    const label = `${sc.tag ? sc.tag + ' | ' : ''}${sc.stacking ? 'Stacked ' : 'Standard'} | ${sc.collapseDepth === 99 ? 'expanded ' : 'collapsed'} | zoom ${sc.zoom.toFixed(2)}`;
+    const mName = sc.mode || (sc.stacking ? 'stacked' : 'standard');
+    const label = `${sc.tag ? sc.tag + ' | ' : ''}${mName.padEnd(8)} | ${sc.collapseDepth === 99 ? 'expanded ' : 'collapsed'} | zoom ${sc.zoom.toFixed(2)}`;
     const r = await runScenario(sc, values);
     total += r.issues.length;
     console.log(`${r.issues.length ? '✗' : '✓'} ${label} | ${r.nodes} cards, ${r.links} links, ${r.stackedTeams} stacked teams${r.issues.length ? ` | ${r.issues.length} issues` : ''}`);

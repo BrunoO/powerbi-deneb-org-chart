@@ -32,7 +32,7 @@ The goal is to cleanly visualize organizations with 1,000+ employees—with zero
 - **Interactive Branch Collapse & Expand**: Click **`−`** on any manager card to collapse their team, or **`+N`** to expand it again. The clicked node stays pinned exactly where it is (pan compensates for the re-layout); drag, Fit, reset, Collapse All, or clicking any card to release it.
 - **Floating Toolbar & Live Summary**:
   - **`⤢ Expand All`** / **`⤡ Collapse All`** for instant tree-wide control. Double-click any card to zoom-to-fit and center its branch. **`Filter: All`** floating pill cycles distinct `Extra 2` values, keeping only matches plus their management chain (hides automatically when `Extra 2` is unmapped).
-  - **`☵ Standard` / `☷ Stacked`** toggle (starts stacked) to switch between the standard horizontal tree and compact 2-column stacking for large individual-contributor teams (`> 6` direct reports, none of whom manage anyone). Stacked teams hang off a central spine from their **real manager**, so every connector always points to the correct boss.
+  - **`☵ Standard` / `⊞ Compact`** toggle (starts in `Compact`) to switch between the standard horizontal tree and `Compact` mode—which scales large leaf teams (`> 6` direct reports) up to 2/4/6/8 columns *and* pairs wide horizontal bands onto 2 alternating sub-rows (~50% width). Stacked teams hang off a central spine from their **real manager**, so every connector always points to the correct boss.
   - **`[ − | Reset (100%) | + | Fit ]`** zoom controls, plus cursor-anchored mouse-wheel zoom, drag-anywhere panning, double-click canvas background to reset, and touch pinch-to-zoom.
   - **Live Summary Pill** showing total headcount and hierarchy depth (e.g., `👥 85 People · 7 Levels`).
 - **On-Canvas Gesture Hint**: A subtle caption under the toolbar reminds viewers of the essentials — click card to focus, double-click card to center branch, double-click canvas to reset (dynamically updates when in Branch Focus Mode).
@@ -42,7 +42,7 @@ The goal is to cleanly visualize organizations with 1,000+ employees—with zero
 
 ## 📁 Files
 
-- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.9.6`) to paste into Deneb in Power BI.
+- [`deneb-org-chart.json`](./deneb-org-chart.json): Ready-to-use Vega 5 specification (`v1.10.0`) to paste into Deneb in Power BI.
 - [`sample-org-data.csv`](./sample-org-data.csv): Sample dataset (85 employees across 7 levels) that exercises every layout edge case: a 12-person executive team, leaf-only teams that stack (even and odd sizes, side-by-side, at Level 6), a large *mixed* team of managers and engineers (stays horizontal), a team exactly at the threshold, IDs that cross digit boundaries (`17` vs `100` vs `1000`) in shuffled input order, and `Extra 2` office cohorts (`Paris`/`London`/`New York`) scattered across teams to exercise filtering.
 - [`preview.html`](./preview.html) & [`index.html`](./index.html): Standalone HTML preview for testing in any browser (no Power BI needed; requires internet for the Vega CDN).
 - [`tools/verify-layout.js`](./tools/verify-layout.js): Automated layout checker (see [Development](#-development--layout-verification)).
@@ -101,7 +101,7 @@ Settings live in the `signals` block at the top of the pasted spec. Exact steps:
 
 Common recipes:
 - **Start fully expanded:** `"name": "defaultCollapseDepth", "value": 1` → `"value": 99`.
-- **Start in the standard horizontal tree:** `"name": "enableStacking", "value": true` → `"value": false` (stacked 2-column mode is now the default).
+- **Start in the standard horizontal tree:** `"name": "layoutMode", "value": "compact"` → `"value": "standard"`.
 - **Show employee IDs in tooltips:** `"name": "showIdInTooltip", "value": false` → `"value": true` (keep `false`: IDs can be confidential).
 - **Stack smaller teams too:** `"name": "gridThreshold", "value": 6` → `"value": 4`, for example.
 
@@ -122,7 +122,7 @@ You can adjust default behavior by editing the `signals` block at the top of [`d
 | Setting | Default | What It Controls |
 | :--- | :---: | :--- |
 | **`defaultCollapseDepth`** | `1` | Levels shown on initial load (`1` = CEO + Level-1 VPs; `2` = down to Directors; `99` = expand all). |
-| **`enableStacking`** | `true` | Set to `false` to start in the standard horizontal tree. Users can also toggle live in the toolbar (`☵ Standard` / `☷ Stacked`). |
+| **`layoutMode`** | `'compact'` | Starting layout mode (`'standard'` or `'compact'`). Users can toggle live in the toolbar (`☵ Standard` / `⊞ Compact`). |
 | **`gridThreshold`** | `6` | A team stacks into 2 columns when it has more direct reports than this **and none of them are managers** (mixed teams stay horizontal so peers never share a row with a colleague's reports). |
 | **`stackMinDepth`** | `2` | Keeps top executives (Level 1) horizontal even when stacking is enabled. |
 | **`zoomLevel`** | `1.0` | Starting zoom level (`0.4` to `1.6`). |
@@ -152,7 +152,7 @@ Check these before publishing — the visual sanitizes sloppy inputs where it ca
 
 ## 🧪 Development & Layout Verification
 
-The repository ships a headless checker that renders the spec with Vega in Standard and Stacked mode (collapsed, fully expanded, and at several zoom levels) and fails if the chart becomes ambiguous:
+The repository ships a headless checker that renders the spec with Vega in Standard and Compact modes (collapsed, fully expanded, and at several zoom levels, including 50-report stress tests) and fails if the chart becomes ambiguous:
 
 - every connector must go from an employee's **real manager** to the employee (no peer-to-peer chains), and every visible reporting line must be drawn exactly once;
 - no connector may pass through an unrelated card, no two managers' connector segments may overlap, and no cards may overlap;
