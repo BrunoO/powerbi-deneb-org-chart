@@ -473,7 +473,7 @@
       "on": [
         {
           "events": "@toggleBtn:click, @toggleText:click",
-          "update": "(datum.reportCount > 0 && (!didPan || !downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride ? (datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, '\\u001F' + datum.id + '\\u001F') >= 0 ? replace(expandedIds, '\\u001F' + datum.id + '\\u001F', '\\u001F') : (accordionMode ? ('\\u001F' + join(datum.ancList, '\\u001F') + '\\u001F') : (expandedIds + datum.id + '\\u001F'))) : (accordionMode && datum.isCollapsed ? '\\u001F' : expandedIds)) : expandedIds) : expandedIds"
+          "update": "(datum.reportCount > 0 && (!didPan || !downXY || (abs(xy()[0] - downXY[0]) < 4 && abs(xy()[1] - downXY[1]) < 4))) ? (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth ? (indexof(expandedIds, '\\u001F' + datum.id + '\\u001F') >= 0 ? replace(expandedIds, '\\u001F' + datum.id + '\\u001F', '\\u001F') : (accordionMode ? ('\\u001F' + join(datum.ancList, '\\u001F') + '\\u001F') : (expandedIds + datum.id + '\\u001F'))) : expandedIds) : expandedIds"
         },
         {
           "events": "@collapseAllBtn:click, @collapseAllText:click",

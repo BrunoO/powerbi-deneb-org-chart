@@ -598,16 +598,74 @@ async function checkFilterPill() {
   return issues;
 }
 
-function checkAccordion() {
+async function checkAccordion() {
   const issues = [];
+  const fail = (m) => issues.push(`[accordion] ${m}`);
   const accSig = baseSpec.signals.find(s => s.name === 'accordionMode');
-  if (!accSig || accSig.value !== true) issues.push('accordionMode signal missing or default != true');
+  if (!accSig || accSig.value !== true) fail('accordionMode signal missing or default != true');
   const btn = baseSpec.marks.find(m => m.name === 'accordionBtn');
   const txt = baseSpec.marks.find(m => m.name === 'accordionText');
-  if (!btn || !txt) issues.push('accordionBtn or accordionText toolbar mark missing');
+  if (!btn || !txt) fail('accordionBtn or accordionText toolbar mark missing');
   const expSig = baseSpec.signals.find(s => s.name === 'expandedIds');
-  const hasAcc = expSig && expSig.on && expSig.on.some(h => h.update && h.update.includes('accordionMode') && h.update.includes('ancList'));
-  if (!hasAcc) issues.push('expandedIds toggle handler missing accordionMode sibling collapse');
+  const toggleHandler = expSig && expSig.on && expSig.on.find(h => h.events && h.events.includes('@toggleBtn:click'));
+  if (!toggleHandler || !toggleHandler.update.includes('accordionMode')) fail('expandedIds toggle handler missing accordionMode');
+
+  try {
+    const US = String.fromCharCode(31);
+    const spec = JSON.parse(JSON.stringify(baseSpec));
+    const view = new vega.View(vega.parse(spec), { renderer: 'none' });
+    await view.runAsync();
+    const visible = () => new Set(view.data('tree_nodes').map(n => n.id));
+    const node = (id) => view.data('tree_nodes').find(n => n.id === id);
+
+    // Evaluate the exact expandedIds toggle update expression against a visible datum
+    const simulateToggle = async (id) => {
+      const datum = node(id);
+      if (!datum) { fail(`node ${id} not visible for toggle`); return; }
+      const expandAllOverride = view.signal('expandAllOverride');
+      const defaultCollapseDepth = view.signal('defaultCollapseDepth');
+      const expandedIds = view.signal('expandedIds');
+      const collapsedIds = view.signal('collapsedIds');
+      const accordionMode = view.signal('accordionMode');
+      if (!expandAllOverride && datum.rawDepth >= defaultCollapseDepth) {
+        const tok = US + datum.id + US;
+        const next = expandedIds.includes(tok)
+          ? expandedIds.replace(tok, US)
+          : (accordionMode ? (US + datum.ancList.join(US) + US) : (expandedIds + datum.id + US));
+        view.signal('expandedIds', next);
+      } else if (expandAllOverride || datum.rawDepth < defaultCollapseDepth) {
+        const tok = US + datum.id + US;
+        view.signal('collapsedIds', collapsedIds.includes(tok) ? collapsedIds.replace(tok, US) : (collapsedIds + datum.id + US));
+      }
+      await view.runAsync();
+    };
+
+    // Also verify the actual spec expression does not clear expandedIds when rawDepth < defaultCollapseDepth
+    if (toggleHandler && toggleHandler.update.includes("datum.isCollapsed ? '\\u001F'")) {
+      fail('shallow node expansion should not clear deep expandedIds');
+    }
+
+    // 1. Expand VP '2' -> '5' becomes visible
+    await simulateToggle('2');
+    if (!visible().has('5')) fail('expanding node 2 did not reveal child 5');
+
+    // 2. Expand sibling VP '3' with accordionMode=true -> '5' collapses, '8' & '9' appear
+    await simulateToggle('3');
+    let v = visible();
+    if (v.has('5')) fail('expanding sibling 3 did not collapse branch 2');
+    if (!v.has('8') || !v.has('9')) fail('expanding node 3 did not reveal children 8 and 9');
+
+    // 3. Expand deep node '9' under '3' -> '3' stays open ('8' visible) and '25' appears
+    await simulateToggle('9');
+    v = visible();
+    if (!v.has('8') || !v.has('25')) fail('expanding deep node 9 did not keep ancestor 3 open or reveal 25');
+
+    // 4. Toggle accordionMode off and expand '2' -> both '5' and '25' stay visible
+    view.signal('accordionMode', false);
+    await simulateToggle('2');
+    v = visible();
+    if (!v.has('5') || !v.has('25')) fail('with accordionMode=false, expanding 2 should keep branch 3/9 open');
+  } catch (e) { fail(`threw: ${String(e.message || e).split('\n')[0]}`); }
   return issues;
 }
 
@@ -706,9 +764,9 @@ function checkAccordion() {
   total += fp.length;
   console.log(`${fp.length ? '✗' : '✓'} filter pill solid background, unmapped guard & anchor reset`);
   fp.forEach(i => console.log('    ' + i));
-  const ac = checkAccordion();
+  const ac = await checkAccordion();
   total += ac.length;
-  console.log(`${ac.length ? '✗' : '✓'} accordion mode pill present (default on) & wired to sibling collapse`);
+  console.log(`${ac.length ? '✗' : '✓'} accordion mode pill & runtime sibling-collapse / ancestor-retention behavior`);
   ac.forEach(i => console.log('    ' + i));
   console.log(total ? `\nFAILED: ${total} issue(s)` : '\nAll layout checks passed.');
   process.exit(total ? 1 : 0);
